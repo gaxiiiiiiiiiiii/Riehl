@@ -2,7 +2,7 @@
 
 ## プロジェクトの目的
 
-Emily Riehl, *Category Theory in Context* を読むための個人的な Lean プロジェクトです。ユーザー自身が Lean で定義と定理を再現しながら読み進めることが目的で、対象範囲は 1.5 と第2章〜第4章です。
+Emily Riehl, *Category Theory in Context* を読むための個人的な Lean プロジェクトです。ユーザー自身が Lean で定義と定理を再現しながら読み進めることが目的で、対象範囲は 1.5、1.7 と第2章〜第4章です。
 
 エージェントの主な役割は、演習ファイルを用意すること、および Mathlib・Lean・数学概念についての質問に答えることです。ユーザーの学習過程を置き換えるために、証明を先回りして完成させないでください。
 
@@ -19,7 +19,7 @@ Emily Riehl, *Category Theory in Context* を読むための個人的な Lean �
 1節につき1ファイルとし、章ごとにディレクトリを分けます。
 
 ```
-Riehl/Ch1_Categories/     -- 1.5 のみ
+Riehl/Ch1_Categories/     -- 1.5, 1.7
 Riehl/Ch2_Yoneda/         -- 2.1-2.4
 Riehl/Ch3_Limits/         -- 3.1-3.8
 Riehl/Ch4_Adjunctions/    -- 4.1-4.7
@@ -45,9 +45,10 @@ Riehl/Ch4_Adjunctions/    -- 4.1-4.7
 
 ## 章ごとの決定事項
 
-- **1.5** — 本の定義（F, G, η, ε のみ、三角等式なし）を `myEquivalence` として自前で定義する。Mathlib の `CategoryTheory.Equivalence` は三角等式込みなので、その差をコメントで明記する。定理1.5.9 は両向きを演習にする
+- **1.5** — 本の定義（F, G, η, ε のみ、三角等式なし）を `MyEquivalence` として自前で定義する。Mathlib の `CategoryTheory.Equivalence` は三角等式込みなので、その差をコメントで明記する。定理1.5.9 は両向きを演習にする
+- **1.7** — 本来の対象範囲外だが、whiskering（注意1.7.6）が 3.1 の錐の押し出しと 4.1-4.3 の三角等式で必要になるため入れる。縦合成・水平合成・whiskering は `my` で始まる名前で自前に組み直す。この節の `my` 定義は data 部分を書いて proof obligation（`naturality` など）だけを `sorry` にする。補題1.7.1・1.7.4 の数学的内容が自然性の証明そのものだから。定義1.7.8 の 2-圏は結合律・単位律を等式で課す strict なもので、Mathlib の `Bicategory` は同型で持つ弱い版。対応は `Bicategory` + `Bicategory.Strict` と注記する。演習1.7.v は 1.5 の `MyEquivalence.trans` と同じ主張だが、本文が「Prove (again)」と書き脚注43 が両者を結んでいるので両方載せる。1.7 側は `MyEquivalence` に依存させず、F, G, η, ε を仮定に展開した自己完結形にする
 - **4.3** — 上の三角等式の差はここで回収する。命題4.3.5 の演習は `CategoryTheory.Equivalence.adjointifyη` の再現
-- **3.7** — 補題3.7.1 は通常の演習にする。small / large / locally small の語彙は Mathlib では universe と `Small` 系のクラスに化けるので、`Mathlib.CategoryTheory.EssentiallySmall` の `LocallySmall`・`EssentiallySmall`・`ShrinkHoms` を Recap で対応づける。命題3.7.3（Freyd）は Mathlib に対応物がなく証明も重いので、statement だけを注記つきで置く
+- **3.7** — 補題3.7.1 は通常の演習にする。small / large / locally small の語彙は Mathlib では universe と `Small` 系のクラスに化けるので、`Mathlib.CategoryTheory.EssentiallySmall` の `LocallySmall`・`EssentiallySmall`・`ShrinkHoms` を Recap で対応づける（`LocallySmall` は注意1.7.3 のために 1.7 の Recap にも写してある）。命題3.7.3（Freyd）は Mathlib に対応物がなく証明も重いので、statement だけを注記つきで置く
 
 ## 証明コードを書かない原則
 

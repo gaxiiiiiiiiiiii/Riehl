@@ -89,16 +89,15 @@ def myNatTransId (F : C ⥤ D) : NatTrans F F where
   app X := 𝟙 (F.obj X)
   naturality := sorry
 
--- 2. 補題1.7.1（縦合成）。成分ごとの合成が自然変換になることを示す。本文の証明は2つの自然性
---    四角形を横に並べて長方形にする図式追跡。
+-- 2. 補題1.7.1（縦合成）。成分ごとの合成が再び自然変換になることを示す。
 #check @CategoryTheory.NatTrans.vcomp
 
 def myVcomp {F G H : C ⥤ D} (α : NatTrans F G) (β : NatTrans G H) : NatTrans F H where
   app X := α.app X ≫ β.app X
   naturality := sorry
 
--- 3. 系1.7.2。関手と自然変換が圏 `D^C` をなすことを示す。本文の言葉では「縦合成が結合的かつ
---    単位的であることを成分ごとに確かめれば済む」。
+-- 3. 系1.7.2。関手と自然変換が圏 `D^C` をなすことを示す。データは 1 と 2 で作ってあるので、
+--    残るのは縦合成の結合律と単位律。
 #check @CategoryTheory.Functor.category
 
 set_option warn.classDefReducibility false in
@@ -111,8 +110,7 @@ def myFunctorCategory : Category.{max u₂ v₃} (C ⥤ D) where
   assoc := sorry
 
 -- 4. 演習1.7.i（注意1.7.3）。`C` が小さく `D` が locally small なら関手圏 `C ⥤ D` も
---    locally small。本のヒントは、自然変換をその成分の族へ送る写像が単射であること。
---    Mathlib の対応物は `Mathlib/CategoryTheory/EssentiallySmall.lean` 末尾の無名 instance で、
+--    locally small。Mathlib の対応物は `EssentiallySmall.lean` 末尾の無名 instance で、
 --    名前がないため `#check` は class 本体を指す。
 #check @CategoryTheory.LocallySmall
 
@@ -128,8 +126,8 @@ example (S : Type w) [SmallCategory S] [LocallySmall.{w} D] : LocallySmall.{w} (
 theorem my_hcomp_square {F G : C ⥤ D} {J K : D ⥤ E} (α : NatTrans F G) (γ : NatTrans J K)
     (X : C) : J.map (α.app X) ≫ γ.app (G.obj X) = γ.app (F.obj X) ≫ K.map (α.app X) := sorry
 
--- 6. 補題1.7.4。水平合成 `γ ∗ α : JF ⇒ KG` を作る。ここでは 5 の左回りを成分に取る。
---    Mathlib の `hcomp` は右回りを成分に取っているので、定義そのものは一致しない。
+-- 6. 補題1.7.4。水平合成 `γ ∗ α : JF ⇒ KG` を作る。成分には 5 の等式の左辺を取る。
+--    Mathlib の `hcomp` は右辺のほうを成分に取っているので、定義式そのものは一致しない。
 #check @CategoryTheory.NatTrans.hcomp
 
 def myHcomp {F G : C ⥤ D} {J K : D ⥤ E} (α : NatTrans F G) (γ : NatTrans J K) :
@@ -155,8 +153,8 @@ def myWhiskerLeft (I : B ⥤ C) {F G : C ⥤ D} (α : NatTrans F G) :
   app X := α.app (I.obj X)
   naturality := sorry
 
--- 9. 演習1.7.ii。水平合成を縦合成と whiskering で書き直す。5 の四角形の2つの道が、それぞれ
---    右の書き換えに対応する。
+-- 9. 演習1.7.ii。水平合成を縦合成と whiskering で書き直す。5 の四角形の2つの道が、下の2通りの
+--    書き換えに対応する。
 #check @CategoryTheory.Functor.NatTrans.hcomp_eq_whiskerLeft_comp_whiskerRight
 
 example {F G : C ⥤ D} {J K : D ⥤ E} (α : NatTrans F G) (γ : NatTrans J K) :
@@ -177,7 +175,6 @@ example {F G H : C ⥤ D} {J K L : D ⥤ E} (α : NatTrans F G) (β : NatTrans G
 
 -- 11. 定義1.7.8。本の2-圏は1-射の結合律・単位律を等式で課すので、Mathlib では `Bicategory` と
 --     `Bicategory.Strict` を合わせたものに当たる。`Cat` が strict であることを示す。
---     証明は associator と unitor がすべて恒等であることを見るだけ。
 #check @CategoryTheory.Bicategory
 #check @CategoryTheory.Bicategory.Strict
 #check @CategoryTheory.Cat.bicategory
@@ -187,18 +184,16 @@ example : Bicategory.Strict Cat.{v₂, u₂} := sorry
 
 -- ── Part D: 節末問題 ────────────────────────────────────────────────────────
 
--- 12. 演習1.7.iv。恒等関手の自己自然変換の全体が可換モノイド（圏の中心）をなすことを示す。
---     可換性だけが非自明で、`β` の成分に対する `α` の自然性から出る。
+-- 12. 演習1.7.iv。恒等関手の自己自然変換の全体は可換モノイドをなし、圏の中心と呼ばれる。
+--     モノイド構造は縦合成なので、非自明なのは可換性だけ。
 #check @CategoryTheory.CatCenter
 #check @CategoryTheory.NatTrans.id_comm
 
 example (α β : 𝟭 C ⟶ 𝟭 C) : α ≫ β = β ≫ α := sorry
 
--- 13. 演習1.7.v。同値 `C ≃ D`、`D ≃ E` を与える関手と自然同型から、合成同値を定める2つの
---     自然同型を作る。定義1.5.4 と同じデータを仮定に展開して置いている。
---     同じ主張は補題1.5.5 として `Equivalence.lean` の `MyEquivalence.trans` にもあるが、
---     そちらは定理1.5.9 経由の証明（演習1.5.vi(ii)）で、こちらは whiskering による別証明。
---     本文の脚注43 が両者の関係を述べている。
+-- 13. 演習1.7.v。同値 `C ≃ D`、`D ≃ E` を与えるデータ（定義1.5.4）から、合成同値を定める
+--     2つの自然同型を作る。同じ主張が `Equivalence.lean` の `MyEquivalence.trans`
+--     （補題1.5.5・演習1.5.vi(ii)）にもあり、脚注43 のとおりこちらはその別証明にあたる。
 #check @CategoryTheory.Equivalence.trans
 
 example (F : C ⥤ D) (G : D ⥤ C) (F' : D ⥤ E) (G' : E ⥤ D)
@@ -222,10 +217,10 @@ example : (C ⥤ D ⥤ E) ≃ (C × D ⥤ E) := sorry
 
 example : (D ⥤ C ⥤ E) ≃ (C × D ⥤ E) := sorry
 
--- 16. 演習1.7.vii。定義1.3.13 の hom 双関手 `C^op × C ⥤ Set` を 14 の視点で見ると、
---     curry したものが例1.4.9 の関手の族、すなわち `coyoneda` になる。系2.2.8（米田埋め込み）の
---     予告にあたる。Mathlib は `coyoneda` を `yoneda.flip` として直接定義しており、
---     hom 双関手の curry と結ぶ補題は置いていないので、ここでは同型として述べる。
+-- 16. 演習1.7.vii。定義1.3.13 の hom 双関手 `C^op × C ⥤ Set` を 14 の視点で見ると、curry した
+--     ものが例1.4.9 の関手の族 `coyoneda` になる。系2.2.8（米田埋め込み）の予告にあたる。
+--     Mathlib は `coyoneda` を `yoneda.flip` として定義しており、hom 双関手の curry と結ぶ
+--     補題は置いていないので、ここでは同型として述べる。
 #check @CategoryTheory.Functor.hom
 #check @CategoryTheory.coyoneda
 
