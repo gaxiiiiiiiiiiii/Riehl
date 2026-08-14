@@ -28,7 +28,8 @@ import Mathlib.Data.List.TFAE
 -- 参照した Mathlib:
 --   Mathlib/CategoryTheory/Equivalence.lean       -- Equivalence, Functor.IsEquivalence
 --   Mathlib/CategoryTheory/Functor/FullyFaithful.lean -- Functor.Full, Functor.Faithful
---   Mathlib/CategoryTheory/EssentialImage.lean    -- Functor.EssSurj, Functor.essImage
+--   Mathlib/CategoryTheory/EssentialImage.lean    -- Functor.EssSurj, Functor.essImage,
+--                                                    Functor.objPreimage, objObjPreimageIso
 --   Mathlib/CategoryTheory/Functor/ReflectsIso/Basic.lean -- ReflectsIsomorphisms
 --   Mathlib/CategoryTheory/HomCongr.lean          -- Iso.homCongr
 --   Mathlib/CategoryTheory/Products/Basic.lean    -- 積圏、Prod.sectL
@@ -67,6 +68,37 @@ structure Iso {C : Type u₁} [Category.{v₁} C] (X Y : C) where
 -- Mathlib/CategoryTheory/Iso.lean より。逆射の存在だけを主張する Prop 版。演習1.5.iv で使う
 class IsIso {C : Type u₁} [Category.{v₁} C] {X Y : C} (f : X ⟶ Y) : Prop where
   out : ∃ inv : Y ⟶ X, f ≫ inv = 𝟙 X ∧ inv ≫ f = 𝟙 Y
+
+-- Mathlib/CategoryTheory/Iso.lean より（証明も原文のまま）。同型の hom は合成の
+-- 左から消去できる。定理1.5.9（忠実性）で使う。実際の演習では Mathlib のものを使う
+theorem Iso.cancel_iso_hom_left {C : Type u₁} [Category.{v₁} C] {X Y Z : C}
+    (f : X ≅ Y) (g g' : Y ⟶ Z) :
+    f.hom ≫ g = f.hom ≫ g' ↔ g = g' := by
+  simp only [cancel_epi]
+
+-- Mathlib/CategoryTheory/EssentialImage.lean より。essImage Y の証明は
+-- ∃ X, Nonempty (F.obj X ≅ Y) で、witness は Exists.choose でその X を選ぶ（選択公理）
+noncomputable def essImage.witness {C : Type u₁} [Category.{v₁} C] {D : Type u₂}
+    [Category.{v₂} D] {F : C ⥤ D} {Y : D} (h : F.essImage Y) : C :=
+  h.choose
+
+-- 同上。choose_spec の Nonempty (F.obj h.choose ≅ Y) から Classical.choice で同型を取り出す
+noncomputable def essImage.getIso {C : Type u₁} [Category.{v₁} C] {D : Type u₂}
+    [Category.{v₂} D] {F : C ⥤ D} {Y : D} (h : F.essImage Y) :
+    F.obj (essImage.witness h) ≅ Y :=
+  Classical.choice h.choose_spec
+
+-- 同上。EssSurj の証拠 mem_essImage F Y に witness を適用しただけ。定理1.5.9（逆方向）の
+-- G の対象部分がこれ。どの対象が返るかは選択公理まかせで、同型を除いてしか定まらない
+noncomputable def Functor.objPreimage {C : Type u₁} [Category.{v₁} C] {D : Type u₂}
+    [Category.{v₂} D] (F : C ⥤ D) [F.EssSurj] (Y : D) : C :=
+  essImage.witness (Functor.EssSurj.mem_essImage F Y)
+
+-- 同上。同じ証拠に getIso を適用し、選ばれた対象と Y の間の同型 F (objPreimage Y) ≅ Y を得る
+noncomputable def Functor.objObjPreimageIso {C : Type u₁} [Category.{v₁} C] {D : Type u₂}
+    [Category.{v₂} D] (F : C ⥤ D) [F.EssSurj] (Y : D) :
+    F.obj (Functor.objPreimage F Y) ≅ Y :=
+  essImage.getIso (Functor.EssSurj.mem_essImage F Y)
 
 -- Mathlib/CategoryTheory/Products/Basic.lean より。対象 Z を固定した積圏への切断。
 -- 補題1.5.1 の i₀, i₁ は sectL C 0, sectL C 1
