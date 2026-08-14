@@ -34,6 +34,7 @@ import Mathlib.Tactic.FinCases
   - `Mathlib/CategoryTheory/Functor/FullyFaithful.lean`（`Full`・`Faithful`・`FullyFaithful`）
   - `Mathlib/CategoryTheory/EssentialImage.lean`（`essImage`・`EssSurj`）
   - `Mathlib/CategoryTheory/Skeletal.lean`（`Skeletal`・`Skeleton`・`skeletonEquivalence`）
+  - `Mathlib/CategoryTheory/InducedCategory.lean`（`InducedCategory`・`inducedFunctor`）
   - `Mathlib/CategoryTheory/SingleObj.lean`（`SingleObj`）
 -/
 
@@ -207,6 +208,13 @@ example {X Y Z : C} (f f' : X ⟶ Y) (g : Y ≅ Z) :
   constructor<;> intro H; swap; subst H; rfl
   rw [<- Category.comp_id f, <- g.hom_inv_id, <- Category.assoc, H]
   rw [Category.assoc, g.hom_inv_id]; simp
+
+-- 左からの消去の `inv` 版。補題1.5.10 の図式3 で使う。
+#check @CategoryTheory.Iso.cancel_iso_inv_left
+
+example {X Y Z : C} (g : Y ≅ Z) (f f' : Y ⟶ X) :
+    g.inv ≫ f = g.inv ≫ f' ↔ f = f' := by
+  sorry
 
 
 -- 自然同型 `α : F ≅ G` から `Iso.app` で取り出した各点の同型の `hom` は、`α.hom` の成分と
@@ -556,6 +564,52 @@ noncomputable instance (C : Type u₁) [Category.{v₁} C] : Category (Skeleton 
 -- 骨格から元の圏への包含。充満・忠実・本質的全射のインスタンスが Mathlib に登録済み
 noncomputable def fromSkeleton (C : Type u₁) [Category.{v₁} C] : Skeleton C ⥤ C :=
   inducedFunctor _
+
+end Recap
+
+-- Recap: `InducedCategory` の実装確認。`Skeleton C` の射の実体がここで決まる。
+-- 射 `X ⟶ Y` は `D` の射 `F X ⟶ F Y` そのものではなく、それを包む 1-field structure
+-- （definitionally equal ではない）。構成は `homMk`、取り出しは `.hom`。演習では Mathlib のものを使う。
+#check @CategoryTheory.InducedCategory
+#check @CategoryTheory.InducedCategory.Hom
+#check @CategoryTheory.InducedCategory.homMk
+#check @CategoryTheory.InducedCategory.hom_ext
+#check @CategoryTheory.inducedFunctor
+
+-- Mathlib の変数名は C, D だが、ファイルレベルの C, D（Category つき）と衝突するため
+-- ここでは J（圏構造なしの型）, K（付け替え元の圏）に読み替えて写す。
+namespace Recap
+
+variable {J : Type u₁} (K : Type u₂) [Category.{v₂} K] (F : J → K)
+
+-- 対象は元の型 `J` そのもの（型シノニム）。付け替わるのは圏構造だけ
+def InducedCategory (_F : J → K) : Type u₁ := J
+
+namespace InducedCategory
+
+variable {K F}
+
+-- 射の実体。`F X ⟶ F Y` を1フィールドで包む structure で、`@[ext]` が等式を中身に落とす
+@[ext]
+structure Hom (X Y : InducedCategory K F) where
+  hom : F X ⟶ F Y
+
+-- 圏構造。恒等射と合成は包みの中でそのまま `K` のもの
+instance : Category.{v₂} (InducedCategory K F) where
+  Hom X Y := Hom X Y
+  id X := { hom := 𝟙 _ }
+  comp f g := { hom := f.hom ≫ g.hom }
+
+-- 元の圏の射から誘導圏の射を作る入口。Implementation notes が使用を指定している
+def homMk {X Y : InducedCategory K F} (f : F X ⟶ F Y) : X ⟶ Y where
+  hom := f
+
+end InducedCategory
+
+-- 忘却関手。`fromSkeleton` の実体で、`obj` は `F`、`map` は包みを外すだけ
+def inducedFunctor : InducedCategory K F ⥤ K where
+  obj := F
+  map f := f.hom
 
 end Recap
 
