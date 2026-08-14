@@ -1,4 +1,3 @@
-import Mathlib.CategoryTheory.Iso
 import Mathlib.CategoryTheory.Equivalence
 import Mathlib.CategoryTheory.Functor.FullyFaithful
 import Mathlib.CategoryTheory.EssentialImage
@@ -27,10 +26,9 @@ import Mathlib.Data.List.TFAE
 -- 演習1.7.v が自己完結形で再演する（脚注43）。essentially small の語彙は 3.7 で扱う。
 --
 -- 参照した Mathlib:
---   Mathlib/CategoryTheory/Iso.lean               -- Iso, IsIso, Iso.cancel_iso_hom_left
---   Mathlib/CategoryTheory/Equivalence.lean       -- Equivalence, IsEquivalence, inv, asEquivalence
+--   Mathlib/CategoryTheory/Equivalence.lean       -- Equivalence, Functor.IsEquivalence
 --   Mathlib/CategoryTheory/Functor/FullyFaithful.lean -- Functor.Full, Functor.Faithful
---   Mathlib/CategoryTheory/EssentialImage.lean    -- Functor.EssSurj, essImage, objPreimage
+--   Mathlib/CategoryTheory/EssentialImage.lean    -- Functor.EssSurj, Functor.essImage
 --   Mathlib/CategoryTheory/Functor/ReflectsIso/Basic.lean -- ReflectsIsomorphisms
 --   Mathlib/CategoryTheory/HomCongr.lean          -- Iso.homCongr
 --   Mathlib/CategoryTheory/Products/Basic.lean    -- 積圏、Prod.sectL
@@ -91,68 +89,6 @@ def SingleObj (_ : Type u₁) : Type := Unit
 
 -- Mathlib/CategoryTheory/Endomorphism.lean より。対象 X の自己同型群（群構造は Aut.group）
 def Aut {C : Type u₁} [Category.{v₁} C] (X : C) := X ≅ X
-
--- Mathlib/CategoryTheory/EssentialImage.lean より。F の essential image:F の像のある
--- 対象と同型な対象のなす D 上の述語（Mathlib の返り値型 ObjectProperty D は D → Prop の別名）
-def Functor.essImage {C : Type u₁} [Category.{v₁} C] {D : Type u₂} [Category.{v₂} D]
-    (F : C ⥤ D) (Y : D) : Prop :=
-  ∃ X : C, Nonempty (F.obj X ≅ Y)
-
--- 対象の選択:存在命題から Exists.choose（選択公理）で証人 X を取り出す。
--- どの X が選ばれるかはコントロールできない
-noncomputable def Functor.essImage.witness {C : Type u₁} [Category.{v₁} C] {D : Type u₂}
-    [Category.{v₂} D] {F : C ⥤ D} {Y : D} (h : Functor.essImage F Y) : C :=
-  h.choose
-
--- 同型の選択:choose_spec が与える Nonempty (F.obj h.choose ≅ Y) から
--- Classical.choice で同型を1つ取り出す
-noncomputable def Functor.essImage.getIso {C : Type u₁} [Category.{v₁} C] {D : Type u₂}
-    [Category.{v₂} D] {F : C ⥤ D} {Y : D} (h : Functor.essImage F Y) :
-    F.obj (Functor.essImage.witness h) ≅ Y :=
-  Classical.choice h.choose_spec
-
--- EssSurj F が各 Y に与える essImage の証拠に witness / getIso を適用したもの。
--- 定理1.5.9 逆方向の「各 d ∈ D について Gd ∈ C と ε_d : FGd ≅ d を選ぶ」（本文）がこの2つ
-noncomputable def Functor.objPreimage {C : Type u₁} [Category.{v₁} C] {D : Type u₂}
-    [Category.{v₂} D] (F : C ⥤ D) [F.EssSurj] (Y : D) : C :=
-  Functor.essImage.witness (CategoryTheory.Functor.EssSurj.mem_essImage F Y)
-
-noncomputable def Functor.objObjPreimageIso {C : Type u₁} [Category.{v₁} C] {D : Type u₂}
-    [Category.{v₂} D] (F : C ⥤ D) [F.EssSurj] (Y : D) :
-    F.obj (Functor.objPreimage F Y) ≅ Y :=
-  Functor.essImage.getIso (CategoryTheory.Functor.EssSurj.mem_essImage F Y)
-
--- 【ネタバレ注意】以下の2つは定理1.5.9 逆方向の Lean 版模範解答そのもの。
--- 逆方向の演習を自力で解くまでは読まないこと。
---
--- Mathlib/CategoryTheory/Equivalence.lean より。逆関手 G:対象は objPreimage で選び、
--- 射 ℓ : X ⟶ Y は ε_X.hom ≫ ℓ ≫ ε_Y.inv を F.preimage（充満性）で C に引き戻す。
--- 関手性の2証明は map_injective（忠実性）で F の像に移してから simp（本文の補題1.5.10
--- を2回使う議論に相当）。IsEquivalence の3条件は attribute [instance] で効いている。
--- @[implicit_reducible] は G(FX) = objPreimage (FX) などの定義展開を単一化に見せる
--- ための属性で、これがないと下の asEquivalence の自動証明が通らない
-@[implicit_reducible]
-noncomputable def Functor.inv {C : Type u₁} [Category.{v₁} C] {D : Type u₂}
-    [Category.{v₂} D] (F : C ⥤ D) [F.IsEquivalence] : D ⥤ C where
-  obj X := F.objPreimage X
-  map {X Y} f := F.preimage ((F.objObjPreimageIso X).hom ≫ f ≫ (F.objObjPreimageIso Y).inv)
-  map_id X := by apply F.map_injective; simp
-  map_comp {X Y Z} f g := by apply F.map_injective; simp
-
--- Mathlib/CategoryTheory/Equivalence.lean より。同値データの組み立て:余単位 ε は
--- objObjPreimageIso そのもの、単位 η_X は ε_{FX} : F(G(FX)) ≅ FX を preimageIso
--- （充満忠実性）で X ≅ G(FX) に引き戻して symm。各自然性は NatIso.ofComponents の
--- 第2引数、三角等式 functor_unitIso_comp は Equivalence の autoparam が自動処理する
--- （η の定義から F(η_X) = ε_{FX}⁻¹ なのでちょうど打ち消える）。
--- 原文の simp [inv] は、写しでは名前解決のため simp [Functor.inv] と書いた
-noncomputable def Functor.asEquivalence {C : Type u₁} [Category.{v₁} C] {D : Type u₂}
-    [Category.{v₂} D] (F : C ⥤ D) [F.IsEquivalence] : C ≌ D where
-  functor := F
-  inverse := Functor.inv F
-  unitIso := NatIso.ofComponents
-    (fun X => (F.preimageIso <| F.objObjPreimageIso <| F.obj X).symm)
-    (fun f => F.map_injective (by simp [Functor.inv]))
-  counitIso := NatIso.ofComponents (fun Y => F.objObjPreimageIso Y) (by simp [Functor.inv])
 
 end Recap
 
@@ -264,26 +200,8 @@ example (e : MyEquivalence C D) : myEssSurj e.F := sorry
 -- 定理1.5.9（逆方向） — 3条件を満たす関手は圏同値を定める。G の構成に選択公理を使う。
 -- Mathlib は IsEquivalence をこの3条件で「定義」し、同値データの構成が asEquivalence
 #check CategoryTheory.Functor.asEquivalence
-
--- G の対象部分の選択（各 d に Gd と ε_d : FGd ≅ d）を Mathlib で行うのが次の2つ。
--- 実装（Exists.choose と Classical.choice の適用）は Recap 末尾に写した
-#check CategoryTheory.Functor.objPreimage
-#check CategoryTheory.Functor.objObjPreimageIso
-
--- 同値データ全体（逆関手・単位・余単位）の組み立ては次の2つ。実装も Recap 末尾に
--- 写したが、この演習の Lean 版模範解答そのものなので、自力で解くまでは読まないこと
-#check CategoryTheory.Functor.inv
-
 example (F : C ⥤ D) (h₁ : myFull F) (h₂ : myFaithful F) (h₃ : myEssSurj F) :
     myDefinesEquivalence F := sorry
-
--- 本文の定理1.5.9 の証明は補題1.6.22（外側の長方形と片方の四角が可換で、m がモノ
--- （または f がエピ）なら残りの四角も可換）を参照する。1.6 は対象範囲外なので
--- ファイルは作らず、その同型への特殊化（同型は合成の左右から消去できる）の
--- Mathlib 版をここに示す。inv 版は cancel_iso_inv_left / _right、
--- モノ・エピの一般形は cancel_mono / cancel_epi
-#check CategoryTheory.Iso.cancel_iso_hom_left
-#check CategoryTheory.Iso.cancel_iso_hom_right
 
 -- ----------------------------------------------------------------------------
 -- 補題1.5.10 — 同型で移した射の一意な対応
