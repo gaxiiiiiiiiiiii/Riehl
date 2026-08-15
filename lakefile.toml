@@ -7,6 +7,7 @@ defaultTargets = ["Riehl"]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
 relaxedAutoImplicit = false
 weak.linter.mathlibStandardSet = true
+weak.linter.style.header = false # copyright ヘッダ要求は個人プロジェクトに適合しない（CLAUDE.md 参照）
 maxSynthPendingDepth = 3
 
 [[require]]
