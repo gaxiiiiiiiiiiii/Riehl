@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2.2 米田の補題 — Companion</title>
+<style>
+  :root {
+    --bg: #fdfcf9;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --accent: #8a4c14;
+    --line: #d8d3c8;
+    --code-bg: #f0ede5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1e22;
+      --fg: #e4e1da;
+      --muted: #9aa2ab;
+      --accent: #e0a468;
+      --line: #3a3f46;
+      --code-bg: #2a2d33;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Sans", "Noto Sans CJK JP", sans-serif;
+    line-height: 1.8;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.5rem; border-bottom: 2px solid var(--accent); padding-bottom: .4rem; }
+  h2 { font-size: 1.15rem; margin-top: 2.2rem; border-left: 4px solid var(--accent); padding-left: .6rem; }
+  p, li { font-size: .95rem; }
+  code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    background: var(--code-bg);
+    border-radius: 4px;
+    padding: .1em .35em;
+    font-size: .85em;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .9rem; }
+  th, td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--code-bg); }
+  .page { color: var(--muted); font-size: .85em; }
+  .table-wrap { overflow-x: auto; }
+  blockquote {
+    margin: 1rem 0; padding: .6rem 1rem;
+    border-left: 3px solid var(--line); color: var(--muted); font-size: .9rem;
+  }
+  ul { padding-left: 1.4rem; }
+  li { margin: .35rem 0; }
+</style>
+</head>
+<body>
+
+<h1>2.2 米田の補題 — Companion</h1>
+<p>本文 <span class="page">pp.59–66</span> を開く前に読む地図。演習ファイルは
+<code>Riehl/Ch2_Yoneda/Yoneda.lean</code>。</p>
+
+<h2>1. 記号表</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>記号</th><th>型・意味</th><th>Lean 側の対応物</th></tr>
+  <tr><td>C</td><td>locally small な圏</td>
+      <td><code>{C : Type u₁} [Category.{v₁} C]</code>。hom が <code>Type v₁</code> に収まることが局所小性の翻訳（注意1.7.3）</td></tr>
+  <tr><td>F : C → Set</td><td>集合値関手</td><td><code>F : C ⥤ Type v₁</code></td></tr>
+  <tr><td>C(c,−) : C → Set</td><td>c が表現する共変関手</td><td><code>coyoneda.obj (op c)</code></td></tr>
+  <tr><td>C(−,c) : Cᵒᵖ → Set</td><td>c が表現する反変関手</td><td><code>yoneda.obj c</code></td></tr>
+  <tr><td>Hom(C(c,−), F)</td><td>自然変換の集まり</td><td><code>coyoneda.obj (op c) ⟶ F</code></td></tr>
+  <tr><td>ev_id : Hom(C(c,−),F) → Fc</td><td>α ↦ α_c(id_c)、定理2.2.4 の全単射</td>
+      <td><code>fun α => α.app c (𝟙 c)</code>（<code>coyonedaEquiv</code> の順方向）</td></tr>
+  <tr><td>Ψ : Fc → Hom(C(c,−),F)</td><td>逆写像、式(2.2.5)</td>
+      <td>演習 <code>myΨ</code>（<code>coyonedaEquiv.symm</code> に相当）</td></tr>
+  <tr><td>よ : C ↪ Set^(Cᵒᵖ)</td><td>共変米田埋め込み c ↦ C(−,c)</td><td><code>yoneda</code></td></tr>
+  <tr><td>よ : Cᵒᵖ ↪ Set^C</td><td>反変米田埋め込み c ↦ C(c,−)</td>
+      <td><code>coyoneda</code>（Mathlib の実装は <code>yoneda.flip</code>。演習1.7.vii の「二変数関手の二つの化身」そのもの）</td></tr>
+  <tr><td>f₊ / f*</td><td>射 f の後合成・前合成が誘導する自然変換（例1.4.9）</td>
+      <td><code>yoneda.map f</code> / <code>coyoneda.map f.op</code></td></tr>
+  <tr><td>BG の G-set X</td><td>関手 BG → Set、同変写像はその間の自然変換</td>
+      <td><code>[MulAction G X]</code> と <code>G →[G] X</code>（<code>MulActionHom</code>）で翻訳</td></tr>
+  <tr><td>Mat_R</td><td>対象は正整数、射 m → n が n×m 行列の圏</td>
+      <td><code>Mat R</code>（対象は有限型、射 m ⟶ n は m×n 行列。転置の差は §4 参照）</td></tr>
+</table>
+</div>
+<p>記号「よ」は「米田」の頭文字のひらがな（脚注10）。</p>
+
+<h2>2. この節の物語</h2>
+<p><span class="page">p.59</span> エピグラフは Mac Lane の回想（和訳）:
+「米田はこの補題の起源をこう語るのを好んだ——1954〜55年頃、フランス滞在中の米田に、
+パリを訪れていた Mac Lane が北駅のカフェで面会を求め、話は米田の列車が発車するまで
+続いた。そのなかで Mac Lane はこの補題を知り、のちに命名した」。</p>
+<ul>
+  <li><span class="page">pp.59–60</span> 出発点は 2.1 の表現の理解:
+    「自然同型 C(c,−) ≅ F を定めるにはどんなデータが要るか」。問いはより一般の
+    自然変換 α : C(c,−) ⇒ F に広げられる。</li>
+  <li><span class="page">p.60</span> 例2.2.1（ω 上の図式）と例2.2.2（BG 上の G-set）が
+    ウォームアップ。読み方: 成分の族のうちどこが自由に選べて、自然性がどこを強制するかを
+    手で追う。</li>
+  <li><span class="page">p.61</span> 命題2.2.3 がウォームアップの結論:
+    G-同変写像 G → X は ϕ ↦ ϕ(e) で X の要素と一対一。</li>
+  <li><span class="page">p.61</span> 定理2.2.4（米田の補題）: ev_id が全単射で、
+    c と F の双方に自然。「C が locally small なだけでも Hom(C(c,−),F) が
+    実際に集合になる」という規模の注意も本文にある。</li>
+  <li><span class="page">pp.61–62</span> 全単射の証明。逆写像 Ψ の成分が自然性の四角形
+    （図式(2.2.6)）から強制されて式(2.2.5)に至る過程が核心。</li>
+  <li><span class="page">pp.62–63</span> 自然性の証明。関手方向（β : F ⇒ G）と
+    対象方向（f : c → d）の 2 枚の四角形に分かれる。</li>
+  <li><span class="page">pp.63–64</span> 注意2.2.7: C が small のとき C(c,−) は
+    評価関手 ev_c を表現する、という読み替えと、C × Set^C 上の自然同型としての定式化。
+    Set に収まらない場合の SET への言及。</li>
+  <li><span class="page">p.64</span> 系2.2.8（米田埋め込み）: よ は充満忠実。
+    証明は「f ↦ f* が ev_id の右逆」を見るだけ（演習1.1.i の手筋）。</li>
+  <li><span class="page">p.65</span> 例2.2.9（ob と mor）。読み方: 系2.2.8 を
+    「表現対象の間の射を数えて自然変換の在庫を調べる」使い方の見本として読む。</li>
+  <li><span class="page">pp.65–66</span> 締めは充満性の応用が二つ:
+    系2.2.10（行演算は行列の左乗算）と系2.2.11（Cayley の定理）。</li>
+  <li><span class="page">p.66</span> 節末問題 2.2.i–vii。</li>
+</ul>
+
+<h2>3. 演習ファイルの読み方</h2>
+<ul>
+  <li><b>Recap</b> — 本文に入る前に眺める。<code>yoneda</code>・<code>coyoneda</code>・
+    <code>MulActionHom</code>・<code>Preorder.smallCategory</code>（演習2.2.iii の
+    ω を圏にする instance）の Mathlib 実装の写し。</li>
+  <li><b>Part A（命題2.2.3）</b> — <span class="page">p.61</span> の命題2.2.3 まで
+    読んだら。ウォームアップの到達点で、Part B の縮図になっている。</li>
+  <li><b>Part B（定理2.2.4）</b> — <span class="page">p.61</span> の statement を
+    読んだ時点で <code>myΨ</code> に入れる（証明 pp.61–62 を読むのはその後でよい）。
+    自然性の 2 本は pp.62–63 の「Proof of naturality」と並走する。
+    末尾に注意2.2.7 の Mathlib 対応の注記のみ置いた。</li>
+  <li><b>Part C（系2.2.8）</b> — <span class="page">p.64</span> の系2.2.8 まで読んだら。
+    共変・反変 × 充満・忠実の 4 本。</li>
+  <li><b>Part D（系2.2.10・2.2.11）</b> — <span class="page">pp.65–66</span> の
+    二つの系まで読んだら。物語の「応用」パート。</li>
+  <li><b>Part E（節末問題）</b> — 節を読み終えてから。演習2.2.i は Part B と同じ分割の
+    鏡写し（yoneda 側）。2.2.iii は充満・忠実の 2 本のみ。2.2.ii・iv・v・vi・vii は
+    コメントのみ（理由は §4）。</li>
+</ul>
+
+<h2>4. 形式化のズレの背景</h2>
+<ul>
+  <li><b>Set の翻訳</b> — 本の「locally small な C 上の Set 値関手」は
+    <code>F : C ⥤ Type v₁</code>。注意2.2.7 の SET（集合とは限らない規模）は、
+    Mathlib では <code>uliftFunctor</code> で <code>Type (max u₁ v₁)</code> に
+    持ち上げて処理される（<code>coyonedaLemma : coyonedaPairing ≅ coyonedaEvaluation</code>）。
+    なお現行 Mathlib では <code>Type</code> 圏の hom は素の関数ではなく関数を包む構造体で、
+    関数を hom と見なすには <code>↾f</code>（<code>TypeCat.ofHom</code>）を使う
+    （Recap の <code>yoneda</code> に現れる）。要素への適用 <code>α.app c (𝟙 c)</code> は
+    coercion がそのまま通る。</li>
+  <li><b>定理2.2.4 の分割</b> — 本の主張（和訳）は「ev_id : Hom(C(c,−),F) → Fc は
+    全単射で、対応は c と F の双方に自然」。Mathlib は <code>coyonedaEquiv</code>
+    一本＋補題群にまとめるが、演習では (1) Ψ の構成 (2) 右逆 (3) 左逆
+    (4) F 方向の自然性 (5) c 方向の自然性 の 5 本に分割した。規約「構成と性質に分ける」
+    に加え、本の証明の分割（全単射 → 自然性）に一致させるため。</li>
+  <li><b><code>myΨ</code> の sorry 範囲（この節の決定）</b> — data ごと丸ごと
+    <code>sorry</code> にする（Ψ 方式）。補題の核心が「自然性が成分の式を強制する」
+    過程そのもので、式(2.2.5)を書き渡すと演習が消えるため。1.7 の
+    「data は渡して naturality だけ sorry」とは逆の選択。</li>
+  <li><b>命題2.2.3</b> — 本の主張（和訳）は「G-同変写像 G → X は、ϕ を ϕ(e) に送る
+    写像を介して X の要素と全単射で対応する」。どの写像が全単射かまで主張に含めるため、
+    <code>Equiv</code> ではなく <code>Function.Bijective (fun ϕ => ϕ 1)</code> で述べた。
+    Mathlib の対応物 <code>MulActionHom.End.equivMulOpposite</code> は X = M
+    （モノイド一般）の特殊形で、値が反対モノイド Mᵐᵒᵖ に落ちる。</li>
+  <li><b>系2.2.8</b> — 「full and faithful embeddings」を、共変・反変 × 充満・忠実の
+    4 つの結論に分けて置いた。</li>
+  <li><b>系2.2.10</b> — Mathlib の <code>Mat R</code> は対象が有限型・射 m ⟶ n が
+    m×n 行列で、本の Mat_R（対象は正整数・射 m → n が n×m 行列）の転置。よって本の
+    「行演算＝左乗算」は「列演算＝右乗算」の形で形式化した。「単位行列に演算を施した
+    行列」は <code>α.app (op n) (𝟙 n)</code> が受け持つ。この statement 自体の
+    Mathlib 対応物はない。</li>
+  <li><b>系2.2.11</b> — 「任意の群は置換群の部分群と同型」を存在文
+    <code>∃ X H, Nonempty (G ≃* H)</code> に言い換えた。Mathlib の
+    <code>Equiv.Perm.subgroupOfMulAction</code> は忠実な作用一般への一般化
+    （X = G が本の場合）。</li>
+  <li><b>演習2.2.iii</b> — ω は ℕ の順序圏（<code>Preorder.smallCategory</code>）で、
+    hom は <code>ULift (PLift (k ≤ n))</code> に化ける。statement が暗黙に使う
+    この instance は冒頭 Recap に写した（二重登録を避けるため <code>def</code> として）。「ωᵒᵖ 添字の族として記述する」
+    前半は形式化せず、充満・忠実の後半のみ置いた。Mathlib には一般の系2.2.8 の
+    インスタンスしかない（本問は ω への特殊化を直接証明で求める）。</li>
+  <li><b>コメントのみの節末問題</b> — 2.2.ii・2.2.vi は説明問題。2.2.v・2.2.vii は
+    特徴づけの主張の形自体が答えの一部になる（演習1.5.vii と同じ扱い）。2.2.iv は
+    walking isomorphism の圏 I が Mathlib になく、「表現対象の間の関手が自然変換を
+    誘導する」構図の再現も重い。</li>
+</ul>
+
+<h2>5. 次節への接続</h2>
+<ul>
+  <li><b>2.3 普遍性と普遍要素</b> — 冒頭が逆向きの問い「表現可能な同型から対象の同型を
+    取り出せるか」で開き、米田の補題がその往復を与える。充満性の第三の応用として
+    命題2.3.10 が予告されている（p.65）。</li>
+  <li><b>2.4 要素の圏</b> — category of elements のもう一つの定義を米田の補題が供給する。</li>
+  <li><b>3章 極限</b> — 錐・極限は表現可能性の言葉で定義され（3.1–3.2）、
+    <code>yoneda</code>・<code>coyoneda</code> と系2.2.8 の充満忠実性が土台になる。</li>
+  <li><b>4章 随伴</b> — 随伴の unit・counit の対応や随伴関手の一意性（4.2 以降）は
+    米田埋め込みの充満忠実性で回る。</li>
+</ul>
+
+</body>
+</html>
