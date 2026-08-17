@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2.2 米田の補題</title>
+<style>
+  :root {
+    --bg: #fdfcf9;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --accent: #8a4c14;
+    --line: #d8d3c8;
+    --box-bg: #f5f2ea;
+    --code-bg: #f0ede5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1e22;
+      --fg: #e4e1da;
+      --muted: #9aa2ab;
+      --accent: #e0a468;
+      --line: #3a3f46;
+      --box-bg: #24262b;
+      --code-bg: #2a2d33;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    line-height: 1.95;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.5rem; font-family: "Hiragino Sans", sans-serif; border-bottom: 2px solid var(--accent); padding-bottom: .4rem; }
+  h2 { font-size: 1.12rem; font-family: "Hiragino Sans", sans-serif; color: var(--accent); margin-top: 2.6rem; }
+  p { margin: .9rem 0; font-size: .97rem; }
+  li { font-size: .97rem; margin: .4rem 0; }
+  .note { color: var(--muted); font-size: .88em; }
+  .thm {
+    background: var(--box-bg);
+    border-left: 3px solid var(--accent);
+    padding: .7rem 1.1rem;
+    margin: 1.2rem 0;
+  }
+  .thm b { font-family: "Hiragino Sans", sans-serif; }
+  .proof-head { font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .qed { float: right; }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
+  blockquote {
+    margin: 1.2rem 0; padding: .5rem 1.1rem;
+    border-left: 3px solid var(--line); color: var(--muted); font-size: .92rem;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--box-bg); font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+  em.m { font-style: italic; }
+</style>
+</head>
+<body>
+
+<h1>2.2 米田の補題</h1>
+
+<p class="note">Emily Riehl, <i>Category Theory in Context</i> §2.2（pp.59–66）の内容を、個人学習のために日本語で書き直した解説。番号（定理2.2.4 など）は本と揃えてある。翻訳ではなく、同じ内容を自分の言葉で再構成したもの。</p>
+
+<blockquote>Mac Lane の回想（和訳）——「米田はこの補題の由来をこう語るのを好んだ。1954〜55年頃、米田はフランスに滞在していた。パリを訪れていた Mac Lane は米田から学ぼうと、北駅（Gare du Nord）のカフェで面会を始め、話は米田の乗る列車が発車するまで続いた。そのなかで Mac Lane はこの補題を知り、のちに命名した」。補題が最初に活字になったのは Grothendieck の論文である。</blockquote>
+
+<h2>記号表</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>記号</th><th>型・意味</th></tr>
+  <tr><td>C</td><td>局所小（locally small）な圏。各 hom が集合をなす</td></tr>
+  <tr><td>F : C → Set</td><td>集合値の（共変）関手</td></tr>
+  <tr><td>C(c,−) : C → Set</td><td>対象 c が表現する共変関手。x を hom 集合 C(c,x) に送る</td></tr>
+  <tr><td>C(−,c) : C<sup>op</sup> → Set</td><td>c が表現する反変関手</td></tr>
+  <tr><td>Hom(C(c,−), F)</td><td>自然変換 C(c,−) ⇒ F 全体の集まり</td></tr>
+  <tr><td>f<sub>∗</sub> / f<sup>∗</sup></td><td>射 f との後合成・前合成が誘導する自然変換（例1.4.9）</td></tr>
+  <tr><td>よ</td><td>米田埋め込み（系2.2.8）。「よ」は「米田」の頭文字のひらがな</td></tr>
+  <tr><td>BG</td><td>群 G を自己射集合とする1対象圏。BG → Set の関手は左 G-集合</td></tr>
+  <tr><td>ω</td><td>順序数 0 ≤ 1 ≤ 2 ≤ … の poset を圏と見たもの</td></tr>
+</table>
+</div>
+
+<h2>この節の問い</h2>
+
+<p>2.1 では、関手 F : C → Set が対象 c に表現されるとは、自然同型 C(c,−) ≅ F が存在することだと定義した。例2.1.5・2.1.6 に挙がった多くの表現を本当に理解するには、この自然同型を<b>定めるデータが何か</b>を知る必要がある。</p>
+
+<p>自然同型とは、自然変換であって各成分が同型であるものだった。そこで問いを一段ゆるめて、こう問う: <b>自然変換 α : C(c,−) ⇒ F を定めるデータは何か。</b>これに答えられれば、あとは成分が同型かどうかを確かめるだけで表現の議論ができる。</p>
+
+<p>この節はこの一つの問いに答える。答え（定理2.2.4）は、表現された関手 C(c,−) から<em>出て行く</em>自然変換の完全な分類である。C(c,−) に<em>入って来る</em>自然変換 β : F ⇒ C(c,−) には同種の分類がない。この非対称性については演習2.2.ii で考える。</p>
+
+<h2>例2.2.1 — ω 上の図式</h2>
+
+<p>一般論の前に、添字圏が単純な場合を手で解いてみる。まず ω。関手 F : ω → Set とは、集合の列 (F<sub>n</sub>)<sub>n∈ω</sub> と写像 f<sub>n,n+1</sub> : F<sub>n</sub> → F<sub>n+1</sub> の列のことである（合成はつなげればよい）。</p>
+
+<p>対象 k ∈ ω が表現する関手 ω(k,−) : ω → Set はどんな列か。hom 集合 ω(k,n) は「k ≤ n の証明」の集合だから、n &lt; k のとき空集合、n ≥ k のとき一点集合である。つまり ω(k,−) は「最初の k 項が空で、それ以降はずっと一点」という列になる。</p>
+
+<p>自然変換 α : ω(k,−) ⇒ F のデータは成分 α<sub>n</sub> : ω(k,n) → F<sub>n</sub> の族で、これが自然性の条件を満たす。n &lt; k では定義域が空なので α<sub>n</sub> は情報を持たない。n ≥ k では定義域が一点なので、α<sub>n</sub> は要素 α<sub>n</sub> ∈ F<sub>n</sub> の指定と同じことである。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 520 195" width="520" role="img" aria-label="ω 上の表現された関手と F の間の自然変換">
+  <defs><marker id="ry1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text class="lbl" x="4" y="48" text-anchor="start">ω(k,−):</text>
+  <text class="lbl" x="4" y="153" text-anchor="start">F:</text>
+
+  <text x="105" y="48" text-anchor="middle">∅</text>
+  <text x="175" y="48" text-anchor="middle">⋯</text>
+  <text x="250" y="48" text-anchor="middle">∅</text>
+  <text x="335" y="48" text-anchor="middle">∗</text>
+  <text x="425" y="48" text-anchor="middle">∗</text>
+  <text x="495" y="48" text-anchor="middle">⋯</text>
+
+  <text x="105" y="153" text-anchor="middle">F₀</text>
+  <text x="175" y="153" text-anchor="middle">⋯</text>
+  <text x="250" y="153" text-anchor="middle">Fₖ₋₁</text>
+  <text x="335" y="153" text-anchor="middle">Fₖ</text>
+  <text x="425" y="153" text-anchor="middle">Fₖ₊₁</text>
+  <text x="495" y="153" text-anchor="middle">⋯</text>
+
+  <line x1="116" y1="43" x2="164" y2="43" marker-end="url(#ry1)"/>
+  <line x1="186" y1="43" x2="239" y2="43" marker-end="url(#ry1)"/>
+  <line x1="261" y1="43" x2="325" y2="43" marker-end="url(#ry1)"/>
+  <line x1="345" y1="43" x2="415" y2="43" marker-end="url(#ry1)"/>
+  <line x1="435" y1="43" x2="486" y2="43" marker-end="url(#ry1)"/>
+
+  <line x1="120" y1="148" x2="164" y2="148" marker-end="url(#ry1)"/>
+  <line x1="186" y1="148" x2="220" y2="148" marker-end="url(#ry1)"/>
+  <line x1="283" y1="148" x2="317" y2="148" marker-end="url(#ry1)"/>
+  <line x1="350" y1="148" x2="402" y2="148" marker-end="url(#ry1)"/>
+  <line x1="450" y1="148" x2="486" y2="148" marker-end="url(#ry1)"/>
+  <text class="lbl" x="376" y="172" text-anchor="middle">f<tspan dy="3" font-size="10.5">k,k+1</tspan></text>
+
+  <line x1="335" y1="62" x2="335" y2="131" marker-end="url(#ry1)"/>
+  <text class="lbl" x="326" y="102" text-anchor="end">αₖ</text>
+  <line x1="425" y1="62" x2="425" y2="131" marker-end="url(#ry1)"/>
+  <text class="lbl" x="435" y="102" text-anchor="start">αₖ₊₁</text>
+</svg>
+</figure>
+
+<p>自然性の四角形は、隣り合う段について α<sub>n+1</sub> = f<sub>n,n+1</sub>(α<sub>n</sub>) を要求する。したがって帰納法により、α 全体は最初の要素 α<sub>k</sub> ∈ F<sub>k</sub> の選択ひとつで完全に、しかも一意に決まる。そしてこの α<sub>k</sub> は、成分 α<sub>k</sub> : ω(k,k) → F<sub>k</sub> による恒等射 id<sub>k</sub> ∈ ω(k,k) の像にほかならない。さらに、α<sub>k</sub> としては F<sub>k</sub> のどの要素を選んでもよい——自然性はそれ以上の制約を課さない。</p>
+
+<h2>例2.2.2 — BG 上の図式（G-集合）</h2>
+
+<p>次は正反対の形の圏、1対象圏 BG。共変関手 BG → Set は左 G-集合、反変関手 BG<sup>op</sup> → Set は右 G-集合に対応するのだった（例1.3.9）。BG の対象はひとつしかないから、共変の表現された関手もひとつしかない。それはどの G-集合か——唯一の対象の自己射集合が G 自身なので、<b>左正則作用つきの G</b> である（反変側は右正則作用つきの G）。</p>
+
+<p>そこで G-集合 X : BG → Set への自然変換 φ : G ⇒ X を考える。例1.4.4(iv) で見たとおり、これはちょうど G-同変写像 φ : G → X のことである。φ は自然変換の唯一の成分で、同変性 φ(g·h) = g·φ(h) が自然性の条件そのものになっている。</p>
+
+<p>φ を定めるには各 g に対する値 φ(g) を指定すればよいが、同変性で h = e（単位元）と置くと φ(g) = g·φ(e) が出る。つまり <b>φ(e) ∈ X を選んだ時点で、φ の全体が強制される</b>。しかも φ(e) はどの要素でもよい。これは G の自分自身への左作用が自由（どの点の固定部分群も自明）だからで、もし異なる k, h で k·e = h·e となり得たら、φ(g) の定義が衝突する恐れがあった。</p>
+
+<p>この議論がそのまま次の命題の証明になる。</p>
+
+<div class="thm"><b>命題2.2.3.</b> G-同変写像 G → X は、φ を φ(e) ∈ X に送る写像を介して、X の要素と全単射で対応する。</div>
+
+<h2>定理2.2.4 — 米田の補題</h2>
+
+<p>二つの例を見比べる。ω は poset で、射は「≤ の証明」しかなく自己同型を持たない。BG は逆に、圏の情報がすべて唯一の対象の自己射に載っている。これほど形の違う二つの添字圏で、答えは同じ形——<b>自然変換は、表現対象での恒等射の像ひとつで完全に決まり、その値はどの要素でもよい</b>——に着地した。これは偶然ではない。任意の形の図式で同じことが成り立つ、というのが圏論で最も重要な結果と言われる米田の補題である。</p>
+
+<div class="thm"><b>定理2.2.4（米田の補題）.</b> 局所小な圏 C 上の関手 F : C → Set と対象 c ∈ C に対し、自然変換をその c 成分で恒等射において評価する写像
+<p style="text-align:center">ev<sub>id</sub> : Hom(C(c,−), F) → Fc,  α ↦ α<sub>c</sub>(id<sub>c</sub>)</p>
+は全単射である。さらにこの対応は c と F の双方について自然である。</div>
+
+<p>ひとつ規模の注意がある。C は局所小と仮定しただけで小さいとは限らないから、自然変換の集まり Hom(C(c,−), F) は先験的には集合をなすかどうか分からない。しかし全単射の存在が、この集まりが実際に（Fc と同じ大きさの）集合であることを保証する。</p>
+
+<p>反変関手 F : C<sup>op</sup> → Set に対する双対版の定式化は演習2.2.i に委ねられる。双対を取るのは一般の圏 C の側であって Set の側ではないことに注意する。したがって双対版もやはり「C(−,c) から出て行く自然変換」の分類になる（演習2.2.ii を参照）。</p>
+
+<p>証明は二部に分かれる。まず全単射、次に自然性である。</p>
+
+<p><span class="proof-head">全単射の証明.</span> 逆写像 Ψ : Fc → Hom(C(c,−), F) を構成する。要素 x ∈ Fc から自然変換 Ψ(x) : C(c,−) ⇒ F を作りたい。そのためには各対象 d に対して成分 Ψ(x)<sub>d</sub> : C(c,d) → Fd を、すなわち各 f ∈ C(c,d) に対して値 Ψ(x)<sub>d</sub>(f) ∈ Fd を定めなければならない。</p>
+
+<p>ここで鍵になるのは、f が単なる集合の要素ではなく射 f : c → d であることだ。まだ定義していない Ψ(x) の成分たちが自然であるためには、次の四角形が可換でなければならない:</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 330 165" width="330" role="img" aria-label="Ψ(x) の成分が満たすべき自然性の四角形">
+  <defs><marker id="ry2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="55" y="42" text-anchor="middle">C(c, c)</text>
+  <text x="275" y="42" text-anchor="middle">Fc</text>
+  <text x="55" y="140" text-anchor="middle">C(c, d)</text>
+  <text x="275" y="140" text-anchor="middle">Fd</text>
+  <line x1="105" y1="37" x2="257" y2="37" marker-end="url(#ry2)"/>
+  <text class="lbl" x="181" y="26" text-anchor="middle">Ψ(x)<tspan dy="3" font-size="10.5">c</tspan></text>
+  <line x1="105" y1="135" x2="257" y2="135" marker-end="url(#ry2)"/>
+  <text class="lbl" x="181" y="159" text-anchor="middle">Ψ(x)<tspan dy="3" font-size="10.5">d</tspan></text>
+  <line x1="55" y1="55" x2="55" y2="118" marker-end="url(#ry2)"/>
+  <text class="lbl" x="45" y="92" text-anchor="end">f<tspan dy="-5" font-size="10.5">∗</tspan></text>
+  <line x1="275" y1="55" x2="275" y2="118" marker-end="url(#ry2)"/>
+  <text class="lbl" x="286" y="92" text-anchor="start">Ff</text>
+</svg>
+</figure>
+
+<p>恒等射 id<sub>c</sub> ∈ C(c,c) を左下回りで送ると Ψ(x)<sub>d</sub>(f)、右上回りで送ると Ff(Ψ(x)<sub>c</sub>(id<sub>c</sub>)) になる。一方、Ψ が ev<sub>id</sub> の逆であるためには Ψ(x)<sub>c</sub>(id<sub>c</sub>) = x でなければならない。すると自然性が定義を強制する:</p>
+
+<p style="text-align:center">(2.2.5)  Ψ(x)<sub>d</sub>(f) := Ff(x).</p>
+
+<p>つまり成分の定義に選択の余地は一切なかった。残る仕事は、この強制された式が本当に自然変換を定めるかの確認である。一般の射 g : d → e（域が c とは限らない）について四角形</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 330 165" width="330" role="img" aria-label="一般の射 g についての自然性の四角形">
+  <defs><marker id="ry3" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="55" y="42" text-anchor="middle">C(c, d)</text>
+  <text x="275" y="42" text-anchor="middle">Fd</text>
+  <text x="55" y="140" text-anchor="middle">C(c, e)</text>
+  <text x="275" y="140" text-anchor="middle">Fe</text>
+  <line x1="105" y1="37" x2="257" y2="37" marker-end="url(#ry3)"/>
+  <text class="lbl" x="181" y="26" text-anchor="middle">Ψ(x)<tspan dy="3" font-size="10.5">d</tspan></text>
+  <line x1="105" y1="135" x2="257" y2="135" marker-end="url(#ry3)"/>
+  <text class="lbl" x="181" y="159" text-anchor="middle">Ψ(x)<tspan dy="3" font-size="10.5">e</tspan></text>
+  <line x1="55" y1="55" x2="55" y2="118" marker-end="url(#ry3)"/>
+  <text class="lbl" x="45" y="92" text-anchor="end">g<tspan dy="-5" font-size="10.5">∗</tspan></text>
+  <line x1="275" y1="55" x2="275" y2="118" marker-end="url(#ry3)"/>
+  <text class="lbl" x="286" y="92" text-anchor="start">Fg</text>
+</svg>
+</figure>
+
+<p>の可換性を見る。f ∈ C(c,d) を左下回りで送ると Ψ(x)<sub>e</sub>(gf) = F(gf)(x)、右上回りで送ると Fg(Ψ(x)<sub>d</sub>(f)) = Fg(Ff(x))。F の関手性 F(gf) = Fg∘Ff により両者は一致する。これで Ψ : Fc → Hom(C(c,−), F) が定義できた。</p>
+
+<p>構成から ev<sub>id</sub>(Ψ(x)) = Ψ(x)<sub>c</sub>(id<sub>c</sub>) = x、すなわち Ψ は ev<sub>id</sub> の右逆である。左逆であること Ψ(ev<sub>id</sub>(α)) = α を見るには、両辺の各成分が一致すること、すなわち任意の f ∈ C(c,d) について Ψ(α<sub>c</sub>(id<sub>c</sub>))<sub>d</sub>(f) = α<sub>d</sub>(f) を示せばよい。α 自身の自然性の四角形</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 330 165" width="330" role="img" aria-label="自然変換 α 自身の自然性の四角形">
+  <defs><marker id="ry4" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="55" y="42" text-anchor="middle">C(c, c)</text>
+  <text x="275" y="42" text-anchor="middle">Fc</text>
+  <text x="55" y="140" text-anchor="middle">C(c, d)</text>
+  <text x="275" y="140" text-anchor="middle">Fd</text>
+  <line x1="105" y1="37" x2="257" y2="37" marker-end="url(#ry4)"/>
+  <text class="lbl" x="181" y="26" text-anchor="middle">α<tspan dy="3" font-size="10.5">c</tspan></text>
+  <line x1="105" y1="135" x2="257" y2="135" marker-end="url(#ry4)"/>
+  <text class="lbl" x="181" y="159" text-anchor="middle">α<tspan dy="3" font-size="10.5">d</tspan></text>
+  <line x1="55" y1="55" x2="55" y2="118" marker-end="url(#ry4)"/>
+  <text class="lbl" x="45" y="92" text-anchor="end">f<tspan dy="-5" font-size="10.5">∗</tspan></text>
+  <line x1="275" y1="55" x2="275" y2="118" marker-end="url(#ry4)"/>
+  <text class="lbl" x="286" y="92" text-anchor="start">Ff</text>
+</svg>
+<figcaption>(2.2.6) — id<sub>c</sub> を追うと Ff(α<sub>c</sub>(id<sub>c</sub>)) = α<sub>d</sub>(f)</figcaption>
+</figure>
+
+<p>で id<sub>c</sub> を追跡すると Ff(α<sub>c</sub>(id<sub>c</sub>)) = α<sub>d</sub>(f) を得る。定義(2.2.5)より左辺は Ψ(α<sub>c</sub>(id<sub>c</sub>))<sub>d</sub>(f) だから、示すべき等式が出た。よって Ψ は両側逆であり、ev<sub>id</sub> は全単射である。<span class="qed">□</span></p>
+
+<p><span class="proof-head">自然性の証明.</span> 「両変数に自然」の中身は次の二つの主張である。</p>
+
+<p><b>関手方向。</b>自然変換 β : F ⇒ G に対し、次が可換であること:</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 420 165" width="420" role="img" aria-label="関手方向の自然性の四角形">
+  <defs><marker id="ry5" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="95" y="42" text-anchor="middle">Hom(C(c,−), F)</text>
+  <text x="365" y="42" text-anchor="middle">Fc</text>
+  <text x="95" y="140" text-anchor="middle">Hom(C(c,−), G)</text>
+  <text x="365" y="140" text-anchor="middle">Gc</text>
+  <line x1="195" y1="37" x2="347" y2="37" marker-end="url(#ry5)"/>
+  <text class="lbl" x="271" y="26" text-anchor="middle">ev<tspan dy="3" font-size="10.5">id</tspan></text>
+  <line x1="195" y1="135" x2="347" y2="135" marker-end="url(#ry5)"/>
+  <text class="lbl" x="271" y="159" text-anchor="middle">ev<tspan dy="3" font-size="10.5">id</tspan></text>
+  <line x1="95" y1="55" x2="95" y2="118" marker-end="url(#ry5)"/>
+  <text class="lbl" x="85" y="92" text-anchor="end">β<tspan dy="-5" font-size="10.5">∗</tspan></text>
+  <line x1="365" y1="55" x2="365" y2="118" marker-end="url(#ry5)"/>
+  <text class="lbl" x="376" y="92" text-anchor="start">β<tspan dy="3" font-size="10.5">c</tspan></text>
+</svg>
+</figure>
+
+<p>左下回りは α を縦合成 β·α にしてから id<sub>c</sub> で評価し、右上回りは先に評価してから β<sub>c</sub> を適用する。縦合成の定義（補題1.7.1）から (β·α)<sub>c</sub>(id<sub>c</sub>) = β<sub>c</sub>(α<sub>c</sub>(id<sub>c</sub>)) であり、これがちょうど両回りの一致である。</p>
+
+<p><b>対象方向。</b>射 f : c → d に対し、次が可換であること（前合成 f<sup>∗</sup> : C(d,−) ⇒ C(c,−) との合成が誘導する写像を (f<sup>∗</sup>)<sup>∗</sup> と書く）:</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 420 165" width="420" role="img" aria-label="対象方向の自然性の四角形">
+  <defs><marker id="ry6" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="95" y="42" text-anchor="middle">Hom(C(c,−), F)</text>
+  <text x="365" y="42" text-anchor="middle">Fc</text>
+  <text x="95" y="140" text-anchor="middle">Hom(C(d,−), F)</text>
+  <text x="365" y="140" text-anchor="middle">Fd</text>
+  <line x1="195" y1="37" x2="347" y2="37" marker-end="url(#ry6)"/>
+  <text class="lbl" x="271" y="26" text-anchor="middle">ev<tspan dy="3" font-size="10.5">id</tspan></text>
+  <line x1="195" y1="135" x2="347" y2="135" marker-end="url(#ry6)"/>
+  <text class="lbl" x="271" y="159" text-anchor="middle">ev<tspan dy="3" font-size="10.5">id</tspan></text>
+  <line x1="95" y1="55" x2="95" y2="118" marker-end="url(#ry6)"/>
+  <text class="lbl" x="85" y="92" text-anchor="end">(f<tspan dy="-5" font-size="10.5">∗</tspan><tspan dy="5">)</tspan><tspan dy="-5" font-size="10.5">∗</tspan></text>
+  <line x1="365" y1="55" x2="365" y2="118" marker-end="url(#ry6)"/>
+  <text class="lbl" x="376" y="92" text-anchor="start">Ff</text>
+</svg>
+</figure>
+
+<p>α ∈ Hom(C(c,−), F) の右上回りの像は Ff(α<sub>c</sub>(id<sub>c</sub>))。左下回りの像は (α·f<sup>∗</sup>)<sub>d</sub>(id<sub>d</sub>) で、縦合成の d 成分は合成写像 α<sub>d</sub>∘f<sup>∗</sup><sub>d</sub> だから、id<sub>d</sub> ↦ id<sub>d</sub>·f = f ↦ α<sub>d</sub>(f) と計算できる。あとは先ほどの四角形(2.2.6)が α<sub>d</sub>(f) = Ff(α<sub>c</sub>(id<sub>c</sub>)) を与えるので、両回りは一致する。<span class="qed">□</span></p>
+
+<h2>注意2.2.7 — 両変数の自然性を一枚の主張にする</h2>
+
+<p>定理の「c と F の双方に自然」を、文字どおり一つの自然同型として述べ直すことができる。まず C が小さい場合、関手圏 Set<sup>C</sup> は局所小になり（注意1.7.3）、定理2.2.4 の全単射</p>
+
+<p style="text-align:center">ev<sub>id</sub> : Set<sup>C</sup>(C(c,−), F) ≅ ev<sub>c</sub>(F)</p>
+
+<p>は「対象 C(c,−) ∈ Set<sup>C</sup> が評価関手 ev<sub>c</sub> : Set<sup>C</sup> → Set（F を Fc に送る関手）を表現する」と読める。ただしこの読み方が捉えるのは F 方向の自然性だけである。</p>
+
+<p>両変数を同時に扱うには、対 (c, F) を積圏 C × Set<sup>C</sup> の対象と見て、そこからの二つの関手を比べる。一つは評価二関手 ev : C × Set<sup>C</sup> → Set、(c,F) ↦ Fc。もう一つは、埋め込み よ を（演習1.3.v により）関手 よ : C → (Set<sup>C</sup>)<sup>op</sup> と見なして hom 関手と合成した</p>
+
+<p style="text-align:center">Hom(よ(−),−) : C × Set<sup>C</sup> → SET,  (c,F) ↦ Hom(C(c,−), F).</p>
+
+<p>ここで行き先を SET と書いたのは規模の会計のためである。C が局所小なだけでは Set<sup>C</sup> は局所小とは限らず、自然変換の集まりが集合をなす保証が先験的にはない。しかし定理2.2.4 の全単射の証明そのものが、この特定の hom が常に集合であることを示している。よって Hom(よ(−),−) は実際には Set に値を持ち、米田の補題は「恒等射での評価が自然同型 Hom(よ(−),−) ≅ ev を定める」という一枚の主張にまとまる。</p>
+
+<h2>系2.2.8 — 米田埋め込み</h2>
+
+<p>定理2.2.4 の F は任意の集合値関手でよかった。そこで F 自身を表現された関手に特殊化すると、表現された関手の間の自然変換の完全な記述が得られる。それがこの節のもう一つの主役である。</p>
+
+<div class="thm"><b>系2.2.8（米田埋め込み）.</b> 局所小な圏 C に対し、二つの関手
+<p style="text-align:center">よ : C ↪ Set<sup>C<sup>op</sup></sup>,  c ↦ C(−,c),  f ↦ f<sub>∗</sub><br>
+よ : C<sup>op</sup> ↪ Set<sup>C</sup>,  c ↦ C(c,−),  f ↦ f<sup>∗</sup></p>
+はいずれも充満忠実な埋め込みを定める。</div>
+
+<p class="note">記法について: 共変・反変どちらの埋め込みも同じ記号「よ」で書く。また演習1.7.vii の観点では、この二つは別々の構成ではなく、二変数 hom 関手 C(−,−) : C<sup>op</sup> × C → Set（定義1.3.13）の二つの化身である。射への作用 f<sub>∗</sub>・f<sup>∗</sup>（後合成・前合成）は例1.4.9 で定義したものになる。</p>
+
+<p><span class="proof-head">証明.</span> 定義1.5.7 により、示すべきは射への作用が hom 集合の間の全単射</p>
+
+<p style="text-align:center">C(c,d) → Hom(C(−,c), C(−,d)),  f ↦ f<sub>∗</sub><br>
+C(c,d) → Hom(C(d,−), C(c,−)),  f ↦ f<sup>∗</sup></p>
+
+<p>を定めることである。後者を示す。定理2.2.4 で F = C(c,−)、表現対象を d と取れば、ev<sub>id</sub> : Hom(C(d,−), C(c,−)) ≅ C(c,d) は同型である。f ↦ f<sup>∗</sup> がこの同型の逆写像であることを見ればよいが、片側が既に同型だと分かっているときは右逆であることの確認だけで足りる（演習1.1.i）。実際、f : c → d から f<sup>∗</sup> : C(d,−) ⇒ C(c,−) を作り、その d 成分 f<sup>∗</sup><sub>d</sub> : C(d,d) → C(c,d) を id<sub>d</sub> で評価すると、id<sub>d</sub>·f = f が戻ってくる。よって よ : C<sup>op</sup> ↪ Set<sup>C</sup> は充満忠実である。共変側は定理2.2.4 の双対から同様に従う。<span class="qed">□</span></p>
+
+<p>この系の意味を言い直すと: <b>表現された関手の間の自然変換は、表現対象の間の射とちょうど対応する</b>。したがって局所小な圏 C は、前層の圏 Set<sup>C<sup>op</sup></sup> のうち表現された関手が張る充満部分圏と同型であり（C<sup>op</sup> は Set<sup>C</sup> の中の対応する部分圏と同型）、対象は「他の対象との射の網」で決まることになる。第2章冒頭に掲げられた Mazur の言葉（和訳）——「数学的対象 X は、それを取り巻く圏の中で考えるのが最もよく、X はその圏のすべての対象との関係の網によって決まる。さらに X を理解するには、X を表現する関手を直接扱うほうが適切なことさえある」——が、ここで正確な定理になる。この結果はきわめて強力で、慣習として定理2.2.4 と系2.2.8 の両方が「米田の補題」と呼ばれる。</p>
+
+<h2>例2.2.9 — 自然変換を数え上げる</h2>
+
+<p>系2.2.8 の使い方の見本。小圏をその対象集合・射集合に送る関手 ob, mor : Cat ⇒ Set は、それぞれ圏 1（1対象・恒等射のみ）と圏 2（0 → 1 の walking arrow）に表現されるのだった（例2.1.5(ix)(x)）。</p>
+
+<p>両者の間には、すぐに見つかる自然な写像が三つある: 対象をその恒等射に送る ob ⇒ mor、射をその域に送る mor ⇒ ob、余域に送る mor ⇒ ob。これで全部だろうか。</p>
+
+<p>表現との自然同型 Cat(1,−) ≅ ob、Cat(2,−) ≅ mor を経由すれば、ob と mor の間の自然変換は表現された関手の間の自然変換であり、系2.2.8 により表現対象 1 と 2 の間の Cat の射から生じるものに限る。1 と 2 の間の関手はちょうど三つ——2 → 1 がひとつ（すべて潰す。これが「恒等射に送る」に対応）、1 → 2 がふたつ（0 を選ぶか 1 を選ぶか。これが「域・余域に送る」に対応。表現対象の間の射と自然変換とで向きが逆になることに注意）——だから、先の三つで尽きている。</p>
+
+<h2>系2.2.10 — 行演算は行列の左乗算である</h2>
+
+<p>節の締めは、埋め込みの充満性の圏論の外への応用二つ。さらにパラダイム的な第三の応用が命題2.3.10 に控えている。</p>
+
+<div class="thm"><b>系2.2.10.</b> n 行の行列に対するどんな行演算も、ある n × n 行列の左乗算で与えられる。その行列は、単位行列に当の行演算を施したものである。</div>
+
+<p><span class="proof-head">証明.</span> 圏 Mat<sub>R</sub> を思い出す。対象は正整数、射 m → n は成分が単位的環 R に属する n × m 行列（n 行 m 列）、合成は行列の積である。表現された関手 Hom(−, n) の像に現れる要素は、ちょうど n 行の行列たちである。</p>
+
+<p>初等線形代数の行演算——たとえば「第 i 行を第 i 行と第 j 行の和で置き換える」——は、列数 m ごとに写像 Hom(m, n) → Hom(m, n) を与え、これらは Hom(−, n) の自然な自己変換をなす。ここでの自然性とは前合成（右からの行列乗算）と可換なことであり、それは右乗算の線形性から従う。</p>
+
+<p>すると系2.2.8（充満性）により、この自然変換はある射 n → n、すなわちある n × n 行列の左乗算から生じるのでなければならない。さらに定理2.2.4 はその行列を特定してくれる: 自然変換は恒等射での評価、つまり単位行列 id<sub>n</sub> に行演算を施した行列で決まる。<span class="qed">□</span></p>
+
+<h2>系2.2.11 — Cayley の定理</h2>
+
+<p>もう一つの応用は、古典的な結果である。</p>
+
+<div class="thm"><b>系2.2.11（Cayley の定理）.</b> 任意の群は、ある置換群の部分群と同型である。</div>
+
+<p><span class="proof-head">証明.</span> 群 G を1対象圏 BG と見る。例2.2.2 で見たとおり、共変米田埋め込み よ : BG ↪ Set<sup>BG<sup>op</sup></sup> の像にある唯一の対象は、右正則作用つきの右 G-集合 G である。系2.2.8 によれば、この G-集合の G-同変な自己準同型は、G の固定した元の左乗算で与えられるものに限る。とくに、同変な自己準同型はすべて自己同型である——これは補題なしには自明でない事実だ。</p>
+
+<p>こうして米田埋め込みは、G と「右 G-集合 G の自己同型群」の間の同型を定める。仕上げに忠実な忘却関手 U : Set<sup>BG<sup>op</sup></sup> → Set と合成すれば、G は集合 G の自己同型群（＝置換群）のある部分群と同型になる。<span class="qed">□</span></p>
+
+<h2>節末問題</h2>
+
+<p class="note">原文は英語。以下は和訳・言い換え。</p>
+
+<ul>
+  <li><b>2.2.i</b> — 定理2.2.4 の双対を定式化し、証明せよ。すなわち反変関手 F : C<sup>op</sup> → Set への自然変換 C(−,c) ⇒ F を特徴づけよ。</li>
+  <li><b>2.2.ii</b> — 米田の補題が「任意の集合値関手から表現された関手への自然変換 F ⇒ C(−,c)」の分類には双対化しない理由を説明せよ。</li>
+  <li><b>2.2.iii</b> — 例2.2.1 で論じたように、ω 型の図式は可算個の対象と射の列で決まる。米田埋め込み よ : ω ↪ Set<sup>ω<sup>op</sup></sup> をこの流儀で（ω<sup>op</sup> 添字の関手の族と自然変換の族として）記述せよ。そのうえで、米田の補題に訴えずに、よ が充満忠実であることを直接証明せよ。</li>
+  <li><b>2.2.iv</b> — 圏をその同型射の集合に送る関手 iso : Cat → Set は mor : Cat → Set の部分関手である。米田の補題を使って、対応するモニックな自然変換を誘導するような、表現対象の間の関手（I と 2 の間）を定めよ。</li>
+  <li><b>2.2.v</b> — 米田の補題により、反変冪集合関手 P : Set<sup>op</sup> → Set の自然な自己変換は、表現対象 Ω = {⊥, ⊤} の自己写像と全単射で対応する。Hom(Ω,Ω) の4つの元それぞれに対応する P の自然な自己変換を記述せよ。これらのうち、共変冪集合関手の自然な自己変換を誘導するものはあるか。</li>
+  <li><b>2.2.vi</b> — 単位区間 I = [0,1] ⊂ ℝ の自己同相と、道の関手 Path : Top → Set（例2.1.5(xiv)）の自然な自己同型——reparameterization と呼ぶ——の関係を、米田の補題を使って説明せよ。</li>
+  <li><b>2.2.vii</b> — (i) 米田の補題を使って、忘却関手 U : Top → Set の自然な自己変換をすべて特徴づけよ。さらにそれを精密化して、恒等関手 id<sub>Top</sub> の自然な自己変換をすべて特徴づけよ。すべての空間 X に対して定まる連続写像の自然な族 α<sub>X</sub> : X → X で、恒等写像ばかりではないものは存在するか。(ii) 同じことを U : Vect<sub>k</sub> → Set と id<sub>Vect<sub>k</sub></sub> について行え。線形変換の自然な族 β<sub>V</sub> : V → V で、恒等写像ばかりではないものは存在するか。</li>
+</ul>
+
+</body>
+</html>

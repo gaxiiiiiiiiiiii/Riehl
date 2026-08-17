@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2.1 表現可能関手</title>
+<style>
+  :root {
+    --bg: #fdfcf9;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --accent: #8a4c14;
+    --line: #d8d3c8;
+    --box-bg: #f5f2ea;
+    --code-bg: #f0ede5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1e22;
+      --fg: #e4e1da;
+      --muted: #9aa2ab;
+      --accent: #e0a468;
+      --line: #3a3f46;
+      --box-bg: #24262b;
+      --code-bg: #2a2d33;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    line-height: 1.95;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.5rem; font-family: "Hiragino Sans", sans-serif; border-bottom: 2px solid var(--accent); padding-bottom: .4rem; }
+  h2 { font-size: 1.12rem; font-family: "Hiragino Sans", sans-serif; color: var(--accent); margin-top: 2.6rem; }
+  p { margin: .9rem 0; font-size: .97rem; }
+  li { font-size: .97rem; margin: .5rem 0; }
+  ol.ex > li { margin: .8rem 0; }
+  .note { color: var(--muted); font-size: .88em; }
+  .thm {
+    background: var(--box-bg);
+    border-left: 3px solid var(--accent);
+    padding: .7rem 1.1rem;
+    margin: 1.2rem 0;
+  }
+  .thm b { font-family: "Hiragino Sans", sans-serif; }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
+  blockquote {
+    margin: 1.2rem 0; padding: .5rem 1.1rem;
+    border-left: 3px solid var(--line); color: var(--muted); font-size: .92rem;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--box-bg); font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<h1>2.1 表現可能関手</h1>
+
+<p class="note">Emily Riehl, <i>Category Theory in Context</i> 第2章導入（pp.53–54）と §2.1（pp.54–59）の内容を、個人学習のために日本語で書き直した解説。番号（定義2.1.4 など）は本と揃えてある。翻訳ではなく、同じ内容を自分の言葉で再構成したもの。</p>
+
+<h2>第2章の導入 — なぜ集合値関手なのか</h2>
+
+<blockquote>Barry Mazur の言葉（和訳）——「数学的対象 X は、それを取り巻く圏の中で考えるのが最もよく、X はその圏のすべての対象との関係の網によって決まる。さらに X を理解するには、X を表現する関手を直接扱うほうが適切なことさえある」。</blockquote>
+
+<p>この章の狙いは、「自然数は普遍的な離散力学系である」「Sierpinski 空間は開集合をひとつ持つ普遍的な空間である」「完全グラフ K<sub>n</sub> は普遍的な n-彩色グラフである」といった言い回しに正確な意味を与えることである。こうした日常語の普遍性は場当たり的に見えるかもしれないが、実はそうではない。この章では普遍性の概念を精密化する、互いに同値ないくつかの方法を導入する。その理論の鍵となる入力は、先験的には自明でないもの——<b>集合の圏に値を持つ関手</b>である。集合の圏が特別なのは、伝統的な数学の基礎が集合論に基づき、多くの数学的対象が「構造つきの集合」として定義されるからだ。</p>
+
+<p>例を挙げる。単純グラフの頂点を n 色で塗り分け、隣接する頂点には異なる色を割り当てる彩色を考える。グラフ G をその n-彩色全体の集合に送る対応は、反変関手 n-Color : Graph<sup>op</sup> → Set をなす。反変性はこう見える: G の n-彩色とグラフ準同型 G′ → G があれば、G′ の各頂点をその像の色で塗ることで G′ の n-彩色が誘導される（準同型は隣接関係を保つから、隣接する頂点は異なる色になる）。</p>
+
+<p>n 色ちょうどを要するグラフのうち最小のものは完全グラフ K<sub>n</sub> である。そして関手 n-Color は K<sub>n</sub> の普遍性を符号化している——すなわち <b>K<sub>n</sub> は関手 n-Color を表現する</b>。具体的には、G の n-彩色の集合 n-Color(G) とグラフ準同型の集合 Hom(G, K<sub>n</sub>) の間に自然な全単射がある。§2.1 ではこの「表現可能関手」の概念を、その遍在ぶりが伝わるよう大量の例とともに導入する。§2.2 の米田の補題はこの普遍性が K<sub>n</sub> を一意に特徴づけることを示し、§2.3 は普遍要素（K<sub>n</sub> の場合なら K<sub>n</sub> 自身の n-彩色）を、§2.4 は「普遍的」が「要素の圏における始対象または終対象」の同義語であることを示す（K<sub>n</sub> は n-彩色グラフの圏の終対象である）。</p>
+
+<h2>記号表</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>記号</th><th>型・意味</th></tr>
+  <tr><td>C</td><td>局所小（locally small）な圏</td></tr>
+  <tr><td>C(c,−) : C → Set</td><td>c が表現する共変関手。x ↦ C(c,x)（定義1.3.11）</td></tr>
+  <tr><td>C(−,c) : C<sup>op</sup> → Set</td><td>c が表現する反変関手。x ↦ C(x,c)</td></tr>
+  <tr><td>Δ<sub>∗</sub></td><td>すべての対象を1点集合 ∗ に、すべての射を恒等写像に送る定数関手</td></tr>
+  <tr><td>α : C(c,−) ≅ F</td><td>関手の間の自然同型（各成分が全単射の自然変換）</td></tr>
+  <tr><td>U</td><td>忘却関手（構造つき集合をその台集合に送る）</td></tr>
+  <tr><td>1, 2, 3, I</td><td>順序数 1・2・3 を圏と見たもの、および walking isomorphism の圏</td></tr>
+</table>
+</div>
+
+<h2>この節の問い — 素朴なパラダイムの限界</h2>
+
+<blockquote>Tom Leinster の言葉（和訳）——「数学を、とくに純粋数学を進めば進むほど、普遍性に出会うことになる」。</blockquote>
+
+<p>普遍性の最も素朴な定式化は、「その対象が、まわりの圏の始対象あるいは終対象である」と言うことだ。このパラダイムの難点は、なじみ深い圏——集合、空間、群、加群など——の始対象・終対象がつまらない対象になりがちなことである（例1.6.15）。もっと複雑な対象の普遍性を言うには、その対象がちょうど始対象（終対象）になるような、あまりなじみのない圏をこしらえる必要がある。たとえば:</p>
+
+<p><b>例2.1.1（自然数の普遍性）.</b> 集合 X と自己写像 f : X → X と指定された要素 x<sub>0</sub> ∈ X の組を<b>離散力学系</b>と呼ぶ。このデータからは、x<sub>0</sub> の離散時間発展の列 (x<sub>n</sub>)、x<sub>n+1</sub> := f(x<sub>n</sub>) が得られる。数学的再帰の原理が主張するのは、自然数 ℕ・後者関数 s : ℕ → ℕ・要素 0 ∈ ℕ の組が<b>普遍的な</b>離散力学系だということである: どんな離散力学系 (X, f, x<sub>0</sub>) に対しても、r(n) = x<sub>n</sub> を満たす写像 r : ℕ → X がただ一つ存在する。図式で言えば</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 340 175" width="340" role="img" aria-label="自然数の再帰の可換図式">
+  <defs><marker id="ra1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="45" y="45" text-anchor="middle">∗</text>
+  <text x="165" y="45" text-anchor="middle">ℕ</text>
+  <text x="290" y="45" text-anchor="middle">ℕ</text>
+  <text x="165" y="150" text-anchor="middle">X</text>
+  <text x="290" y="150" text-anchor="middle">X</text>
+  <line x1="60" y1="40" x2="147" y2="40" marker-end="url(#ra1)"/>
+  <text class="lbl" x="103" y="30" text-anchor="middle">0</text>
+  <line x1="180" y1="40" x2="272" y2="40" marker-end="url(#ra1)"/>
+  <text class="lbl" x="226" y="30" text-anchor="middle">s</text>
+  <line x1="165" y1="58" x2="165" y2="128" marker-end="url(#ra1)"/>
+  <text class="lbl" x="155" y="97" text-anchor="end">r</text>
+  <line x1="290" y1="58" x2="290" y2="128" marker-end="url(#ra1)"/>
+  <text class="lbl" x="300" y="97" text-anchor="start">r</text>
+  <line x1="180" y1="145" x2="272" y2="145" marker-end="url(#ra1)"/>
+  <text class="lbl" x="226" y="167" text-anchor="middle">f</text>
+  <line x1="53" y1="55" x2="150" y2="132" marker-end="url(#ra1)"/>
+  <text class="lbl" x="82" y="108" text-anchor="end">x₀</text>
+</svg>
+<figcaption>(2.1.2)</figcaption>
+</figure>
+
+<p>が可換になる r がただ一つある。（脚注: 自然数には「始対象としての rig（負元なしの環）」という別の普遍性もある。また終対象 ∗ を持つ圏 C では、この形の図式で始対象になるものを C の自然数対象と呼ぶ。）</p>
+
+<p>この節で導入するのは、普遍的対象が始対象・終対象になるような圏をその都度こしらえるより<b>作為の少ない</b>、普遍性の表現手段である。それは始対象・終対象の普遍性の一般化として理解できる（そして §2.4 で、実は真の一般化ではない——結局は始対象・終対象の話に戻る——ことを見る）。</p>
+
+<h2>定義2.1.3 — 始対象・終対象を関手の言葉で言い直す</h2>
+
+<p>c が始対象であるとは、任意の対象 x について集合 C(c,x) が1点集合であること。双対に、c が終対象であるとは、任意の x について C(x,c) が1点集合であること。この性質は、定義1.3.11 で導入した c の表現する関手 C(c,−)・C(−,c) の特徴づけとして、より圏論らしく述べられる:</p>
+
+<div class="thm"><b>定義2.1.3（始対象・終対象の表現による特徴づけ）.</b>
+<ol>
+<li>圏 C の対象 c が始対象であるのは、共変関手 C(c,−) : C → Set が、すべての対象を1点集合に送る定数関手 Δ<sub>∗</sub> : C → Set と自然同型であるとき、かつそのときに限る。</li>
+<li>対象 c が終対象であるのは、反変関手 C(−,c) : C<sup>op</sup> → Set が定数関手 Δ<sub>∗</sub> : C<sup>op</sup> → Set と自然同型であるとき、かつそのときに限る。</li>
+</ol></div>
+
+<p>これから導入する用語で言い直すと、定義2.1.3 は「C が始対象を持つ ⟺ 定数関手 Δ<sub>∗</sub> : C → Set が<em>表現可能</em>」、双対に「C が終対象を持つ ⟺ Δ<sub>∗</sub> : C<sup>op</sup> → Set が表現可能」と主張している。</p>
+
+<h2>定義2.1.4 — 表現・表現可能関手</h2>
+
+<div class="thm"><b>定義2.1.4.</b> F を局所小な圏 C から Set への共変または反変関手とする。
+<ol>
+<li>F の<b>表現</b>（representation）とは、対象 c ∈ C と、指定された自然同型 α : C(c,−) ≅ F（F が共変のとき）または α : C(−,c) ≅ F（反変のとき）の組をいう。このとき対象 c は関手 F を<b>表現する</b>と言い、F は c に<b>表現される</b>と言う。</li>
+<li>(i) のデータが存在するとき、F は<b>表現可能</b>（representable）であるという。</li>
+</ol></div>
+
+<p class="note">用語の注意（脚注4）: 共変の表現可能関手を corepresentable と呼び、representable を反変用に取っておく流儀もある。本書はこの区別を採らない——F の変性は F の定義から明らかなはずだから、という立場である。</p>
+
+<p>定義域 C に局所小を課すのは、hom 関手 C(c,−)・C(−,c) が（小さい）集合の圏に値を持つようにするためである。</p>
+
+<p>表現可能関手はその表現対象の普遍性を符号化しており、定義2.1.3 の普遍性を拡張する。始対象・終対象のときと同じく、この拡張された普遍性にも双対の二形態がある:</p>
+
+<ul>
+<li>対象 c が<b>共変</b>関手 F を表現するとき、表現は自然な同型の族 α<sub>x</sub> : C(c,x) ≅ Fx を与え、<b>c から出て行く射</b>を特徴づける。これは mapping out の普遍性——c が圏の他の対象を「どう見るか」の記述である。</li>
+<li>双対に、c が<b>反変</b>関手 F を表現するとき、族 α<sub>x</sub> : C(x,c) ≅ Fx は<b>c に入って来る射</b>を特徴づける。mapping in の普遍性——c が他の対象から「どう見られるか」の記述である。</li>
+</ul>
+
+<p>実例は「自然界に」いくらでも見つかる。（脚注5: 友人か神託が近くにいるなら、例2.1.5・2.1.6 には演習として出会うことを勧める——関手のリストだけ読み上げてもらい、表現対象を自分で当ててみよ。）</p>
+
+<h2>例2.1.5 — 表現可能な共変関手たち</h2>
+
+<ol class="ex">
+<li><b>恒等関手 id<sub>Set</sub> : Set → Set</b> は1点集合 ∗ に表現される。すなわち自然同型 Set(∗,X) ≅ X があり、要素 x ∈ X と、1点を x に送る写像 x : ∗ → X が対応する。自然性の主張は、f : X → Y に対して四角形
+<figure class="cd">
+<svg class="cd" viewBox="0 0 360 160" width="360" role="img" aria-label="表現の自然性の四角形">
+  <defs><marker id="ra2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="75" y="40" text-anchor="middle">Set(∗, X)</text>
+  <text x="300" y="40" text-anchor="middle">X</text>
+  <text x="75" y="135" text-anchor="middle">Set(∗, Y)</text>
+  <text x="300" y="135" text-anchor="middle">Y</text>
+  <line x1="140" y1="35" x2="282" y2="35" marker-end="url(#ra2)"/>
+  <text class="lbl" x="211" y="25" text-anchor="middle">≅</text>
+  <line x1="140" y1="130" x2="282" y2="130" marker-end="url(#ra2)"/>
+  <text class="lbl" x="211" y="152" text-anchor="middle">≅</text>
+  <line x1="75" y1="52" x2="75" y2="113" marker-end="url(#ra2)"/>
+  <text class="lbl" x="63" y="87" text-anchor="end">f ∘ −</text>
+  <line x1="300" y1="52" x2="300" y2="113" marker-end="url(#ra2)"/>
+  <text class="lbl" x="311" y="87" text-anchor="start">f</text>
+</svg>
+</figure>
+が可換であること。合成 ∗ → X → Y が要素 f(x) に対応する、という当たり前の事実がその中身である。</li>
+
+<li><b>忘却関手 U : Top → Set</b> は1点空間に表現される: 位相空間の要素と、1点空間からの連続写像が自然に対応する。</li>
+
+<li><b>忘却関手 U : Group → Set</b> は群 ℤ に表現される。自然同型 Group(ℤ,G) ≅ UG は、要素 g ∈ UG に「1 を g に送る唯一の準同型 g : ℤ → G」を対応させる。どの準同型 φ : ℤ → G も生成元 1 の像で決まるから、これは全単射——言い換えれば、<b>ℤ は1元生成の自由群</b>である。自然性は、合成 ℤ → G → H が 1 を ψ(g) に送ることによる。</li>
+
+<li><b>忘却関手 U : R-Mod → Set</b>（R は単位的環）は R-加群 R に表現される: 準同型 φ : R → M と UM の要素が、乗法単位元の像を介して対応する。<b>R は1元生成の自由 R-加群</b>である。定義1.6.3 でアーベル群 ℤ や線形空間 k からの写像で要素を指定したのは、この表現があるからだった。</li>
+
+<li><b>忘却関手 U : Ring → Set</b> は整数係数1変数多項式環 ℤ[x] に表現される: 単位的環準同型 φ : ℤ[x] → R は x の像で一意に決まる。<b>ℤ[x] は1元生成の自由単位的環</b>である。</li>
+
+<li><b>n 組の関手 U(−)<sup>n</sup> : Group → Set</b>（G を G の要素の n 組全体に送る）は n 元生成の自由群 F<sub>n</sub> に表現される。同様に U(−)<sup>n</sup> : Ab → Set は自由アーベル群 ⊕<sub>n</sub> ℤ に表現される。</li>
+
+<li>より一般に、任意の<b>群の表示</b>が関手を定める。たとえば表示 S<sub>3</sub> = ⟨ s, t | s² = t² = 1, sts = tst ⟩ は、群 G を集合 { (g₁,g₂) ∈ G² | g₁² = g₂² = e, g₁g₂g₁ = g₂g₁g₂ } に送る関手 P<sub>S₃</sub> : Group → Set を定め、この関手はその表示を持つ群——ここでは3次対称群 S<sub>3</sub>——に表現される。表示とは「準同型 φ : S₃ → G が、関係式を満たす要素の組で分類される」ことの謂いである。</li>
+
+<li><b>単数群関手 (−)<sup>×</sup> : Ring → Set</b>（単位的環をその可逆元の集合に送る）は Laurent 多項式環 ℤ[x, x<sup>−1</sup>] に表現される: 環準同型 ℤ[x, x<sup>−1</sup>] → R は x を R の可逆元に送ることで定まり、その割り当てで完全に決まる。x を可逆でない元に送る準同型は存在しない。</li>
+
+<li><b>対象集合関手 ob : Cat → Set</b> は終圏 1 に表現される: 関手 c : 1 → C とは C の対象の選択にほかならない。</li>
+
+<li><b>射集合関手 mor : Cat → Set</b> は圏 2 に表現される: 関手 f : 2 → C とは C の射の選択にほかならない。この意味で 2 は自由な（walking）矢印である。</li>
+
+<li><b>同型射集合関手 iso : Cat → Set</b>（向きを指定した同型射の集合）は、2つの対象と各 hom 集合にちょうど1本の射を持つ圏 I に表現される。I は自由な（walking）同型射である。</li>
+
+<li><b>合成可能対の関手 comp : Cat → Set</b>（合成可能な射の対の集合）は圏 3 に表現される。一般化して、順序数 n+1 は「合成可能な n 本の射の道の集合」の関手を表現する。</li>
+
+<li><b>忘却関手 U : Set<sub>∗</sub> → Set</b>（基点つき集合）は2元の基点つき集合に表現される: そこからの基点つき写像は、基点でない側の元の像と自然に対応する。</li>
+
+<li><b>道の関手 Path : Top → Set</b> と<b>ループの関手 Loop : Top<sub>∗</sub> → Set</b> は、定義そのものにより表現可能である: 道とは連続写像 p : I → X のこと、基点つきループとは基点つき連続写像 ℓ : S¹ → X のことだから、表現対象はそれぞれ単位区間 I と基点つき円周 S¹。</li>
+</ol>
+
+<p>形容詞「<b>自由</b>（free）」は、共変の表現された関手が表す普遍性のために取っておかれる語である。上のどの対象にも使える: 2 は矢印をひとつ持つ自由な圏、S¹ はループをひとつ含む自由な基点つき空間。双対の「cofree」（反変側）はあまり使われない。</p>
+
+<h2>例2.1.6 — 表現可能な反変関手たち</h2>
+
+<ol class="ex">
+<li><b>反変冪集合関手 P : Set<sup>op</sup> → Set</b> は2元集合 Ω = {⊤, ⊥} に表現される。自然同型 Set(A,Ω) ≅ PA は、部分集合 A′ ⊂ A とその特性関数 χ<sub>A′</sub> : A → Ω（A′ の元をちょうど ⊤ に送る）を対応させる。自然性の主張は、f : A → B に対して
+<figure class="cd">
+<svg class="cd" viewBox="0 0 360 160" width="360" role="img" aria-label="冪集合関手の自然性の四角形">
+  <defs><marker id="ra3" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="75" y="40" text-anchor="middle">Set(B, Ω)</text>
+  <text x="300" y="40" text-anchor="middle">PB</text>
+  <text x="75" y="135" text-anchor="middle">Set(A, Ω)</text>
+  <text x="300" y="135" text-anchor="middle">PA</text>
+  <line x1="140" y1="35" x2="272" y2="35" marker-end="url(#ra3)"/>
+  <text class="lbl" x="206" y="25" text-anchor="middle">≅</text>
+  <line x1="140" y1="130" x2="272" y2="130" marker-end="url(#ra3)"/>
+  <text class="lbl" x="206" y="152" text-anchor="middle">≅</text>
+  <line x1="75" y1="52" x2="75" y2="113" marker-end="url(#ra3)"/>
+  <text class="lbl" x="63" y="87" text-anchor="end">− ∘ f</text>
+  <line x1="300" y1="52" x2="300" y2="113" marker-end="url(#ra3)"/>
+  <text class="lbl" x="311" y="87" text-anchor="start">f<tspan dy="-5" font-size="10.5">−1</tspan></text>
+</svg>
+</figure>
+が可換であること: B′ ⊂ B を分類する χ<sub>B′</sub> と f の合成は、逆像 f<sup>−1</sup>(B′) ⊂ A を分類する。</li>
+
+<li><b>開集合関手 O : Top<sup>op</sup> → Set</b> は Sierpinski 空間 S（2点のうち一方が開、他方が閉）に表現される。自然な全単射 Top(X,S) ≅ O(X) は、連続写像 f : X → S に開点の逆像を対応させる。自然性は「合成 g;f が分類する開集合は、f の分類する開集合の g による逆像」ということ。</li>
+
+<li>同じ Sierpinski 空間が<b>閉集合関手 C : Top<sup>op</sup> → Set</b> も表現する（閉点の逆像を取ればよい）。自然同型を合成すると O ≅ Top(−,S) ≅ C となり、開集合関手と閉集合関手は自然同型だと分かる。合成した同型は開集合をその補集合（閉集合）に送るもので、例1.4.4(v) の自然同型が回収される。</li>
+
+<li><b>関手 Hom(− × A, B) : Set<sup>op</sup> → Set</b>（X を写像 X × A → B の集合に送る）は写像集合 B<sup>A</sup> に表現される: 写像 X × A → B と写像 X → B<sup>A</sup> が自然に対応する。計算機科学で currying と呼ばれる同型である——2変数写像 f : X × A → B の変数 x ∈ X を固定すれば1変数写像の族 f(x,−) : A → B が得られる。</li>
+
+<li><b>双対空間の関手 U(−)<sup>∗</sup> : Vect<sub>k</sub><sup>op</sup> → Set</b>（線形空間をその双対空間のベクトルの集合に送る）は線形空間 k に表現される: 線形写像 φ : V → k とは、定義により双対空間 V<sup>∗</sup> のベクトルのことである。</li>
+
+<li>アーベル群 A と n ≥ 0 を固定した<b>特異コホモロジー H<sup>n</sup>(−;A)</b> は、ホモトピー不変なので Htpy を経由し、CW 複体に制限して台集合を取ると、関手 H<sup>n</sup>(−;A) : Htpy<sub>CW</sub><sup>op</sup> → Set は Eilenberg–MacLane 空間 K(A,n) に表現される: CW 複体 X に対し、ホモトピー類 [X, K(A,n)] と H<sup>n</sup>(X;A) の要素が全単射で対応する。</li>
+
+<li>位相群 G の<b>分類空間</b> BG とは、CW 複体上の主 G-束の同型類の関手 G-Bund : Htpy<sub>CW</sub><sup>op</sup> → Set を表現する CW 複体のことである。（脚注6: G が離散群のとき BG は圏 BG の脈体から組み立てられる——1対象亜群に BG の記法を使う動機である。）</li>
+</ol>
+
+<h2>節の締め — 残された問い</h2>
+
+<p>これらの例は普遍性の遍在ぶりを伝えるだろうが、普遍性の<b>効用</b>——ある対象への／からの射を特徴づけて何の得があるのか——はまだ探っていない。また、次の問いも残っている。この普遍性はどのくらい一意なのか。二つの対象が同じ関手を表現したら、それらは同型なのか。表現の構成にはどんなデータが関わるのか。そして表現可能関手が表す普遍性は、最初のパラダイムだった始対象・終対象とどう関係するのか。これらすべての答えが、次節の米田の補題を使う。</p>
+
+<h2>節末問題</h2>
+
+<p class="note">原文は英語。以下は和訳・言い換え。</p>
+
+<ul>
+  <li><b>2.1.i</b> — 正整数 n に対し、ℤ/n は位数 n の巡回群、すなわち「位数 n の元をひとつ含む自由群」である。この普遍性を使って、(i) ℤ/n が表現する関手を記述し、(ii) すべての正整数の組 n, m について群準同型 φ : ℤ/n → ℤ/m を特徴づけよ。</li>
+  <li><b>2.1.ii</b> — F : C → Set が表現可能ならば、F はモノ射を単射に送ることを証明せよ。対偶を使って、好きな具体圏の上の表現可能でない集合値関手をひとつ見つけよ。</li>
+  <li><b>2.1.iii</b> — F : C → Set と G : D → Set が、圏同値 H : C → D と自然同型 GH ≅ F の意味で同値だとする。(i) G が表現可能なら F は表現可能か。(ii) F が表現可能なら G は表現可能か。</li>
+  <li><b>2.1.iv</b> — 成分がすべてモノ射である自然変換 α : F ⇒ G があるとき、F は G の部分関手（subfunctor）であるという。G : C<sup>op</sup> → Set の場合、部分関手は、各射 f : x → y に対し Ff : Fy → Fx が Gf の制限になるような部分集合の族 Fx ⊂ Gx で記述される。表現された関手 C(−,c) の部分関手をなす部分集合族を特徴づけよ。</li>
+</ul>
+
+</body>
+</html>
