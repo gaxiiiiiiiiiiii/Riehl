@@ -47,17 +47,12 @@
     margin: 1.2rem 0;
   }
   .thm b { font-family: "Hiragino Sans", sans-serif; }
-  pre.diagram {
-    font-family: "SF Mono", Menlo, Consolas, monospace;
-    font-size: .85rem;
-    line-height: 1.6;
-    background: var(--box-bg);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: .8rem 1rem;
-    overflow-x: auto;
-    margin: 1rem 0;
-  }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
   blockquote {
     margin: 1.2rem 0; padding: .5rem 1.1rem;
     border-left: 3px solid var(--line); color: var(--muted); font-size: .92rem;
@@ -106,15 +101,29 @@
 
 <p><b>例2.1.1（自然数の普遍性）.</b> 集合 X と自己写像 f : X → X と指定された要素 x<sub>0</sub> ∈ X の組を<b>離散力学系</b>と呼ぶ。このデータからは、x<sub>0</sub> の離散時間発展の列 (x<sub>n</sub>)、x<sub>n+1</sub> := f(x<sub>n</sub>) が得られる。数学的再帰の原理が主張するのは、自然数 ℕ・後者関数 s : ℕ → ℕ・要素 0 ∈ ℕ の組が<b>普遍的な</b>離散力学系だということである: どんな離散力学系 (X, f, x<sub>0</sub>) に対しても、r(n) = x<sub>n</sub> を満たす写像 r : ℕ → X がただ一つ存在する。図式で言えば</p>
 
-<pre class="diagram">
-        0         s
-   ∗ ────→ ℕ ────→ ℕ
-     ╲       │       │
-   x₀ ╲      │ r     │ r          (2.1.2)
-       ↘     ↓       ↓
-             X ────→ X
-                 f
-</pre>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 340 175" width="340" role="img" aria-label="自然数の再帰の可換図式">
+  <defs><marker id="ra1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="45" y="45" text-anchor="middle">∗</text>
+  <text x="165" y="45" text-anchor="middle">ℕ</text>
+  <text x="290" y="45" text-anchor="middle">ℕ</text>
+  <text x="165" y="150" text-anchor="middle">X</text>
+  <text x="290" y="150" text-anchor="middle">X</text>
+  <line x1="60" y1="40" x2="147" y2="40" marker-end="url(#ra1)"/>
+  <text class="lbl" x="103" y="30" text-anchor="middle">0</text>
+  <line x1="180" y1="40" x2="272" y2="40" marker-end="url(#ra1)"/>
+  <text class="lbl" x="226" y="30" text-anchor="middle">s</text>
+  <line x1="165" y1="58" x2="165" y2="128" marker-end="url(#ra1)"/>
+  <text class="lbl" x="155" y="97" text-anchor="end">r</text>
+  <line x1="290" y1="58" x2="290" y2="128" marker-end="url(#ra1)"/>
+  <text class="lbl" x="300" y="97" text-anchor="start">r</text>
+  <line x1="180" y1="145" x2="272" y2="145" marker-end="url(#ra1)"/>
+  <text class="lbl" x="226" y="167" text-anchor="middle">f</text>
+  <line x1="53" y1="55" x2="150" y2="132" marker-end="url(#ra1)"/>
+  <text class="lbl" x="82" y="108" text-anchor="end">x₀</text>
+</svg>
+<figcaption>(2.1.2)</figcaption>
+</figure>
 
 <p>が可換になる r がただ一つある。（脚注: 自然数には「始対象としての rig（負元なしの環）」という別の普遍性もある。また終対象 ∗ を持つ圏 C では、この形の図式で始対象になるものを C の自然数対象と呼ぶ。）</p>
 
@@ -157,13 +166,23 @@
 
 <ol class="ex">
 <li><b>恒等関手 id<sub>Set</sub> : Set → Set</b> は1点集合 ∗ に表現される。すなわち自然同型 Set(∗,X) ≅ X があり、要素 x ∈ X と、1点を x に送る写像 x : ∗ → X が対応する。自然性の主張は、f : X → Y に対して四角形
-<pre class="diagram">
-   Set(∗,X) ──≅──→ X
-      │              │
-   f∘−│              │ f
-      ↓              ↓
-   Set(∗,Y) ──≅──→ Y
-</pre>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 360 160" width="360" role="img" aria-label="表現の自然性の四角形">
+  <defs><marker id="ra2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="75" y="40" text-anchor="middle">Set(∗, X)</text>
+  <text x="300" y="40" text-anchor="middle">X</text>
+  <text x="75" y="135" text-anchor="middle">Set(∗, Y)</text>
+  <text x="300" y="135" text-anchor="middle">Y</text>
+  <line x1="140" y1="35" x2="282" y2="35" marker-end="url(#ra2)"/>
+  <text class="lbl" x="211" y="25" text-anchor="middle">≅</text>
+  <line x1="140" y1="130" x2="282" y2="130" marker-end="url(#ra2)"/>
+  <text class="lbl" x="211" y="152" text-anchor="middle">≅</text>
+  <line x1="75" y1="52" x2="75" y2="113" marker-end="url(#ra2)"/>
+  <text class="lbl" x="63" y="87" text-anchor="end">f ∘ −</text>
+  <line x1="300" y1="52" x2="300" y2="113" marker-end="url(#ra2)"/>
+  <text class="lbl" x="311" y="87" text-anchor="start">f</text>
+</svg>
+</figure>
 が可換であること。合成 ∗ → X → Y が要素 f(x) に対応する、という当たり前の事実がその中身である。</li>
 
 <li><b>忘却関手 U : Top → Set</b> は1点空間に表現される: 位相空間の要素と、1点空間からの連続写像が自然に対応する。</li>
@@ -199,13 +218,23 @@
 
 <ol class="ex">
 <li><b>反変冪集合関手 P : Set<sup>op</sup> → Set</b> は2元集合 Ω = {⊤, ⊥} に表現される。自然同型 Set(A,Ω) ≅ PA は、部分集合 A′ ⊂ A とその特性関数 χ<sub>A′</sub> : A → Ω（A′ の元をちょうど ⊤ に送る）を対応させる。自然性の主張は、f : A → B に対して
-<pre class="diagram">
-   Set(B,Ω) ──≅──→ PB
-      │              │
-   −∘f│              │ f⁻¹
-      ↓              ↓
-   Set(A,Ω) ──≅──→ PA
-</pre>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 360 160" width="360" role="img" aria-label="冪集合関手の自然性の四角形">
+  <defs><marker id="ra3" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="75" y="40" text-anchor="middle">Set(B, Ω)</text>
+  <text x="300" y="40" text-anchor="middle">PB</text>
+  <text x="75" y="135" text-anchor="middle">Set(A, Ω)</text>
+  <text x="300" y="135" text-anchor="middle">PA</text>
+  <line x1="140" y1="35" x2="272" y2="35" marker-end="url(#ra3)"/>
+  <text class="lbl" x="206" y="25" text-anchor="middle">≅</text>
+  <line x1="140" y1="130" x2="272" y2="130" marker-end="url(#ra3)"/>
+  <text class="lbl" x="206" y="152" text-anchor="middle">≅</text>
+  <line x1="75" y1="52" x2="75" y2="113" marker-end="url(#ra3)"/>
+  <text class="lbl" x="63" y="87" text-anchor="end">− ∘ f</text>
+  <line x1="300" y1="52" x2="300" y2="113" marker-end="url(#ra3)"/>
+  <text class="lbl" x="311" y="87" text-anchor="start">f<tspan dy="-5" font-size="10.5">−1</tspan></text>
+</svg>
+</figure>
 が可換であること: B′ ⊂ B を分類する χ<sub>B′</sub> と f の合成は、逆像 f<sup>−1</sup>(B′) ⊂ A を分類する。</li>
 
 <li><b>開集合関手 O : Top<sup>op</sup> → Set</b> は Sierpinski 空間 S（2点のうち一方が開、他方が閉）に表現される。自然な全単射 Top(X,S) ≅ O(X) は、連続写像 f : X → S に開点の逆像を対応させる。自然性は「合成 g;f が分類する開集合は、f の分類する開集合の g による逆像」ということ。</li>

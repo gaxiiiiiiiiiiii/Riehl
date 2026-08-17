@@ -48,17 +48,12 @@
   .thm b { font-family: "Hiragino Sans", sans-serif; }
   .proof-head { font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
   .qed { float: right; }
-  pre.diagram {
-    font-family: "SF Mono", Menlo, Consolas, monospace;
-    font-size: .85rem;
-    line-height: 1.6;
-    background: var(--box-bg);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: .8rem 1rem;
-    overflow-x: auto;
-    margin: 1rem 0;
-  }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
   blockquote {
     margin: 1.2rem 0; padding: .5rem 1.1rem;
     border-left: 3px solid var(--line); color: var(--muted); font-size: .92rem;
@@ -110,13 +105,45 @@
 
 <p>自然変換 α : ω(k,−) ⇒ F のデータは成分 α<sub>n</sub> : ω(k,n) → F<sub>n</sub> の族で、これが自然性の条件を満たす。n &lt; k では定義域が空なので α<sub>n</sub> は情報を持たない。n ≥ k では定義域が一点なので、α<sub>n</sub> は要素 α<sub>n</sub> ∈ F<sub>n</sub> の指定と同じことである。</p>
 
-<pre class="diagram">
-ω(k,−):   ∅ → ⋯ → ∅ → ∗ ──→ ∗ ──→ ∗ → ⋯
-                       │α_k   │α_{k+1}
-                       ↓      ↓
-F:        F₀→ ⋯ →F_{k-1}→ F_k ──→ F_{k+1} → ⋯
-                          f_{k,k+1}
-</pre>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 520 195" width="520" role="img" aria-label="ω 上の表現された関手と F の間の自然変換">
+  <defs><marker id="ry1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text class="lbl" x="4" y="48" text-anchor="start">ω(k,−):</text>
+  <text class="lbl" x="4" y="153" text-anchor="start">F:</text>
+
+  <text x="105" y="48" text-anchor="middle">∅</text>
+  <text x="175" y="48" text-anchor="middle">⋯</text>
+  <text x="250" y="48" text-anchor="middle">∅</text>
+  <text x="335" y="48" text-anchor="middle">∗</text>
+  <text x="425" y="48" text-anchor="middle">∗</text>
+  <text x="495" y="48" text-anchor="middle">⋯</text>
+
+  <text x="105" y="153" text-anchor="middle">F₀</text>
+  <text x="175" y="153" text-anchor="middle">⋯</text>
+  <text x="250" y="153" text-anchor="middle">Fₖ₋₁</text>
+  <text x="335" y="153" text-anchor="middle">Fₖ</text>
+  <text x="425" y="153" text-anchor="middle">Fₖ₊₁</text>
+  <text x="495" y="153" text-anchor="middle">⋯</text>
+
+  <line x1="116" y1="43" x2="164" y2="43" marker-end="url(#ry1)"/>
+  <line x1="186" y1="43" x2="239" y2="43" marker-end="url(#ry1)"/>
+  <line x1="261" y1="43" x2="325" y2="43" marker-end="url(#ry1)"/>
+  <line x1="345" y1="43" x2="415" y2="43" marker-end="url(#ry1)"/>
+  <line x1="435" y1="43" x2="486" y2="43" marker-end="url(#ry1)"/>
+
+  <line x1="120" y1="148" x2="164" y2="148" marker-end="url(#ry1)"/>
+  <line x1="186" y1="148" x2="220" y2="148" marker-end="url(#ry1)"/>
+  <line x1="283" y1="148" x2="317" y2="148" marker-end="url(#ry1)"/>
+  <line x1="350" y1="148" x2="402" y2="148" marker-end="url(#ry1)"/>
+  <line x1="450" y1="148" x2="486" y2="148" marker-end="url(#ry1)"/>
+  <text class="lbl" x="376" y="172" text-anchor="middle">f<tspan dy="3" font-size="10.5">k,k+1</tspan></text>
+
+  <line x1="335" y1="62" x2="335" y2="131" marker-end="url(#ry1)"/>
+  <text class="lbl" x="326" y="102" text-anchor="end">αₖ</text>
+  <line x1="425" y1="62" x2="425" y2="131" marker-end="url(#ry1)"/>
+  <text class="lbl" x="435" y="102" text-anchor="start">αₖ₊₁</text>
+</svg>
+</figure>
 
 <p>自然性の四角形は、隣り合う段について α<sub>n+1</sub> = f<sub>n,n+1</sub>(α<sub>n</sub>) を要求する。したがって帰納法により、α 全体は最初の要素 α<sub>k</sub> ∈ F<sub>k</sub> の選択ひとつで完全に、しかも一意に決まる。そしてこの α<sub>k</sub> は、成分 α<sub>k</sub> : ω(k,k) → F<sub>k</sub> による恒等射 id<sub>k</sub> ∈ ω(k,k) の像にほかならない。さらに、α<sub>k</sub> としては F<sub>k</sub> のどの要素を選んでもよい——自然性はそれ以上の制約を課さない。</p>
 
@@ -150,15 +177,23 @@ F:        F₀→ ⋯ →F_{k-1}→ F_k ──→ F_{k+1} → ⋯
 
 <p>ここで鍵になるのは、f が単なる集合の要素ではなく射 f : c → d であることだ。まだ定義していない Ψ(x) の成分たちが自然であるためには、次の四角形が可換でなければならない:</p>
 
-<pre class="diagram">
-            Ψ(x)_c
-   C(c,c) ────────→ Fc
-     │                │
-  f∗ │                │ Ff
-     ↓                ↓
-   C(c,d) ────────→ Fd
-            Ψ(x)_d
-</pre>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 330 165" width="330" role="img" aria-label="Ψ(x) の成分が満たすべき自然性の四角形">
+  <defs><marker id="ry2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="55" y="42" text-anchor="middle">C(c, c)</text>
+  <text x="275" y="42" text-anchor="middle">Fc</text>
+  <text x="55" y="140" text-anchor="middle">C(c, d)</text>
+  <text x="275" y="140" text-anchor="middle">Fd</text>
+  <line x1="105" y1="37" x2="257" y2="37" marker-end="url(#ry2)"/>
+  <text class="lbl" x="181" y="26" text-anchor="middle">Ψ(x)<tspan dy="3" font-size="10.5">c</tspan></text>
+  <line x1="105" y1="135" x2="257" y2="135" marker-end="url(#ry2)"/>
+  <text class="lbl" x="181" y="159" text-anchor="middle">Ψ(x)<tspan dy="3" font-size="10.5">d</tspan></text>
+  <line x1="55" y1="55" x2="55" y2="118" marker-end="url(#ry2)"/>
+  <text class="lbl" x="45" y="92" text-anchor="end">f<tspan dy="-5" font-size="10.5">∗</tspan></text>
+  <line x1="275" y1="55" x2="275" y2="118" marker-end="url(#ry2)"/>
+  <text class="lbl" x="286" y="92" text-anchor="start">Ff</text>
+</svg>
+</figure>
 
 <p>恒等射 id<sub>c</sub> ∈ C(c,c) を左下回りで送ると Ψ(x)<sub>d</sub>(f)、右上回りで送ると Ff(Ψ(x)<sub>c</sub>(id<sub>c</sub>)) になる。一方、Ψ が ev<sub>id</sub> の逆であるためには Ψ(x)<sub>c</sub>(id<sub>c</sub>) = x でなければならない。すると自然性が定義を強制する:</p>
 
@@ -166,29 +201,46 @@ F:        F₀→ ⋯ →F_{k-1}→ F_k ──→ F_{k+1} → ⋯
 
 <p>つまり成分の定義に選択の余地は一切なかった。残る仕事は、この強制された式が本当に自然変換を定めるかの確認である。一般の射 g : d → e（域が c とは限らない）について四角形</p>
 
-<pre class="diagram">
-            Ψ(x)_d
-   C(c,d) ────────→ Fd
-     │                │
-  g∗ │                │ Fg
-     ↓                ↓
-   C(c,e) ────────→ Fe
-            Ψ(x)_e
-</pre>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 330 165" width="330" role="img" aria-label="一般の射 g についての自然性の四角形">
+  <defs><marker id="ry3" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="55" y="42" text-anchor="middle">C(c, d)</text>
+  <text x="275" y="42" text-anchor="middle">Fd</text>
+  <text x="55" y="140" text-anchor="middle">C(c, e)</text>
+  <text x="275" y="140" text-anchor="middle">Fe</text>
+  <line x1="105" y1="37" x2="257" y2="37" marker-end="url(#ry3)"/>
+  <text class="lbl" x="181" y="26" text-anchor="middle">Ψ(x)<tspan dy="3" font-size="10.5">d</tspan></text>
+  <line x1="105" y1="135" x2="257" y2="135" marker-end="url(#ry3)"/>
+  <text class="lbl" x="181" y="159" text-anchor="middle">Ψ(x)<tspan dy="3" font-size="10.5">e</tspan></text>
+  <line x1="55" y1="55" x2="55" y2="118" marker-end="url(#ry3)"/>
+  <text class="lbl" x="45" y="92" text-anchor="end">g<tspan dy="-5" font-size="10.5">∗</tspan></text>
+  <line x1="275" y1="55" x2="275" y2="118" marker-end="url(#ry3)"/>
+  <text class="lbl" x="286" y="92" text-anchor="start">Fg</text>
+</svg>
+</figure>
 
 <p>の可換性を見る。f ∈ C(c,d) を左下回りで送ると Ψ(x)<sub>e</sub>(gf) = F(gf)(x)、右上回りで送ると Fg(Ψ(x)<sub>d</sub>(f)) = Fg(Ff(x))。F の関手性 F(gf) = Fg∘Ff により両者は一致する。これで Ψ : Fc → Hom(C(c,−), F) が定義できた。</p>
 
 <p>構成から ev<sub>id</sub>(Ψ(x)) = Ψ(x)<sub>c</sub>(id<sub>c</sub>) = x、すなわち Ψ は ev<sub>id</sub> の右逆である。左逆であること Ψ(ev<sub>id</sub>(α)) = α を見るには、両辺の各成分が一致すること、すなわち任意の f ∈ C(c,d) について Ψ(α<sub>c</sub>(id<sub>c</sub>))<sub>d</sub>(f) = α<sub>d</sub>(f) を示せばよい。α 自身の自然性の四角形</p>
 
-<pre class="diagram">
-             α_c
-   C(c,c) ────────→ Fc
-     │                │
-  f∗ │    (2.2.6)     │ Ff        id_c を追うと:
-     ↓                ↓           Ff(α_c(id_c)) = α_d(f)
-   C(c,d) ────────→ Fd
-             α_d
-</pre>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 330 165" width="330" role="img" aria-label="自然変換 α 自身の自然性の四角形">
+  <defs><marker id="ry4" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="55" y="42" text-anchor="middle">C(c, c)</text>
+  <text x="275" y="42" text-anchor="middle">Fc</text>
+  <text x="55" y="140" text-anchor="middle">C(c, d)</text>
+  <text x="275" y="140" text-anchor="middle">Fd</text>
+  <line x1="105" y1="37" x2="257" y2="37" marker-end="url(#ry4)"/>
+  <text class="lbl" x="181" y="26" text-anchor="middle">α<tspan dy="3" font-size="10.5">c</tspan></text>
+  <line x1="105" y1="135" x2="257" y2="135" marker-end="url(#ry4)"/>
+  <text class="lbl" x="181" y="159" text-anchor="middle">α<tspan dy="3" font-size="10.5">d</tspan></text>
+  <line x1="55" y1="55" x2="55" y2="118" marker-end="url(#ry4)"/>
+  <text class="lbl" x="45" y="92" text-anchor="end">f<tspan dy="-5" font-size="10.5">∗</tspan></text>
+  <line x1="275" y1="55" x2="275" y2="118" marker-end="url(#ry4)"/>
+  <text class="lbl" x="286" y="92" text-anchor="start">Ff</text>
+</svg>
+<figcaption>(2.2.6) — id<sub>c</sub> を追うと Ff(α<sub>c</sub>(id<sub>c</sub>)) = α<sub>d</sub>(f)</figcaption>
+</figure>
 
 <p>で id<sub>c</sub> を追跡すると Ff(α<sub>c</sub>(id<sub>c</sub>)) = α<sub>d</sub>(f) を得る。定義(2.2.5)より左辺は Ψ(α<sub>c</sub>(id<sub>c</sub>))<sub>d</sub>(f) だから、示すべき等式が出た。よって Ψ は両側逆であり、ev<sub>id</sub> は全単射である。<span class="qed">□</span></p>
 
@@ -196,29 +248,45 @@ F:        F₀→ ⋯ →F_{k-1}→ F_k ──→ F_{k+1} → ⋯
 
 <p><b>関手方向。</b>自然変換 β : F ⇒ G に対し、次が可換であること:</p>
 
-<pre class="diagram">
-                      ev_id
-   Hom(C(c,−), F) ────────→ Fc
-        │                     │
-     β∗ │                     │ β_c
-        ↓                     ↓
-   Hom(C(c,−), G) ────────→ Gc
-                      ev_id
-</pre>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 420 165" width="420" role="img" aria-label="関手方向の自然性の四角形">
+  <defs><marker id="ry5" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="95" y="42" text-anchor="middle">Hom(C(c,−), F)</text>
+  <text x="365" y="42" text-anchor="middle">Fc</text>
+  <text x="95" y="140" text-anchor="middle">Hom(C(c,−), G)</text>
+  <text x="365" y="140" text-anchor="middle">Gc</text>
+  <line x1="195" y1="37" x2="347" y2="37" marker-end="url(#ry5)"/>
+  <text class="lbl" x="271" y="26" text-anchor="middle">ev<tspan dy="3" font-size="10.5">id</tspan></text>
+  <line x1="195" y1="135" x2="347" y2="135" marker-end="url(#ry5)"/>
+  <text class="lbl" x="271" y="159" text-anchor="middle">ev<tspan dy="3" font-size="10.5">id</tspan></text>
+  <line x1="95" y1="55" x2="95" y2="118" marker-end="url(#ry5)"/>
+  <text class="lbl" x="85" y="92" text-anchor="end">β<tspan dy="-5" font-size="10.5">∗</tspan></text>
+  <line x1="365" y1="55" x2="365" y2="118" marker-end="url(#ry5)"/>
+  <text class="lbl" x="376" y="92" text-anchor="start">β<tspan dy="3" font-size="10.5">c</tspan></text>
+</svg>
+</figure>
 
 <p>左下回りは α を縦合成 β·α にしてから id<sub>c</sub> で評価し、右上回りは先に評価してから β<sub>c</sub> を適用する。縦合成の定義（補題1.7.1）から (β·α)<sub>c</sub>(id<sub>c</sub>) = β<sub>c</sub>(α<sub>c</sub>(id<sub>c</sub>)) であり、これがちょうど両回りの一致である。</p>
 
 <p><b>対象方向。</b>射 f : c → d に対し、次が可換であること（前合成 f<sup>∗</sup> : C(d,−) ⇒ C(c,−) との合成が誘導する写像を (f<sup>∗</sup>)<sup>∗</sup> と書く）:</p>
 
-<pre class="diagram">
-                      ev_id
-   Hom(C(c,−), F) ────────→ Fc
-        │                     │
- (f∗)∗  │                     │ Ff
-        ↓                     ↓
-   Hom(C(d,−), F) ────────→ Fd
-                      ev_id
-</pre>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 420 165" width="420" role="img" aria-label="対象方向の自然性の四角形">
+  <defs><marker id="ry6" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="95" y="42" text-anchor="middle">Hom(C(c,−), F)</text>
+  <text x="365" y="42" text-anchor="middle">Fc</text>
+  <text x="95" y="140" text-anchor="middle">Hom(C(d,−), F)</text>
+  <text x="365" y="140" text-anchor="middle">Fd</text>
+  <line x1="195" y1="37" x2="347" y2="37" marker-end="url(#ry6)"/>
+  <text class="lbl" x="271" y="26" text-anchor="middle">ev<tspan dy="3" font-size="10.5">id</tspan></text>
+  <line x1="195" y1="135" x2="347" y2="135" marker-end="url(#ry6)"/>
+  <text class="lbl" x="271" y="159" text-anchor="middle">ev<tspan dy="3" font-size="10.5">id</tspan></text>
+  <line x1="95" y1="55" x2="95" y2="118" marker-end="url(#ry6)"/>
+  <text class="lbl" x="85" y="92" text-anchor="end">(f<tspan dy="-5" font-size="10.5">∗</tspan><tspan dy="5">)</tspan><tspan dy="-5" font-size="10.5">∗</tspan></text>
+  <line x1="365" y1="55" x2="365" y2="118" marker-end="url(#ry6)"/>
+  <text class="lbl" x="376" y="92" text-anchor="start">Ff</text>
+</svg>
+</figure>
 
 <p>α ∈ Hom(C(c,−), F) の右上回りの像は Ff(α<sub>c</sub>(id<sub>c</sub>))。左下回りの像は (α·f<sup>∗</sup>)<sub>d</sub>(id<sub>d</sub>) で、縦合成の d 成分は合成写像 α<sub>d</sub>∘f<sup>∗</sup><sub>d</sub> だから、id<sub>d</sub> ↦ id<sub>d</sub>·f = f ↦ α<sub>d</sub>(f) と計算できる。あとは先ほどの四角形(2.2.6)が α<sub>d</sub>(f) = Ff(α<sub>c</sub>(id<sub>c</sub>)) を与えるので、両回りは一致する。<span class="qed">□</span></p>
 
