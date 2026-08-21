@@ -1,4 +1,5 @@
 import Mathlib.CategoryTheory.Yoneda
+import Mathlib.CategoryTheory.EssentialImage
 import Mathlib.CategoryTheory.Category.Preorder
 import Mathlib.CategoryTheory.Preadditive.Mat
 import Mathlib.GroupTheory.GroupAction.Hom
@@ -16,8 +17,16 @@ statement の直前の `#check` にある。
                small の仮定が、この universe の一致にあたる
   定理2.2.4    Ψ は成分の式を見つけること自体が中身なので、data ごと丸ごと `sorry` に
                する（1.7 の「data を書いて proof obligation だけ残す」とは逆の選択）
+  定理2.2.4 の 「c と F の双方に自然」を、注意2.2.7 のパッケージングで述べる。両辺を積圏
+  自然性     上の関手として比べる形は universe が `max u₁ v₁` に上がり `ULift` を伴う
+               ので、C を小さく取って curried 形で述べ、それを避ける。本が SET を導入して
+               扱う規模の会計を、小ささの仮定に置き換えたことになる
+  評価関手     data は Mathlib と同じだが、`map` の自然性と `map_id` が `rfl` で閉じない
+               ので自前で組む。statement では Mathlib の `evaluation` を使う
   命題2.2.3    Mathlib の対応物は自己準同型（X = G）の場合だけで、値も反対モノイド Gᵐᵒᵖ
                の側に落ちる
+  系2.2.8 の   本は「C は表現された関手が張る充満部分圏と同型」と述べる。Mathlib では
+  言い換え     本質像 `EssImageSubcategory` への同値として述べる
   系2.2.8      充満・忠実は定義1.5.7 と一致するので `Functor.Full`・`Functor.Faithful` で
                述べる
   系2.2.10     行演算そのものには定義がないので、本の証明が使う「表現された関手の自然な
@@ -38,13 +47,16 @@ statement を置かない節末問題:
   2.2.vi   説明問題
   2.2.vii  特徴づけの主張の形自体が答えの一部になる
 
-本文中の例（例2.2.1・例2.2.2・例2.2.9）と注意2.2.7 は載せない。注意2.2.7 に対応する
-Mathlib の宣言は `coyonedaEvaluation`・`coyonedaPairing` と、両者の自然同型 `coyonedaLemma`
-（反変側は `yonedaEvaluation`・`yonedaPairing`・`yonedaLemma`）。
+本文中の例（例2.2.1・例2.2.2・例2.2.9）は載せない。注意2.2.7 は Remark だが、定理2.2.4 の
+自然性の主張に Lean の statement を与える唯一の形なので、そのパッケージングだけを使う。
+対応する Mathlib の宣言は `coyonedaEvaluation`・`coyonedaPairing` と、両者の自然同型
+`coyonedaLemma`、curried 形の `curriedCoyonedaLemma`（反変側は `yonedaEvaluation`・
+`yonedaPairing`・`yonedaLemma`・`curriedYonedaLemma`）。
 
 参考: 主に扱う Mathlib のファイル
   - `Mathlib/CategoryTheory/Yoneda.lean`（`yoneda`・`coyoneda`・`yonedaEquiv`・
     `coyonedaEquiv`・`Yoneda.yoneda_full`・`Coyoneda.coyoneda_full`・`coyonedaLemma`）
+  - `Mathlib/CategoryTheory/EssentialImage.lean`（`Functor.toEssImage`）
   - `Mathlib/CategoryTheory/Category/Preorder.lean`（`Preorder.smallCategory`）
   - `Mathlib/CategoryTheory/Preadditive/Mat.lean`（`Mat`）
   - `Mathlib/GroupTheory/GroupAction/Hom.lean`（`MulActionHom`）
@@ -74,6 +86,11 @@ def yoneda : C ⥤ Cᵒᵖ ⥤ Type v₁ where
 
 -- そのうち c ↦ C(c,−) の側。Mathlib は独立に定義せず引数の入れ替えで得る
 abbrev coyoneda : Cᵒᵖ ⥤ C ⥤ Type v₁ := yoneda.flip
+
+-- 演習1.3.v の読み替え。Cᵒᵖ ⥤ D の関手を C ⥤ Dᵒᵖ と見る
+def Functor.rightOp {D : Type u₂} [Category.{v₂} D] (F : Cᵒᵖ ⥤ D) : C ⥤ Dᵒᵖ where
+  obj X := op (F.obj (op X))
+  map f := (F.map f.op).op
 
 -- 例1.4.4(iv) の同変写像。`X →[M] Y` は φ を恒等写像に取ったときの記法
 structure MulActionHom {M N : Type*} (φ : M → N) (X : Type*) [SMul M X] (Y : Type*)
@@ -125,35 +142,65 @@ theorem prop_2_2_3 {G : Type u₁} [Group G] {X : Type u₂} [MulAction G X] :
 自然変換 α : C(c,−) ⇒ F を、その c 成分での恒等射の像 α_c(id_c) ∈ Fc に送る写像 ev_id
 は全単射で、しかも c と F の双方に自然である。
 
-構成: Ψ : Fc → Hom(C(c,−), F) を構成し、それが ev_id の右逆・左逆であること、および
-      ev_id が関手方向・対象方向のそれぞれに自然であることを示す。
+構成: Ψ : Fc → Hom(C(c,−), F) を構成して ev_id との全単射を組み、評価関手を構成して、
+      ev_id が両変数についての自然同型をなすことを示す。
 -/
 
 #check @CategoryTheory.coyonedaEquiv
 
-def myΨ (F : C ⥤ Type v₁) (c : C) (x : F.obj c) : coyoneda.obj (op c) ⟶ F := sorry
+def ψ (F : C ⥤ Type v₁) (c : C) (x : F.obj c) : coyoneda.obj (op c) ⟶ F where
+  app c' := by
+    apply TypeCat.ofHom
+    intro f; exact F.map f x
+  naturality {X Y} f:= by ext g; simp
+
 
 #check @CategoryTheory.coyonedaEquiv
+example (F : C ⥤ Type v₁) (c : C) :
+  (coyoneda.obj (op c) ⟶ F) ≃ F.obj c
+where
+  toFun f := f.app c (𝟙 c)
+  invFun x := ψ F c x
 
-theorem thm_2_2_4_right_inv (F : C ⥤ Type v₁) (c : C) (x : F.obj c) :
-    (myΨ F c x).app c (𝟙 c) = x := sorry
+  left_inv := by
+    intro f; simp only [Functor.flip_obj_obj, yoneda_obj_obj]
+    ext c' g; simp only [Functor.flip_obj_obj, yoneda_obj_obj, ψ, TypeCat.hom_ofHom,
+      TypeCat.Fun.toFun_apply, TypeCat.Fun.coe_mk]
+    rw [<- comp_apply, <- f.naturality g]
+    simp
+  right_inv := by
+    intro x; simp [Functor.flip_obj_obj, yoneda_obj_obj, ψ]
 
-#check @CategoryTheory.coyonedaEquiv
 
-theorem thm_2_2_4_left_inv (F : C ⥤ Type v₁) (c : C) (α : coyoneda.obj (op c) ⟶ F) :
-    myΨ F c (α.app c (𝟙 c)) = α := sorry
 
-#check @CategoryTheory.coyonedaEquiv_comp
 
-theorem thm_2_2_4_nat_functor {F G : C ⥤ Type v₁} (c : C) (β : F ⟶ G)
-    (α : coyoneda.obj (op c) ⟶ F) :
-    (α ≫ β).app c (𝟙 c) = β.app c (α.app c (𝟙 c)) := sorry
 
-#check @CategoryTheory.coyonedaEquiv_naturality
 
-theorem thm_2_2_4_nat_object (F : C ⥤ Type v₁) {c d : C} (f : c ⟶ d)
-    (α : coyoneda.obj (op c) ⟶ F) :
-    (coyoneda.map f.op ≫ α).app d (𝟙 d) = F.map f (α.app c (𝟙 c)) := sorry
+#check @CategoryTheory.evaluation
+
+def myEvaluation (C : Type u₁) [SmallCategory C] (D : Type u₁) [SmallCategory D] :
+    C ⥤ (C ⥤ D) ⥤ D where
+  obj X :=
+    { obj := fun F => F.obj X
+      map := fun α => α.app X
+      map_id := sorry
+      map_comp := sorry }
+  map f :=
+    { app := fun F => F.map f
+      naturality := sorry }
+  map_id := sorry
+  map_comp := sorry
+
+#check @CategoryTheory.curriedCoyonedaLemma
+
+def myCoyonedaLemma (C : Type u₁) [SmallCategory C] :
+    coyoneda.rightOp ⋙ coyoneda ≅ evaluation C (Type u₁) :=
+  NatIso.ofComponents
+    (app := fun c =>
+      NatIso.ofComponents
+        (app := fun F => Equiv.toIso (coyonedaEquiv (X := c) (F := F)))
+        (naturality := sorry))
+    (naturality := sorry)
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 系2.2.8（米田埋め込み）
@@ -175,6 +222,16 @@ theorem cor_2_2_8_coyoneda_full : (coyoneda : Cᵒᵖ ⥤ C ⥤ Type v₁).Full 
 #check @CategoryTheory.Coyoneda.coyoneda_faithful
 
 theorem cor_2_2_8_coyoneda_faithful : (coyoneda : Cᵒᵖ ⥤ C ⥤ Type v₁).Faithful := sorry
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 系2.2.8 の言い換え
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 表現された関手の間の自然変換は表現対象の間の射とちょうど対応するので、C は前層の圏の
+-- うち表現された関手が張る充満部分圏と同型である。
+
+#check @CategoryTheory.Functor.toEssImage
+
+theorem cor_2_2_8_essImage : (yoneda : C ⥤ Cᵒᵖ ⥤ Type v₁).toEssImage.IsEquivalence := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 系2.2.10
