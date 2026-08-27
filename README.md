@@ -31,9 +31,12 @@ Emily Riehl, *Category Theory in Context* を Lean 4 と Mathlib で読むため
 ```
 Riehl/
 ├── Ch1_Categories/     -- 1.5 圏同値, 1.7 圏の2-圏
-│   ├── Equivalence.lean
-│   └── TwoCategory.lean
+│   ├── S1_5_Equivalence.{html,lean}
+│   └── S1_7_TwoCategory.{html,lean}
 ├── Ch2_Yoneda/         -- 2.1-2.4 普遍性・表現可能性・米田の補題
+│   ├── S2_1_Representable.{html,lean}
+│   ├── S2_2_Yoneda.{html,lean}
+│   └── S2_3_UniversalProperty.{html,lean}
 ├── Ch3_Limits/         -- 3.1-3.8 極限と余極限
 └── Ch4_Adjunctions/    -- 4.1-4.7 随伴
 ```

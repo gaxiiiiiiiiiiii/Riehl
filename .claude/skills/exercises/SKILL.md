@@ -9,7 +9,7 @@ description: Riehl の Category Theory in Context の節について、演習フ
 
 同じ節の解説資料（`.html`）を先に書き、ユーザーに読んでもらってから着手する。書く前に、節をまたぐ取り決めをまとめた [cross-section.md](cross-section.md) を読む。新しい取り決めが生じたらそこに追記する。
 
-書式の実物は `Riehl/Ch2_Yoneda/Yoneda.lean` にある。新しい演習ファイルを書く前に読む。
+書式の実物は `Riehl/Ch2_Yoneda/S2_2_Yoneda.lean` にある。新しい演習ファイルを書く前に読む。
 
 作成・編集したら2つ確認する。
 

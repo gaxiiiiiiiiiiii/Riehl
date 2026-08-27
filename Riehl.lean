@@ -1,5 +1,6 @@
 import Riehl.Basic
-import Riehl.Ch1_Categories.Equivalence
-import Riehl.Ch1_Categories.TwoCategory
-import Riehl.Ch2_Yoneda.Representable
-import Riehl.Ch2_Yoneda.Yoneda
+import Riehl.Ch1_Categories.S1_5_Equivalence
+import Riehl.Ch1_Categories.S1_7_TwoCategory
+import Riehl.Ch2_Yoneda.S2_1_Representable
+import Riehl.Ch2_Yoneda.S2_2_Yoneda
+import Riehl.Ch2_Yoneda.S2_3_UniversalProperty

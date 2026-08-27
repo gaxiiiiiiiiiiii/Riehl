@@ -7,7 +7,7 @@ description: Riehl の Category Theory in Context の節について、解説資
 
 本文 PDF（https://emilyriehl.github.io/files/context.pdf）の該当節を通読してから書く。同じ節の演習ファイルより先に、これを書く。本文の内容を自分の言葉で書ける状態にしてから演習を設計するため、およびユーザーが節の内容を把握してから演習に入れるようにするため。
 
-書式の実物は `Riehl/Ch2_Yoneda/Yoneda.html` にある。新しく書く前に読み、CSS・レイアウト・SVG の流儀はそれに揃える。
+書式の実物は `Riehl/Ch2_Yoneda/S2_2_Yoneda.html` にある。新しく書く前に読み、CSS・レイアウト・SVG の流儀はそれに揃える。
 
 書き上げたら2つ確認し、それからユーザーに読んでもらう。演習ファイルはそのあと。
 
