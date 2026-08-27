@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2.2 補足 — 米田の補題を別の例で見る</title>
+<style>
+  :root {
+    --bg: #fdfcf9;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --accent: #8a4c14;
+    --line: #d8d3c8;
+    --box-bg: #f5f2ea;
+    --code-bg: #f0ede5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1e22;
+      --fg: #e4e1da;
+      --muted: #9aa2ab;
+      --accent: #e0a468;
+      --line: #3a3f46;
+      --box-bg: #24262b;
+      --code-bg: #2a2d33;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    line-height: 1.95;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.5rem; font-family: "Hiragino Sans", sans-serif; border-bottom: 2px solid var(--accent); padding-bottom: .4rem; }
+  h2 { font-size: 1.12rem; font-family: "Hiragino Sans", sans-serif; color: var(--accent); margin-top: 2.6rem; }
+  p { margin: .9rem 0; font-size: .97rem; }
+  li { font-size: .97rem; margin: .4rem 0; }
+  a { color: var(--accent); }
+  .note { color: var(--muted); font-size: .88em; }
+  .disp { text-align: center; margin: 1.2rem 0; }
+  .thm {
+    background: var(--box-bg);
+    border-left: 3px solid var(--accent);
+    padding: .7rem 1.1rem;
+    margin: 1.2rem 0;
+  }
+  .thm b { font-family: "Hiragino Sans", sans-serif; }
+  .proof-head { font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .qed { float: right; }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
+  blockquote {
+    margin: 1.2rem 0; padding: .5rem 1.1rem;
+    border-left: 3px solid var(--line); color: var(--muted); font-size: .92rem;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--box-bg); font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<h1>2.2 補足 — 米田の補題を別の例で見る</h1>
+
+<p class="note">§2.2 の解説（<a href="S2_2_Yoneda.html">S2_2_Yoneda.html</a>）にある例2.2.1（ω 上の図式）・例2.2.2（BG 上の図式）を補うために書いた、本書にない例。番号は本と揃わないので A・B・C と呼ぶ。定理2.2.4（米田の補題）と系2.2.8（米田埋め込みの充満忠実性）の主張はそのまま使う。</p>
+
+<h2>記号表</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>記号</th><th>型・意味</th></tr>
+  <tr><td>1</td><td>一点集合 {∗}</td></tr>
+  <tr><td>2</td><td>2元集合 {0,1}</td></tr>
+  <tr><td>x̂ : 1 → X</td><td>要素 x ∈ X を名指す写像。∗ ↦ x</td></tr>
+  <tr><td>P : Set → Set</td><td>共変べき集合関手。P(X) は X の部分集合全体、P(h)(A) = h[A]（像）</td></tr>
+  <tr><td>List : Set → Set</td><td>有限列をとる関手。List(X) は X の元の有限列全体、List(h) は各成分に h を施す</td></tr>
+  <tr><td>Id : Set → Set</td><td>恒等関手</td></tr>
+  <tr><td>D</td><td>対象 E, V と平行な射 σ, τ : E → V だけからなる圏（例C の添字圏）</td></tr>
+  <tr><td>Hom(C(c,−), F)</td><td>自然変換 C(c,−) ⇒ F 全体の集まり</td></tr>
+  <tr><td>よ</td><td>米田埋め込み（系2.2.8）</td></tr>
+</table>
+</div>
+
+<h2>見たいことは二つ</h2>
+
+<p>定理2.2.4 の内容は、写像</p>
+
+<p class="disp">ev<sub>id</sub> : Hom(C(c,−), F) → F(c),　α ↦ α<sub>c</sub>(id<sub>c</sub>)</p>
+
+<p>が全単射だ、という一文に尽きる。全単射であることは二つの主張に分かれる。</p>
+
+<ul>
+  <li><b>(i) 単射性（決まってしまう）</b> — α は値 α<sub>c</sub>(id<sub>c</sub>) ∈ F(c) ひとつで完全に決まる。他の成分 α<sub>x</sub> は自然性から強制される</li>
+  <li><b>(ii) 全射性（自由に選べる）</b> — 逆に F(c) のどの要素を選んでも、それを実現する α が存在する。自然性はそれ以上の制約を課さない</li>
+</ul>
+
+<p>例2.2.1 と例2.2.2 は、この二つを具体的な圏で確かめたものだった。以下の三つも役割は同じで、確かめる舞台だけが違う。どれも定理2.2.4 を先に認めてしまわず、手で (i) と (ii) を出してから米田の補題と突き合わせる形で書く。</p>
+
+<h2>例A — C = Set、c = 1（自然変換を数え上げる）</h2>
+
+<p>舞台を Set に取り、表現対象を一点集合 1 = {∗} にする。全単射 Set(1,X) ≅ X（f ↦ f(∗)）は X について自然だから、1 が表現する関手は<b>恒等関手 Id そのもの</b>と思ってよい。</p>
+
+<p>行き先の関手として共変べき集合関手 P を取る。問いはこうなる: <b>自然変換 α : Id ⇒ P は何個あるか。</b>言い換えれば、集合 X の要素 x に部分集合 α<sub>X</sub>(x) ⊆ X を、X について自然な仕方で割り当てる方法は何通りあるか。</p>
+
+<p>米田の補題に頼らず手で解く。自然性の四角形を、射 f : 1 → X について書く。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 440 180" width="440" role="img" aria-label="Set(1,−) から P への自然変換の自然性の四角形">
+  <defs><marker id="ya1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+
+  <text x="100" y="48" text-anchor="middle">Set(1,1)</text>
+  <text x="340" y="48" text-anchor="middle">Set(1,X)</text>
+  <text x="100" y="158" text-anchor="middle">P(1)</text>
+  <text x="340" y="158" text-anchor="middle">P(X)</text>
+
+  <line x1="143" y1="43" x2="300" y2="43" marker-end="url(#ya1)"/>
+  <text class="lbl" x="221" y="33" text-anchor="middle">Set(1,f)</text>
+
+  <line x1="126" y1="153" x2="316" y2="153" marker-end="url(#ya1)"/>
+  <text class="lbl" x="221" y="143" text-anchor="middle">P(f)</text>
+
+  <line x1="100" y1="62" x2="100" y2="138" marker-end="url(#ya1)"/>
+  <text class="lbl" x="91" y="104" text-anchor="end">α<tspan dy="3" font-size="10.5">1</tspan></text>
+
+  <line x1="340" y1="62" x2="340" y2="138" marker-end="url(#ya1)"/>
+  <text class="lbl" x="349" y="104" text-anchor="start">α<tspan dy="3" font-size="10.5">X</tspan></text>
+</svg>
+<figcaption>左上の唯一の元 id<sub>1</sub> を、右下まで二通りに追う</figcaption>
+</figure>
+
+<p>Set(1,f) は「f を後から合成する」操作だから、左上の唯一の元 id<sub>1</sub> を右上の f に送る。したがって id<sub>1</sub> を右下まで二通りに追うと</p>
+
+<p class="disp">α<sub>X</sub>(f) = P(f)(α<sub>1</sub>(id<sub>1</sub>))</p>
+
+<p>を得る。つまり α は A := α<sub>1</sub>(id<sub>1</sub>) ⊆ 1 ひとつで完全に決まる——これが (i) である。Set(1,X) ≅ X の下で f を要素 x ∈ X と読み替えれば、α<sub>X</sub>(x) = x̂[A]。A の候補は ∅ と {∗} の二つしかないので、答えは二つしかありえない:</p>
+
+<ul>
+  <li>A = ∅ のとき α<sub>X</sub>(x) = ∅（どの要素にも空集合を割り当てる）</li>
+  <li>A = {∗} のとき α<sub>X</sub>(x) = {x}（要素を、それだけからなる部分集合に送る）</li>
+</ul>
+
+<p>そして両方とも実際に自然である。確かめるべきは P(h)(∅) = ∅ と P(h)({x}) = {h(x)} で、どちらも成り立つ。これが (ii)、A としてどちらを選んでも本当に自然変換になる、ということである。米田の補題が予告するとおり、答えの個数は P(1) の要素数 2 に一致した。</p>
+
+<p>行き先を替えれば数も替わる。List(1) は長さだけが情報の列 [∗, …, ∗] 全体で、ℕ と同一視できる。よって自然変換 Id ⇒ List はちょうど可算個あり、n 番目は x ↦ [x, x, …, x]（n 個）である。F(1) が自然変換の全体をそのまま測っている。</p>
+
+<p>この例の値打ちは、定理2.2.4 の証明の骨格——恒等射の行き先を追うと残りが全部決まる——が、「一点集合からの写像で要素を名指しする」という完全に見慣れた操作だけで見えることにある。例2.2.1 で帰納法が担っていた役割を、ここでは一本の四角形が担っている。</p>
+
+<h2>例B — C = Set、c = 2（自然な二項演算は射影しかない）</h2>
+
+<p>同じ Set で、表現対象を2元集合 2 = {0,1} に替える。全単射 Set(2,X) ≅ X × X（f ↦ (f(0), f(1))）は X について自然だから、2 が表現するのは<b>対をとる関手</b> X ↦ X × X である。</p>
+
+<p>定理2.2.4 は Hom(Set(2,−), F) ≅ F(2) を与える。F をいくつか入れてみる。</p>
+
+<div class="table-wrap">
+<table>
+  <tr><th>自然変換の型</th><th>米田が与える集合</th><th>個数</th><th>中身</th></tr>
+  <tr><td>X × X ⇒ X</td><td>Id(2) = 2</td><td>2</td><td>二つの射影 (x<sub>0</sub>,x<sub>1</sub>) ↦ x<sub>0</sub>、(x<sub>0</sub>,x<sub>1</sub>) ↦ x<sub>1</sub></td></tr>
+  <tr><td>X × X ⇒ X × X</td><td>Set(2,2)</td><td>4</td><td>(x<sub>0</sub>,x<sub>0</sub>)、(x<sub>0</sub>,x<sub>1</sub>)、(x<sub>1</sub>,x<sub>0</sub>)、(x<sub>1</sub>,x<sub>1</sub>)</td></tr>
+  <tr><td>X ⇒ X × X</td><td>Set(2,1) = 1</td><td>1</td><td>対角 x ↦ (x,x)</td></tr>
+</table>
+</div>
+
+<p>一行目の計算を追う。F = Id なら F(2) = 2 = {0,1} で、α は α<sub>2</sub>(id<sub>2</sub>) ∈ {0,1} で決まる。実際、射 h : 2 → X に沿う自然性から α<sub>X</sub>(h) = h(α<sub>2</sub>(id<sub>2</sub>)) となり、h ↔ (x<sub>0</sub>,x<sub>1</sub>) の読み替えの下で α<sub>X</sub>(x<sub>0</sub>,x<sub>1</sub>) = x<sub>i</sub>（i = α<sub>2</sub>(id<sub>2</sub>)）。i の選び方は二つで、どちらも自然。</p>
+
+<p>これは「<b>裸の集合には、二つの射影のほかに自然な二項演算が存在しない</b>」と読める。掛け算も、和も、二つのうち条件で一方を選ぶような操作も、集合の圏では自然になりようがない。自然であるためには X の要素について何も知らないまま定義できねばならず、手元にあるのは受け取った x<sub>0</sub> と x<sub>1</sub> だけだからである。三行目も同様で、X から X × X への自然な操作は対角しかない。</p>
+
+<p>二行目は系2.2.8 の実例になっている。系2.2.8 は Set(2,2) ≅ Hom(Set(2,−), Set(2,−)) を主張するので、四つの自然変換は写像 σ : 2 → 2 からの前合成</p>
+
+<p class="disp">(x<sub>0</sub>, x<sub>1</sub>) ↦ (x<sub>σ(0)</sub>, x<sub>σ(1)</sub>)</p>
+
+<p>として得られるものに尽きるはずである。実際 σ を四通り（0 に潰す、恒等、入れ替え、1 に潰す）書き下すと、表の四つと過不足なく一致する。表現対象の間の射と、表現された関手の間の自然変換とが、ここでは 4 個と 4 個の照合として目で確かめられる。</p>
+
+<h2>例C — 有向グラフ（表現対象は「形」）</h2>
+
+<p>添字圏 D を、対象 E, V と平行な二本の射 σ, τ : E → V（および恒等射）だけからなる圏とする。合成すべき対が恒等射がらみしかないので、これで確かに圏になっている。</p>
+
+<p>関手 X : D → Set とは何か。集合 X(E)、X(V) と、写像 X(σ), X(τ) : X(E) → X(V) の指定である。X(V) を頂点の集合、X(E) を辺の集合、X(σ)・X(τ) を辺にその始点・終点を割り当てる写像と読めば、これは<b>有向グラフ</b>にほかならない（多重辺と自己ループを許す）。そして自然変換 X ⇒ Y は、頂点と辺の対応であって始点・終点と両立するもの、つまりグラフの準同型である。</p>
+
+<p>表現された関手 D(V,−) と D(E,−) を、この読み方でグラフとして描いてみる。</p>
+
+<ul>
+  <li>D(V,−): 頂点集合は D(V,V) = {id<sub>V</sub>}（1元）、辺集合は D(V,E) = ∅。<b>頂点1つ、辺なし</b>のグラフ</li>
+  <li>D(E,−): 頂点集合は D(E,V) = {σ, τ}（2元）、辺集合は D(E,E) = {id<sub>E</sub>}（1元）。構造写像は D(E,σ)(id<sub>E</sub>) = σ、D(E,τ)(id<sub>E</sub>) = τ だから、唯一の辺 id<sub>E</sub> は始点 σ・終点 τ を持つ。<b>辺1本とその両端</b></li>
+</ul>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 480 110" width="480" role="img" aria-label="表現された関手 D(V,−) と D(E,−) が表すグラフ">
+  <defs><marker id="ya2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+
+  <text class="lbl" x="20" y="66" text-anchor="start">D(V,−):</text>
+  <circle cx="150" cy="60" r="4.5" fill="currentColor"/>
+  <text class="lbl" x="150" y="88" text-anchor="middle">id<tspan dy="3" font-size="10.5">V</tspan></text>
+
+  <text class="lbl" x="270" y="66" text-anchor="start">D(E,−):</text>
+  <circle cx="380" cy="60" r="4.5" fill="currentColor"/>
+  <circle cx="450" cy="60" r="4.5" fill="currentColor"/>
+  <line x1="389" y1="60" x2="441" y2="60" marker-end="url(#ya2)"/>
+  <text class="lbl" x="415" y="48" text-anchor="middle">id<tspan dy="3" font-size="10.5">E</tspan></text>
+  <text class="lbl" x="380" y="88" text-anchor="middle">σ</text>
+  <text class="lbl" x="450" y="88" text-anchor="middle">τ</text>
+</svg>
+<figcaption>頂点に付した id<sub>V</sub>・σ・τ、辺に付した id<sub>E</sub> は、それぞれ hom 集合の元そのもの</figcaption>
+</figure>
+
+<p>定理2.2.4 をこの二つの表現対象に当てはめると</p>
+
+<p class="disp">Hom(D(V,−), X) ≅ X(V),　Hom(D(E,−), X) ≅ X(E)</p>
+
+<p>日本語にすれば、<b>点グラフから X への準同型は X の頂点そのもの、辺グラフから X への準同型は X の辺そのもの</b>である。</p>
+
+<p>ここで初めて「表現された関手は<b>形</b>であり、そこから出る自然変換は<b>X の中に置かれたその形の図形</b>である」という読みが出る。(i)（α は α<sub>c</sub>(id<sub>c</sub>) で決まる）は「図形の置き方は代表元の行き先だけで決まる」ということであり、(ii)（値は自由）は「X のどの辺も、辺グラフの置き方として実現される」ということである。米田埋め込みは、この読みでは「形を X に当てて探る」操作になる。</p>
+
+<p>系2.2.8 もここで見える。Hom(D(V,−), D(E,−)) ≅ D(E,V) = {σ, τ} で2元。実際、点グラフを辺グラフに置く方法は「始点に置く」「終点に置く」の2通りしかない。D の射が σ, τ の2本であることと合っている（よ は反変なので、対応する射の向きは裏返る）。</p>
+
+<h2>三つの例の位置づけ</h2>
+
+<div class="table-wrap">
+<table>
+  <tr><th>例</th><th>舞台</th><th>そこで見えること</th></tr>
+  <tr><td>A</td><td>Set、c = 1</td><td>定理2.2.4 の証明の骨格が、一点集合からの写像という見慣れた操作だけで出る。(i) と (ii) が数行で確かめられる</td></tr>
+  <tr><td>B</td><td>Set、c = 2</td><td>F(c) を数えることが本当に自然変換を数えることになる、という定量的な効き目。系2.2.8 の照合つき</td></tr>
+  <tr><td>C</td><td>有向グラフ</td><td>表現された関手を「形」、自然変換を「その形の図形」と読む幾何的な意味</td></tr>
+</table>
+</div>
+
+<p>例A と例C だけでも、例2.2.1（poset）と例2.2.2（1対象圏）が担っていた「形の違う二つの圏で同じ答えに着地する」という役割は果たせる。例B は米田の補題の使い道の側の例で、系2.2.10（行演算は行列の左乗算）や系2.2.11（Cayley の定理）と同じ系統にある。</p>
+
+</body>
+</html>

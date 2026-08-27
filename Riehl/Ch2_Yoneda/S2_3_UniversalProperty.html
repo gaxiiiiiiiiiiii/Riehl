@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2.3 普遍性と普遍要素</title>
+<style>
+  :root {
+    --bg: #fdfcf9;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --accent: #8a4c14;
+    --line: #d8d3c8;
+    --box-bg: #f5f2ea;
+    --code-bg: #f0ede5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1e22;
+      --fg: #e4e1da;
+      --muted: #9aa2ab;
+      --accent: #e0a468;
+      --line: #3a3f46;
+      --box-bg: #24262b;
+      --code-bg: #2a2d33;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    line-height: 1.95;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.5rem; font-family: "Hiragino Sans", sans-serif; border-bottom: 2px solid var(--accent); padding-bottom: .4rem; }
+  h2 { font-size: 1.12rem; font-family: "Hiragino Sans", sans-serif; color: var(--accent); margin-top: 2.6rem; }
+  p { margin: .9rem 0; font-size: .97rem; }
+  li { font-size: .97rem; margin: .4rem 0; }
+  .note { color: var(--muted); font-size: .88em; }
+  .thm {
+    background: var(--box-bg);
+    border-left: 3px solid var(--accent);
+    padding: .7rem 1.1rem;
+    margin: 1.2rem 0;
+  }
+  .thm b { font-family: "Hiragino Sans", sans-serif; }
+  .proof-head { font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .qed { float: right; }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
+  blockquote {
+    margin: 1.2rem 0; padding: .5rem 1.1rem;
+    border-left: 3px solid var(--line); color: var(--muted); font-size: .92rem;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--box-bg); font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+  em.m { font-style: italic; }
+</style>
+</head>
+<body>
+
+<h1>2.3 普遍性と普遍要素</h1>
+
+<p class="note">Emily Riehl, <em>Category Theory in Context</em> §2.3（pp.66–72）の内容を、個人学習のために日本語で書き直した解説。番号（命題2.3.1 など）は本と揃えてある。翻訳ではなく、同じ内容を自分の言葉で再構成したもの。</p>
+
+<blockquote>「圏論仲間と冗談で言い合うことがある——私たちの研究の眼目は結局、どんな物事もある意味で米田の実例なのだ、その意味を見つけることにあるのだ、と」<br>—— Eugenia Cheng, <em>The Joy of Abstraction</em>（和訳）</blockquote>
+
+<h2>記号表</h2>
+
+<div class="table-wrap"><table>
+<tr><th>記号</th><th>型・意味</th></tr>
+<tr><td>C</td><td>局所小な圏</td></tr>
+<tr><td>よ</td><td>米田埋め込み よ : C ↪ Set<sup>C<sup>op</sup></sup>（共変版は よ : C<sup>op</sup> ↪ Set<sup>C</sup>）。系2.2.8</td></tr>
+<tr><td>α, β</td><td>自然同型。表現のデータ</td></tr>
+<tr><td>Ψ(x)</td><td>米田の補題が要素 x ∈ Fc から定める自然変換 C(c,−) ⇒ F（反変では C(−,c) ⇒ F）。定理2.2.4 の逆写像</td></tr>
+<tr><td>f<sub>∗</sub> / f<sup>∗</sup></td><td>射 f との後合成・前合成が誘導する自然変換</td></tr>
+<tr><td>g·f</td><td>合成。f を先に適用する（g·f = g ∘ f）</td></tr>
+<tr><td>ℤ[x]</td><td>整数係数1変数多項式環。忘却関手 U : Ring → Set の表現対象</td></tr>
+<tr><td>Ω</td><td>2元集合 {⊤, ⊥}。反変冪集合関手 P : Set<sup>op</sup> → Set の表現対象</td></tr>
+<tr><td>BG</td><td>群 G を自己射集合とする1対象圏。BG → Set の関手は左 G-集合</td></tr>
+<tr><td>𝔸<sup>n</sup></td><td>n 次元アフィン空間。加法群 ℝ<sup>n</sup> のトルソー</td></tr>
+<tr><td>Bilin(V,W;−)</td><td>U を双線型写像 V × W → U の集合に送る関手 Vect<sub>k</sub> → Set</td></tr>
+<tr><td>V ⊗<sub>k</sub> W</td><td>テンソル積。Bilin(V,W;−) の表現対象</td></tr>
+<tr><td>ℤ[G]</td><td>群環。(−)<sup>×</sup> は環をその単元群に送る関手 Ring → Group</td></tr>
+</table></div>
+
+<h2>この節の問い</h2>
+
+<p>2.2 の米田の補題は、表現された関手から出て行く自然変換を完全に分類した。この節ではそれを2つの方向に使う。ひとつは、<b>表現可能関手はその表現対象を（同型を除いて、しかも正準的に）決定する</b>という基本定理（命題2.3.1・系2.3.2）。もうひとつは、表現のデータ——自然同型ひとつぶん——を関手のたった1つの要素に圧縮する語彙（定義2.3.3 の普遍要素）で、これにより「テンソル積とは何か」「群環とは何か」といった問いに、構成を経由せず普遍性で答えられるようになる。</p>
+
+<p>出発点はこうである。局所小な圏 C で対象 x ≅ y が同型なら、hom 関手も C(−,x) ≅ C(−,y)、C(x,−) ≅ C(y,−) と同型になる。これは米田埋め込みが関手であることの帰結にすぎない（補題1.2.3 が「同型は representably に定義できる」と予告していた事実である）。この節の最初の主張は、米田の補題がその<b>逆</b>を与えるということだ。hom 関手の側の自然同型から、C の中の同型を明示的に組み立てられる。</p>
+
+<h2>命題2.3.1 — 同型と表現可能同型</h2>
+
+<div class="thm"><b>命題2.3.1.</b> 局所小な圏 C の対象 x, y について、次の3つのデータは等価である。
+<ol>
+<li>C における同型 x ≅ y</li>
+<li>圏 Set<sup>C<sup>op</sup></sup> における同型 C(−,x) ≅ C(−,y)</li>
+<li>圏 Set<sup>C</sup> における同型 C(y,−) ≅ C(x,−)</li>
+</ol>
+</div>
+
+<p class="note">(iii) で x と y の順序が入れ替わることに注意。共変側の埋め込みは よ : C<sup>op</sup> ↪ Set<sup>C</sup> なので、向きが1回ひっくり返る。</p>
+
+<p><span class="proof-head">証明.</span> 埋め込み よ : C ↪ Set<sup>C<sup>op</sup></sup> と よ : C<sup>op</sup> ↪ Set<sup>C</sup> は充満忠実（系2.2.8）であり、充満忠実関手は同型を保存・反映・創出する（演習1.5.iv）。これで (i)⇔(ii) と (i)⇔(iii) が出て証明は終わりだが、自然同型 α : C(−,x) ≅ C(−,y) から C の同型を明示的に組み立てる手続きも見ておく価値がある。</p>
+
+<p>定理2.2.4（の反変版）により、α は表現対象での恒等射の像で決まる。α の x 成分に id<sub>x</sub> を入れて射 α<sub>x</sub>(id<sub>x</sub>) : x → y を、逆向き α<sup>−1</sup> の y 成分に id<sub>y</sub> を入れて射 α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>) : y → x を得る。この2つが互いに逆であることを、自然性の四角形2枚で確認する。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 360 170" width="360" role="img" aria-label="α の自然性の四角形。射 α 逆 y (id y) : y → x における前合成">
+  <defs><marker id="ar1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="35" text-anchor="middle">C(x, x)</text>
+  <text x="290" y="35" text-anchor="middle">C(x, y)</text>
+  <text x="70" y="145" text-anchor="middle">C(y, x)</text>
+  <text x="290" y="145" text-anchor="middle">C(y, y)</text>
+  <line x1="115" y1="30" x2="245" y2="30" marker-end="url(#ar1)"/>
+  <line x1="115" y1="140" x2="245" y2="140" marker-end="url(#ar1)"/>
+  <line x1="70" y1="50" x2="70" y2="122" marker-end="url(#ar1)"/>
+  <line x1="290" y1="50" x2="290" y2="122" marker-end="url(#ar1)"/>
+  <text class="lbl" x="180" y="20" text-anchor="middle">α<tspan baseline-shift="sub" font-size="10">x</tspan></text>
+  <text class="lbl" x="180" y="160" text-anchor="middle">α<tspan baseline-shift="sub" font-size="10">y</tspan></text>
+  <text class="lbl" x="60" y="90" text-anchor="end">(α<tspan baseline-shift="super" font-size="10">−1</tspan><tspan baseline-shift="sub" font-size="10">y</tspan>(id<tspan baseline-shift="sub" font-size="10">y</tspan>))<tspan baseline-shift="super" font-size="10">∗</tspan></text>
+  <text class="lbl" x="300" y="90" text-anchor="start">(α<tspan baseline-shift="super" font-size="10">−1</tspan><tspan baseline-shift="sub" font-size="10">y</tspan>(id<tspan baseline-shift="sub" font-size="10">y</tspan>))<tspan baseline-shift="super" font-size="10">∗</tspan></text>
+</svg>
+<figcaption>α の自然性を、射 α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>) : y → x に適用した四角形。縦の写像は前合成</figcaption>
+</figure>
+
+<p>この四角形で id<sub>x</sub> ∈ C(x,x) を追う。右回り（上→右）では、まず α<sub>x</sub>(id<sub>x</sub>) になり、前合成で α<sub>x</sub>(id<sub>x</sub>)·α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>) に着く。左回り（左→下）では、まず id<sub>x</sub>·α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>) = α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>) になり、α<sub>y</sub> で送られて α<sub>y</sub>(α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>)) = id<sub>y</sub> に着く。両者が等しいから</p>
+
+<p style="text-align:center">α<sub>x</sub>(id<sub>x</sub>) · α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>) = id<sub>y</sub>.</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 360 170" width="360" role="img" aria-label="α 逆の自然性の四角形。射 α x (id x) : x → y における前合成">
+  <defs><marker id="ar2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="35" text-anchor="middle">C(y, y)</text>
+  <text x="290" y="35" text-anchor="middle">C(y, x)</text>
+  <text x="70" y="145" text-anchor="middle">C(x, y)</text>
+  <text x="290" y="145" text-anchor="middle">C(x, x)</text>
+  <line x1="115" y1="30" x2="245" y2="30" marker-end="url(#ar2)"/>
+  <line x1="115" y1="140" x2="245" y2="140" marker-end="url(#ar2)"/>
+  <line x1="70" y1="50" x2="70" y2="122" marker-end="url(#ar2)"/>
+  <line x1="290" y1="50" x2="290" y2="122" marker-end="url(#ar2)"/>
+  <text class="lbl" x="180" y="20" text-anchor="middle">α<tspan baseline-shift="super" font-size="10">−1</tspan><tspan baseline-shift="sub" font-size="10">y</tspan></text>
+  <text class="lbl" x="180" y="160" text-anchor="middle">α<tspan baseline-shift="super" font-size="10">−1</tspan><tspan baseline-shift="sub" font-size="10">x</tspan></text>
+  <text class="lbl" x="60" y="90" text-anchor="end">(α<tspan baseline-shift="sub" font-size="10">x</tspan>(id<tspan baseline-shift="sub" font-size="10">x</tspan>))<tspan baseline-shift="super" font-size="10">∗</tspan></text>
+  <text class="lbl" x="300" y="90" text-anchor="start">(α<tspan baseline-shift="sub" font-size="10">x</tspan>(id<tspan baseline-shift="sub" font-size="10">x</tspan>))<tspan baseline-shift="super" font-size="10">∗</tspan></text>
+</svg>
+<figcaption>α<sup>−1</sup> の自然性を、射 α<sub>x</sub>(id<sub>x</sub>) : x → y に適用した四角形</figcaption>
+</figure>
+
+<p>同じ要領でこちらの四角形で id<sub>y</sub> を追うと α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>) · α<sub>x</sub>(id<sub>x</sub>) = id<sub>x</sub> が出る。よって2つの射は互いに逆で、同型 x ≅ y を定める。<span class="qed">□</span></p>
+
+<h2>系2.3.2 — 表現対象の一意性</h2>
+
+<div class="thm"><b>系2.3.2.</b> 圏 C の対象 x と y が同じ関手を表現するなら、x ≅ y である。さらに、2つの表現のデータと可換になる同型 x ≅ y はただ一つ存在する。</div>
+
+<p><span class="proof-head">証明.</span> 共通の関手 F : C<sup>op</sup> → Set の表現 α : C(−,x) ≅ F と β : C(−,y) ≅ F があるとする。縦合成 β<sup>−1</sup>·α : C(−,x) ≅ C(−,y) は表現可能同型だから、命題2.3.1 により同型 f : x ≅ y を定める。しかも、次の図式を可換にする同型はこの f に限る。米田埋め込みが忠実だから、f<sub>∗</sub> = β<sup>−1</sup>·α を満たす射 f は一意だからである。<span class="qed">□</span></p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 360 165" width="360" role="img" aria-label="C(−,x) から C(−,y) への f 後合成と、2つの表現 α, β のなす三角形">
+  <defs><marker id="ar3" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="35" text-anchor="middle">C(−, x)</text>
+  <text x="290" y="35" text-anchor="middle">C(−, y)</text>
+  <text x="180" y="150" text-anchor="middle">F</text>
+  <line x1="118" y1="30" x2="242" y2="30" marker-end="url(#ar3)"/>
+  <line x1="90" y1="52" x2="163" y2="132" marker-end="url(#ar3)"/>
+  <line x1="270" y1="52" x2="197" y2="132" marker-end="url(#ar3)"/>
+  <text class="lbl" x="180" y="20" text-anchor="middle">f<tspan baseline-shift="sub" font-size="10">∗</tspan></text>
+  <text class="lbl" x="112" y="100" text-anchor="end">α  ≅</text>
+  <text class="lbl" x="248" y="100" text-anchor="start">≅  β</text>
+</svg>
+</figure>
+
+<p>x と y の間の同型そのものは何本もあってよい。主張の要点は、<b>選んだ表現と両立するものが1本しかない</b>ことである。この正準性のおかげで、表現可能関手の表現対象は「the representing object」と定冠詞で呼ばれる。圏論での「the」は常にこの意味——同型を除いて一意、しかも比較の同型まで正準に決まる——で使われる。</p>
+
+<h2>定義2.3.3 — 要素と普遍要素</h2>
+
+<p>米田の補題は、表現のデータをさらに圧縮した記述も与える。自然同型ひとつぶんのデータが、関手の要素1つに置き換わる。</p>
+
+<div class="thm"><b>定義2.3.3.</b> 圏 C で添字づけられた（共変または反変の）集合値関手 F の<b>要素</b>とは、対象 c ∈ C と要素 x ∈ Fc の組をいう。要素 (c, x) が<b>普遍要素</b>であるとは、米田の補題が定める自然変換——共変なら Ψ(x) : C(c,−) ⇒ F、反変なら Ψ(x) : C(−,c) ⇒ F——が自然同型であることをいう。このとき c は F を表現し、Ψ(x) がその表現を定める。</div>
+
+<p>定理2.2.4 により、自然変換 C(c,−) ⇒ F の全体は Fc の要素と1対1に対応するのだった。だから「表現＝対象 c と自然同型の組」というデータは「対象 c と、Ψ(x) が同型になるような要素 x ∈ Fc の組」と言い換えられる。例2.1.5・2.1.6 に挙げた表現はすべてこの形で記述し直せる（演習2.3.i）。以下、原型的な例を順に見る。</p>
+
+<h2>例2.3.4 — 多項式環 ℤ[x]</h2>
+
+<p>忘却関手 U : Ring → Set は多項式環 ℤ[x] に表現されるのだった（例2.1.5(v)）。表現</p>
+
+<p style="text-align:center">(2.3.5)  Ring(ℤ[x], R) ≅ UR</p>
+
+<p>の普遍要素は、変数 x ∈ ℤ[x] である。米田の補題の証明のとおり、同型 (2.3.5) は環準同型 φ : ℤ[x] → R を要素 φ(x) ∈ R で評価する写像として与えられる。「ℤ[x] からの環準同型は x の行き先だけで自由に決まる」という馴染みの事実が、この表現の中身である。</p>
+
+<h2>例2.3.6 — 冪集合と Ω</h2>
+
+<p>反変冪集合関手 P : Set<sup>op</sup> → Set は2元集合 Ω = {⊤, ⊥} に表現されるのだった（例2.1.6(i)）。表現</p>
+
+<p style="text-align:center">Set(A, Ω) ≅ P(A)</p>
+
+<p>の普遍要素は、部分集合 {⊤} ∈ PΩ である。要素 ⊤ ∈ Ω ではないことに注意——普遍要素は関手の値 PΩ の要素でなければならない。同型は関数 f : A → Ω を逆像 f<sup>−1</sup>(⊤) ∈ P(A) に送る写像として与えられる。部分集合と特性関数の対応である。</p>
+
+<h2>例2.3.7 — G-トルソー</h2>
+
+<p>関手 E : BG → Set、すなわち左 G-集合 E が表現可能であることは、左 G-集合の同型 G ≅ E が存在することと同値である（BG の対象は1つで、それが表現する関手は左正則作用の G だった）。このとき G の E への作用は<b>自由</b>（どの点の固定部分群も自明）かつ<b>推移的</b>（どの点の軌道も全体）で、E は空でない。逆に、空でない自由かつ推移的な左 G-集合は表現可能である。この逆の証明は例2.4.10 で与えられる。</p>
+
+<p>米田の補題によれば、表現のデータ、すなわち特定の同型 G ≅ E は、普遍要素 e ∈ E ——単位元 e ∈ G の像——の選択ひとつで決まる。つまり<b>表現可能な左 G-集合とは、単位元を忘れた群</b>である。表現可能な G-集合は <b>G-トルソー</b>と呼ばれる。</p>
+
+<p>例を挙げる。加法群 ℝ<sup>n</sup> のトルソーが n 次元アフィン空間 𝔸<sup>n</sup> である。𝔸<sup>n</sup> は「原点を選んでいない n 次元空間の点の集まり」で、ℝ<sup>n</sup> の元をベクトルと見れば作用は平行移動である。この作用は自由（零でないベクトルはすべての点を動かす）かつ推移的（どの2点も、一方を他方へ運ぶベクトルがちょうど1本ある——2点の「差」が取れる）。原点 o ∈ 𝔸<sup>n</sup> を1つ選ぶことが座標系 ℝ<sup>n</sup> ≅ 𝔸<sup>n</sup> を定めることであり、この o が普遍要素である。他の点 p の座標は、x⃗·o = p となる唯一のベクトル x⃗ ∈ ℝ<sup>n</sup> として決まる。</p>
+
+<h2>例2.3.8 — テンソル積</h2>
+
+<p>k-ベクトル空間 V, W を固定し、関手</p>
+
+<p style="text-align:center">Bilin(V, W; −) : Vect<sub>k</sub> → Set</p>
+
+<p>を考える。ベクトル空間 U を、双線型写像 V × W → U の集合に送る関手である。双線型写像 f : V × W → U とは2変数の関数であって、各 v ∈ V に対し f(v,−) : W → U が線型、各 w ∈ W に対し f(−,w) : V → U が線型であるもの。カリー化すれば、線型写像 f : V → Hom(W,U)（または f : W → Hom(V,U)）と言っても同じである。</p>
+
+<p>この関手の表現が、<b>テンソル積</b> V ⊗<sub>k</sub> W の定義である。すなわちテンソル積とは、U について自然な同型</p>
+
+<p style="text-align:center">(2.3.9)  Vect<sub>k</sub>(V ⊗<sub>k</sub> W, U) ≅ Bilin(V, W; U)</p>
+
+<p>を備えたベクトル空間のことをいう。</p>
+
+<p class="note">脚注11 — この同型は U だけでなく V と W についても自然である。命題4.4.6 で扱う。</p>
+
+<p>定理2.2.4 により、自然同型 (2.3.9) は Bilin(V, W; V ⊗<sub>k</sub> W) の普遍要素、すなわち1本の双線型写像 ⊗ : V × W → V ⊗<sub>k</sub> W で決まる。これを<b>普遍双線型写像</b>と呼ぶ。テンソル積は「V × W からの双線型写像を備えたベクトル空間のうち普遍的なもの」である。</p>
+
+<p>この「普遍的」の中身を米田の補題で展開する。同型 (2.3.9) は双線型写像 f : V × W → U と線型写像 f̄ : V ⊗<sub>k</sub> W → U を同一視する。f̄ の誘導する自然性の四角形を見る。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 480 170" width="480" role="img" aria-label="表現 2.3.9 の自然性の四角形。f バーの後合成">
+  <defs><marker id="ar4" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="110" y="35" text-anchor="middle">Vect<tspan baseline-shift="sub" font-size="10">k</tspan>(V⊗W, V⊗W)</text>
+  <text x="385" y="35" text-anchor="middle">Bilin(V, W; V⊗W)</text>
+  <text x="110" y="145" text-anchor="middle">Vect<tspan baseline-shift="sub" font-size="10">k</tspan>(V⊗W, U)</text>
+  <text x="385" y="145" text-anchor="middle">Bilin(V, W; U)</text>
+  <line x1="215" y1="30" x2="290" y2="30" marker-end="url(#ar4)"/>
+  <line x1="205" y1="140" x2="300" y2="140" marker-end="url(#ar4)"/>
+  <line x1="110" y1="50" x2="110" y2="122" marker-end="url(#ar4)"/>
+  <line x1="385" y1="50" x2="385" y2="122" marker-end="url(#ar4)"/>
+  <text class="lbl" x="252" y="20" text-anchor="middle">≅</text>
+  <text class="lbl" x="252" y="160" text-anchor="middle">≅</text>
+  <text class="lbl" x="100" y="90" text-anchor="end">f̄<tspan baseline-shift="sub" font-size="10">∗</tspan></text>
+  <text class="lbl" x="395" y="90" text-anchor="start">f̄<tspan baseline-shift="sub" font-size="10">∗</tspan></text>
+</svg>
+<figcaption>(2.3.9) の U を f̄ : V⊗W → U で動かした自然性の四角形。縦は f̄ の後合成</figcaption>
+</figure>
+
+<p>id<sub>V⊗W</sub> ∈ Vect<sub>k</sub>(V⊗W, V⊗W) をこの四角形で追う。上→右では、まず普遍要素 ⊗ に送られ（恒等射の像が普遍要素、というのが定理2.2.4 の対応だった）、次に f̄ との合成 f̄·⊗ に着く。左→下では、まず f̄·id = f̄ になり、次に (2.3.9) で f̄ に対応する双線型写像、すなわち f に着く。両者が等しいから f = f̄·⊗。つまり<b>任意の双線型写像 f は、普遍双線型写像 ⊗ を経由して、線型写像 f̄ でただ一通りに分解する</b>。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 340 175" width="340" role="img" aria-label="f が ⊗ を経由して一意に分解する三角形">
+  <defs><marker id="ar5" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="65" y="35" text-anchor="middle">V × W</text>
+  <text x="275" y="35" text-anchor="middle">V ⊗<tspan baseline-shift="sub" font-size="10">k</tspan> W</text>
+  <text x="65" y="155" text-anchor="middle">U</text>
+  <line x1="110" y1="30" x2="230" y2="30" marker-end="url(#ar5)"/>
+  <line x1="65" y1="50" x2="65" y2="132" marker-end="url(#ar5)"/>
+  <line x1="255" y1="52" x2="90" y2="145" stroke-dasharray="5 4" marker-end="url(#ar5)"/>
+  <text class="lbl" x="170" y="20" text-anchor="middle">⊗</text>
+  <text class="lbl" x="55" y="95" text-anchor="end">f</text>
+  <text class="lbl" x="192" y="110" text-anchor="start">∃! f̄</text>
+</svg>
+</figure>
+
+<p>同型 (2.3.9) の実装は「⊗ と線型写像の合成」だった、ということでもある。この普遍性は、例2.4.12(iii) で記述されるある圏において普遍双線型写像が始対象である、という形にも言い換えられる。</p>
+
+<p>さらに、この普遍性はテンソル積の<b>構成</b>まで復元する。V ⊗<sub>k</sub> W が存在したとすると、⊗ の像として v ⊗ w ∈ V ⊗<sub>k</sub> W という形のベクトルが得られ、ベクトル空間である以上その張る部分空間 ⟨v ⊗ w⟩ も含む。⊗ が双線型だから、これらのベクトルは双線型関係式を満たす。</p>
+
+<p class="note">脚注12 — 双線型写像の像はそれ自体では部分空間にならないので、span を取る必要がある。</p>
+
+<p>実は V ⊗<sub>k</sub> W はこの部分空間 ⟨v ⊗ w⟩ に一致する。商写像 Q : V⊗W → V⊗W / ⟨v ⊗ w⟩ を考えると、Q を ⊗ と合成した双線型写像は零である。ところが零線型写像 0 : V⊗W → V⊗W / ⟨v ⊗ w⟩ も ⊗ との合成が零だから、分解の一意性（いま示した普遍性）より Q = 0。Q は全射なので商は零空間、すなわち V ⊗<sub>k</sub> W = ⟨v ⊗ w⟩ である。こうして「v ⊗ w たちが生成し、双線型関係式で割る」という通常の構成的定義が、普遍性だけから回復される。</p>
+
+<h2>命題2.3.10 — V ⊗ W ≅ W ⊗ V</h2>
+
+<p>テンソル積の普遍性は、対象を同型を除いて特徴づけるだけでなく、基底を一切選ばずに性質を証明する道具になる。締めくくりにその見本を2つ——同型の存在（命題2.3.10）と、その同型の明示的な記述（注意2.3.12）——を見る。</p>
+
+<div class="thm"><b>命題2.3.10.</b> 任意の k-ベクトル空間 V, W に対し、V ⊗<sub>k</sub> W ≅ W ⊗<sub>k</sub> V。</div>
+
+<p><span class="proof-head">証明.</span> 系2.3.2 により、関手 Bilin(V,W;−) と Bilin(W,V;−) が自然同型であることを示せば足りる。双線型写像 f : V × W → U を、f̂(w,v) ≔ f(v,w) で定まる f̂ : W × V → U に送れば、U ごとの全単射 Bilin(V,W;U) ≅ Bilin(W,V;U) が得られ、これは U について自然である。表現の自然同型とつなげば</p>
+
+<p style="text-align:center">(2.3.11)  Vect<sub>k</sub>(V⊗W, −) ≅ Bilin(V,W;−) ≅ Bilin(W,V;−) ≅ Vect<sub>k</sub>(W⊗V, −)</p>
+
+<p>と、2つの表現された関手が自然同型になる。命題2.3.1（共変版）により、この自然同型は表現対象の同型 V ⊗<sub>k</sub> W ≅ W ⊗<sub>k</sub> V から生じる。<span class="qed">□</span></p>
+
+<h2>注意2.3.12 — 同型を明示的に取り出す</h2>
+
+<p>命題2.3.1 は存在を言うだけでなく、同型を具体的に計算する手続きでもある。(2.3.11) の合成同型で id<sub>V⊗W</sub> の像を追えばよい。</p>
+
+<p style="text-align:center">Vect<sub>k</sub>(V⊗W, V⊗W) ≅ Bilin(V,W; V⊗W) ≅ Bilin(W,V; V⊗W) ≅ Vect<sub>k</sub>(W⊗V, V⊗W)</p>
+
+<p>まず id<sub>V⊗W</sub> は普遍双線型写像 ⊗ : V×W → V⊗W に送られる（例2.3.8 で見た対応）。次の同型で、変数を入れ替えた双線型写像</p>
+
+<p style="text-align:center">W × V → V × W → V ⊗<sub>k</sub> W,  (w,v) ↦ (v,w) ↦ v ⊗ w</p>
+
+<p>に送られる。最後の同型は ⊗ : W×V → W⊗V の普遍性による分解だから、結果はこの双線型写像を分解する唯一の線型写像 φ : W ⊗<sub>k</sub> V → V ⊗<sub>k</sub> W である。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 360 175" width="360" role="img" aria-label="変数の入れ替えが誘導する同型 φ の分解図">
+  <defs><marker id="ar6" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="35" text-anchor="middle">W × V</text>
+  <text x="285" y="35" text-anchor="middle">W ⊗<tspan baseline-shift="sub" font-size="10">k</tspan> V</text>
+  <text x="70" y="150" text-anchor="middle">V × W</text>
+  <text x="285" y="150" text-anchor="middle">V ⊗<tspan baseline-shift="sub" font-size="10">k</tspan> W</text>
+  <line x1="112" y1="30" x2="240" y2="30" marker-end="url(#ar6)"/>
+  <line x1="112" y1="145" x2="240" y2="145" marker-end="url(#ar6)"/>
+  <line x1="70" y1="50" x2="70" y2="127" marker-end="url(#ar6)"/>
+  <line x1="285" y1="50" x2="285" y2="127" stroke-dasharray="5 4" marker-end="url(#ar6)"/>
+  <text class="lbl" x="176" y="20" text-anchor="middle">⊗</text>
+  <text class="lbl" x="176" y="165" text-anchor="middle">⊗</text>
+  <text class="lbl" x="60" y="92" text-anchor="end">(w,v) ↦ (v,w)</text>
+  <text class="lbl" x="295" y="92" text-anchor="start">∃! φ</text>
+</svg>
+</figure>
+
+<p>この φ が求める線型同型で、(2.3.11) は φ との前合成として実装される。図の可換性を w ⊗ v で読めば φ(w ⊗ v) = v ⊗ w。期待どおりの「成分の入れ替え」である。</p>
+
+<h2>例2.3.13 — 群環</h2>
+
+<p>群 G を固定し、関手</p>
+
+<p style="text-align:center">Group(G, (−)<sup>×</sup>) : Ring → Set</p>
+
+<p>を考える。単位的環 R を、G から R の単元群 R<sup>×</sup> への群準同型の集合に送る関手である。この関手の表現が<b>群環</b> ℤ[G] の普遍性を表す。米田の補題により、自然同型</p>
+
+<p style="text-align:center">Ring(ℤ[G], −) ≅ Group(G, (−)<sup>×</sup>)</p>
+
+<p>は1本の群準同型 η : G → ℤ[G]<sup>×</sup>（普遍要素）で符号化される。対応の中身は、環準同型 φ : ℤ[G] → R が単元群の間の群準同型 φ<sup>×</sup> : ℤ[G]<sup>×</sup> → R<sup>×</sup> を誘導するので、η と前合成して群準同型 φ<sup>×</sup>·η : G → R<sup>×</sup> を得る、というものである。</p>
+
+<p class="note">脚注13 — 係数を任意の可換単位環 K に替えた群環 K[G] にも同様の普遍性がある。その場合は圏 Ring を K-代数の圏に置き換える。</p>
+
+<h2>節末問題</h2>
+
+<p class="note">原文は英語。以下は和訳・言い換え。</p>
+
+<ul>
+  <li><b>2.3.i</b> — 次の表現の普遍要素は何か。(i) 例2.1.5(x) の、圏 2 による関手 mor : Cat → Set の表現。(ii) 例2.1.6(ii) の、シェルピンスキー空間による表現。(iii) 例2.1.6(iii) の、シェルピンスキー空間による表現。</li>
+  <li><b>2.3.ii</b> — テンソル積の定義的普遍性を使って次を示せ。(i) 任意の k-ベクトル空間 V に対し k ⊗<sub>k</sub> V ≅ V。(ii) 任意の U, V, W に対し U ⊗<sub>k</sub> (V ⊗<sub>k</sub> W) ≅ (U ⊗<sub>k</sub> V) ⊗<sub>k</sub> W。</li>
+  <li><b>2.3.iii</b> — 集合 A から集合 B への関数の集合 B<sup>A</sup> は、反変関手 Set(− × A, B) : Set<sup>op</sup> → Set を表現する。この表現の普遍要素は<b>評価写像</b>と呼ばれる関数 ev : B<sup>A</sup> × A → B である。ev を定義し、例2.3.8 の普遍双線型写像 ⊗ との類比で、その普遍性を記述せよ。</li>
+  <li><b>2.3.iv</b> — 表現のデータは普遍要素1つに符号化されるが、同じ関手が複数の普遍要素を持つことはある。例2.3.4 と例2.3.6 の関手について、本文で挙げたのとは別の普遍要素を見つけよ。</li>
+</ul>
+
+</body>
+</html>
