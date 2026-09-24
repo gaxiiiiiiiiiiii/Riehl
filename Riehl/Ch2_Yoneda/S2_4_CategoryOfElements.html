@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2.4 要素の圏</title>
+<style>
+  :root {
+    --bg: #fdfcf9;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --accent: #8a4c14;
+    --line: #d8d3c8;
+    --box-bg: #f5f2ea;
+    --code-bg: #f0ede5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1e22;
+      --fg: #e4e1da;
+      --muted: #9aa2ab;
+      --accent: #e0a468;
+      --line: #3a3f46;
+      --box-bg: #24262b;
+      --code-bg: #2a2d33;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    line-height: 1.95;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.5rem; font-family: "Hiragino Sans", sans-serif; border-bottom: 2px solid var(--accent); padding-bottom: .4rem; }
+  h2 { font-size: 1.12rem; font-family: "Hiragino Sans", sans-serif; color: var(--accent); margin-top: 2.6rem; }
+  p { margin: .9rem 0; font-size: .97rem; }
+  li { font-size: .97rem; margin: .4rem 0; }
+  .note { color: var(--muted); font-size: .88em; }
+  .thm {
+    background: var(--box-bg);
+    border-left: 3px solid var(--accent);
+    padding: .7rem 1.1rem;
+    margin: 1.2rem 0;
+  }
+  .thm b { font-family: "Hiragino Sans", sans-serif; }
+  .proof-head { font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .qed { float: right; }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
+  blockquote {
+    margin: 1.2rem 0; padding: .5rem 1.1rem;
+    border-left: 3px solid var(--line); color: var(--muted); font-size: .92rem;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--box-bg); font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+  em.m { font-style: italic; }
+</style>
+</head>
+<body>
+
+<h1>2.4 要素の圏</h1>
+
+<p class="note">Emily Riehl, <em>Category Theory in Context</em> §2.4（pp.72–78）の内容を、個人学習のために日本語で書き直した解説。番号（命題2.4.8 など）は本と揃えてある。翻訳ではなく、同じ内容を自分の言葉で再構成したもの。</p>
+
+<blockquote>「普遍要素は普遍要素である（universal elements are universal elements）」——本節の主結果、命題2.4.8 に Riehl 自身が付けた見出し。定義2.3.3 で導入した「普遍要素」が、始対象・終対象という伝統的な意味でも確かに「普遍」であることを言っている。</blockquote>
+
+<h2>記号表</h2>
+
+<div class="table-wrap"><table>
+<tr><th>記号</th><th>型・意味</th></tr>
+<tr><td>C</td><td>局所小な圏</td></tr>
+<tr><td>F</td><td>集合値関手。共変なら F : C → Set、反変なら F : C<sup>op</sup> → Set</td></tr>
+<tr><td>Ff</td><td>射 f : c → c′ の像。共変なら Ff : Fc → Fc′、反変なら Ff : Fc′ → Fc</td></tr>
+<tr><td>(c, x)</td><td>F の<b>要素</b>。対象 c ∈ C と要素 x ∈ Fc の組（定義2.3.3）</td></tr>
+<tr><td>∫F</td><td>F の要素の圏。対象は F の要素（定義2.4.1・2.4.2）</td></tr>
+<tr><td>Π</td><td>射影関手 Π : ∫F → C。(c,x) ↦ c、射 f ↦ f</td></tr>
+<tr><td>Ψ(x)</td><td>米田の補題が要素 x ∈ Fc から定める自然変換。共変なら C(c,−) ⇒ F、反変なら C(−,c) ⇒ F（定理2.2.4）</td></tr>
+<tr><td>よ</td><td>米田埋め込み よ : C ↪ Set<sup>C<sup>op</sup></sup>（共変版は よ : C<sup>op</sup> ↪ Set<sup>C</sup>）</td></tr>
+<tr><td>K↓L</td><td>コンマ圏（演習1.3.vi）。K : D → E と L : B → E に対し、対象は3つ組 (d, b, k : Kd → Lb)、射は四角形を可換にする射の組</td></tr>
+<tr><td>1</td><td>終圏。対象1つと恒等射だけ。関手 1 → E は E の対象の選択と同じ</td></tr>
+<tr><td>2</td><td>「歩く射」の圏。対象 0, 1 と非恒等射 0 → 1 が1本。関手 2 → C は C の射の選択と同じ</td></tr>
+<tr><td>0, 1 : 1 → 2</td><td>2 の対象 0（始点側）、対象 1（終点側）を選ぶ関手</td></tr>
+<tr><td>c/C, C/c</td><td>スライス圏。c の<b>下</b>（対象は c を域とする射）、c の<b>上</b>（対象は c を余域とする射）。演習1.1.iii</td></tr>
+<tr><td>C<sub>∗</sub></td><td>C の点つき対象の圏</td></tr>
+<tr><td>X//G</td><td>左 G-集合 X の作用亜群（例1.5.19）</td></tr>
+<tr><td>Σ<sub>c∈C</sub>F<sub>c</sub>, Π<sub>c∈C</sub>F<sub>c</sub></td><td>添字づけられた集合族の依存和・依存積</td></tr>
+<tr><td>可縮亜群</td><td>終圏 1 と圏同値な圏。明示的には、空でなく、どの hom にもちょうど1本の射がある圏</td></tr>
+<tr><td>Ω</td><td>2元集合 {⊤, ⊥}。反変冪集合関手の表現対象</td></tr>
+<tr><td>F<sub>n</sub></td><td>n 個の生成元 x<sub>1</sub>, …, x<sub>n</sub> をもつ自由群</td></tr>
+<tr><td>End</td><td>自己写像を備えた集合の圏。射は自己写像と可換な関数</td></tr>
+<tr><td>Δ∗</td><td>一点集合 ∗ を値とする定数関手 E → Set</td></tr>
+<tr><td>CAT/C</td><td>（大きい圏も含めた）圏の圏 CAT の、C の上のスライス。対象は関手 E → C</td></tr>
+<tr><td>g·f</td><td>合成。f を先に適用する（g·f = g ∘ f）</td></tr>
+</table></div>
+
+<h2>この節の問い</h2>
+
+<p>対象 c ∈ C の普遍性には二つの向きがある。<b>射が入って来る</b>型の普遍性は、反変関手 F と表現 C(−,c) ≅ F によって表される。<b>射が出て行く</b>型の普遍性は、共変関手 F と表現 C(c,−) ≅ F によって表される。一つの対象が両方をもつこともある。系2.3.2 により、どちらの普遍性も c を同型を除いて決める——しかも、指定した表現と可換になる同型がただ一つだけ、という正準な意味で決める。</p>
+
+<p>こうした文脈で「c は、… を満たす x を備えた C の普遍対象である」という言い方をする。この言い回しが主張しているのは、x ∈ Fc が定義2.3.3 の意味での普遍要素だということ、つまり米田の補題の下で x が表現の自然同型を分類する要素だ、ということである。</p>
+
+<p>ここで疑問が残る。この「普遍」という語は、伝統的な意味——ある圏の始対象・終対象であること——と本当に一致しているのか。本節はそれを証明する。舞台となる圏は<b>要素の圏</b> ∫F で、表現可能関手 F のデータだけから正準に作られる。主結果の命題2.4.8 は、あらゆる普遍性が「変数の向きに応じて始対象または終対象を定めること」として理解できると述べる。これは 2.1 の終わりに残した問い——表現可能関手の語る普遍性は、始対象・終対象という最初のパラダイムとどう関係するのか——への答えである。</p>
+
+<p>要素の圏はもう一つの問いにも答える。<b>与えられた集合値関手 F が表現可能かどうかをどう判定するか</b>。命題2.4.8 は、要素 x ∈ Fc が単なる自然変換ではなく自然同型を定めるのはいつか、を特徴づける形にもなっている。</p>
+
+<h2>定義2.4.1 — 共変関手の要素の圏</h2>
+
+<div class="thm"><b>定義2.4.1.</b> 共変関手 F : C → Set の<b>要素の圏</b> ∫F は、
+<ul>
+<li>対象が F の要素、すなわち c ∈ C と x ∈ Fc の組 (c, x)</li>
+<li>(c, x) から (c′, x′) への射が、C の射 f : c → c′ であって Ff(x) = x′ を満たすもの</li>
+</ul>
+である。要素の圏には明らかな忘却関手 Π : ∫F → C がある。</div>
+
+<p>恒等射と合成は C から受け継ぐ。合成が定義できるのは F の関手性による。f : (c,x) → (c′,x′) と g : (c′,x′) → (c″,x″) なら F(g·f)(x) = Fg(Ff(x)) = Fg(x′) = x″ なので、g·f はちゃんと (c,x) → (c″,x″) の射になる。恒等射については Fid<sub>c</sub>(x) = x。</p>
+
+<p>射の条件 Ff(x) = x′ は「x を f に沿って<b>押し出す</b>と x′ になる」と読める。とくに、域 (c,x) と C の射 f : c → c′ を決めれば、余域は (c′, Ff(x)) と一意に定まる——この観察が後の命題2.4.14 の鍵になる。</p>
+
+<p class="note">傍注 — 共変関手の要素の圏からの忘却関手は、要素をその台となる C の対象に、要素の間の射をその台となる C の射に送る。</p>
+
+<h2>定義2.4.2 — 反変関手の要素の圏</h2>
+
+<p>反変関手 F : C<sup>op</sup> → Set については、定義2.4.1 を単純に双対化<b>しない</b>。F を C<sup>op</sup> 上の共変関手と見て定義2.4.1 を適用すると、射影関手の行き先が C<sup>op</sup> になってしまう。そこで ∫F は、そうして得られる圏の<b>反対圏</b>と定める。共変・反変どちらの場合も、要素の圏には C への正準な忘却関手 Π : ∫F → C があるようにする、というのがこの規約であり、それが定義2.4.1・2.4.2 の両方で射の向きを決めている。明示的に書けば次のとおり。</p>
+
+<div class="thm"><b>定義2.4.2.</b> 反変関手 F : C<sup>op</sup> → Set の<b>要素の圏</b> ∫F は、
+<ul>
+<li>対象が F の要素、すなわち c ∈ C と x ∈ Fc の組 (c, x)</li>
+<li>(c, x) から (c′, x′) への射が、C の射 f : c → c′ であって Ff(x′) = x を満たすもの</li>
+</ul>
+である。要素の圏には明らかな忘却関手 Π : ∫F → C がある。</div>
+
+<p>反変だから Ff : Fc′ → Fc であり、条件は「x′ を f に沿って<b>引き戻す</b>と x になる」と読める。押し出しか引き戻しかの違いはあるが、どちらの場合も射 f : (c,x) → (c′,x′) の台は C の射 c → c′ であって、Π は共変関手になる。</p>
+
+<p class="note">傍注 — 反変関手の要素の圏からの忘却関手も、要素をその台となる C の対象に、要素の間の射をその台となる C の射に送る。反変関手の要素の圏に対する上の規約は、この忘却関手が共変になることを含意している。</p>
+
+<h2>例2.4.3 — n-彩色つきグラフ</h2>
+
+<p>関手 n-Color : Graph<sup>op</sup> → Set は、グラフをその頂点の n-彩色（隣接する頂点に同じ色を割り当てない色分け）全体の集合に送るのだった。要素の圏 ∫n-Color の対象は、グラフと選ばれた n-彩色の組、すなわち <b>n-彩色されたグラフ</b>である。</p>
+
+<p>射はどうなるか。定義2.4.2 により、(G, χ) から (G′, χ′) への射はグラフ準同型 φ : G → G′ であって、χ′ を φ で引き戻したものが χ になるもの、すなわち各頂点 v で χ′(φ(v)) = χ(v) を満たすものである。これは「G の紫の頂点は G′ の紫の頂点に行く」——つまり<b>彩色を保つ</b>——という条件にほかならない。まとめると、∫n-Color は n-彩色されたグラフと彩色を保つグラフ準同型の圏である。</p>
+
+<h2>例2.4.4 — 点つき対象の圏</h2>
+
+<p>具体圏 C（忠実な忘却関手 U : C → Set を備えた圏）に対し、∫U の対象は、指定された対象 c ∈ C の台集合の要素 x ∈ Uc である。射は、選ばれた要素を保つような C の射である。すでに個別の場合に使ってきた記法を拡張して、この圏を C<sub>∗</sub> と書き、<b>C の点つき対象の圏</b>と呼ぶ。</p>
+
+<h2>例2.4.5 — 依存和と依存積</h2>
+
+<p>C が離散圏（恒等射しかない圏）のとき、関手 F : C → Set は添字づけられた集合族 (F<sub>c</sub>)<sub>c∈C</sub> を符号化しているにすぎない。このとき ∫F も離散圏になり、その対象の集合は</p>
+
+<p style="text-align:center">Σ<sub>c∈C</sub> F<sub>c</sub></p>
+
+<p>である。射影 Π : Σ<sub>c∈C</sub>F<sub>c</sub> → C は、c ∈ C 上のファイバーがちょうど F<sub>c</sub> になるように定まる。この集合 Σ<sub>c∈C</sub>F<sub>c</sub> を族 (F<sub>c</sub>)<sub>c∈C</sub> の<b>依存和</b>と呼ぶ。その要素は<b>依存対</b> (c, x)——添字となる対象 c ∈ C と、それに応じた集合の要素 x ∈ F<sub>c</sub> の組——である。</p>
+
+<p>関連する<b>依存積</b> Π<sub>c∈C</sub>F<sub>c</sub> は、関手 Π : Σ<sub>c∈C</sub>F<sub>c</sub> → C の切断（section）全体の集合として定義される。切断とは s : C → Σ<sub>c∈C</sub>F<sub>c</sub> であって Π·s = id となるもの、つまり各 c に対して F<sub>c</sub> の要素を1つずつ選ぶ規則である。その要素は<b>依存関数</b> f、すなわち各 c ∈ C に対して要素 f(c) ∈ F<sub>c</sub> を指定するものである。</p>
+
+<p class="note">依存和の要素が依存対、依存積の要素が依存関数。要素の圏の言葉で言えば、前者は ∫F の対象、後者は射影 Π の切断である。</p>
+
+<h2>例2.4.6 — スライス圏 c/C と C/c</h2>
+
+<p>表現された共変関手 C(c,−) の要素の圏を考える。対象は C の射 f : c → x、つまり域が c の射である。f : c → x から g : c → y への射は、定義2.4.1 により h : x → y であって h·f = g を満たすもの、すなわち「c の<b>下</b>で」三角形を可換にする射である。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 340 180" width="340" role="img" aria-label="c を頂点とする三角形。f : c → x、g : c → y、h : x → y で h·f = g">
+  <defs><marker id="ae1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="170" y="40" text-anchor="middle">c</text>
+  <text x="65" y="145" text-anchor="middle">x</text>
+  <text x="275" y="145" text-anchor="middle">y</text>
+  <line x1="160" y1="52" x2="82" y2="128" marker-end="url(#ae1)"/>
+  <line x1="180" y1="52" x2="258" y2="128" marker-end="url(#ae1)"/>
+  <line x1="80" y1="140" x2="262" y2="140" marker-end="url(#ae1)"/>
+  <text class="lbl" x="108" y="82" text-anchor="end">f</text>
+  <text class="lbl" x="232" y="82" text-anchor="start">g</text>
+  <text class="lbl" x="170" y="164" text-anchor="middle">h</text>
+</svg>
+<figcaption>∫C(c,−) の射。可換性 h·f = g が定義2.4.1 の条件 C(c,h)(f) = g そのもの</figcaption>
+</figure>
+
+<p>この圏には別名がある。演習1.1.iii で導入された、対象 c ∈ C の<b>下のスライス圏</b> c/C である。忘却関手 Π : c/C → C は、射 f : c → x をその余域 x に送り、可換三角形を「c の向かい側の辺」h に送る。</p>
+
+<p>双対に、∫C(−,c) は対象 c ∈ C の<b>上のスライス圏</b> C/c である。対象は余域が c の射 f : x → c、f から g : y → c への射は h : x → y であって g·h = f を満たすもの、すなわち「c の<b>上</b>で」三角形を可換にする射である。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 340 180" width="340" role="img" aria-label="c を底とする三角形。f : x → c、g : y → c、h : x → y で g·h = f">
+  <defs><marker id="ae2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="65" y="45" text-anchor="middle">x</text>
+  <text x="275" y="45" text-anchor="middle">y</text>
+  <text x="170" y="150" text-anchor="middle">c</text>
+  <line x1="80" y1="40" x2="262" y2="40" marker-end="url(#ae2)"/>
+  <line x1="70" y1="58" x2="155" y2="134" marker-end="url(#ae2)"/>
+  <line x1="270" y1="58" x2="185" y2="134" marker-end="url(#ae2)"/>
+  <text class="lbl" x="170" y="26" text-anchor="middle">h</text>
+  <text class="lbl" x="98" y="110" text-anchor="end">f</text>
+  <text class="lbl" x="242" y="110" text-anchor="start">g</text>
+</svg>
+<figcaption>∫C(−,c) の射。定義2.4.2 の条件 C(h,c)(g) = f が可換性 g·h = f にあたる</figcaption>
+</figure>
+
+<p>忘却関手 Π : C/c → C はこちらでは域への射影である。</p>
+
+<p>なお C(−,c) ≅ C<sup>op</sup>(c,−) : C<sup>op</sup> → Set である。実際、C(−,c) を C<sup>op</sup> 上の共変関手と見てその要素の圏を作ったもの c/(C<sup>op</sup>) は、反変関手 C(−,c) の要素の圏の反対圏 (C/c)<sup>op</sup> と同型になる（演習1.2.i）。定義2.4.2 が「反対圏を取る」と決めたのは、まさにこの関係を利用している。</p>
+
+<h2>補題2.4.7 — コンマ圏としての要素の圏</h2>
+
+<p>米田の補題は、要素の圏のもう一つの定義を与える。</p>
+
+<div class="thm"><b>補題2.4.7.</b> 関手 F : C<sup>op</sup> → Set の要素の圏は、コンマ圏と同型である:
+<p style="text-align:center">∫F ≅ よ↓F.</p>
+ここでコンマ圏は、米田埋め込み よ : C → Set<sup>C<sup>op</sup></sup> と対象 F : 1 → Set<sup>C<sup>op</sup></sup> に関して定義される。</div>
+
+<p>コンマ圏の定義（演習1.3.vi）を思い出すと、よ↓F の対象は組 (c ∈ C, α : C(−,c) ⇒ F)——表現された関手から F への自然変換——であり、(c,α) から (c′,α′) への射は f : c → c′ であって α′·f<sub>∗</sub> = α を満たすものである（F 側の成分は 1 の恒等射しかない）。</p>
+
+<p>この同型は ∫F と よ↓F から C への正準な射影と可換になる（演習1.3.vi）。共変関手についての双対版は演習2.4.i に、別のコンマ圏による特徴づけは演習2.4.ii に委ねられる。</p>
+
+<p><span class="proof-head">証明.</span> まず対象について。米田の補題により、要素 x ∈ Fc は自然変換 Ψ(x) : C(−,c) ⇒ F と1対1に対応する。これが ∫F の対象と よ↓F の対象の間の全単射を与える。</p>
+
+<p>次にこの対象の間の全単射を充満忠実な関手に延長する。∫F における (c,x) から (c′,x′) への射は、Ff(x′) = x を満たす f : c → c′ であった。米田の補題（というより米田埋め込みの関手性）により、f には自然変換 f<sub>∗</sub> : C(−,c) ⇒ C(−,c′) が対応する。これが よ↓F において Ψ(x) から Ψ(x′) への射であるためには、次の自然変換の三角形が可換でなければならない。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 380 175" width="380" role="img" aria-label="C(−,c) から C(−,c′) への f 下星と、F への Ψ(x)、Ψ(x′) のなす三角形">
+  <defs><marker id="ae3" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="35" text-anchor="middle">C(−, c)</text>
+  <text x="300" y="35" text-anchor="middle">C(−, c′)</text>
+  <line x1="120" y1="30" x2="248" y2="30" marker-end="url(#ae3)"/>
+  <text x="185" y="155" text-anchor="middle">F</text>
+  <line x1="88" y1="52" x2="170" y2="138" marker-end="url(#ae3)"/>
+  <line x1="284" y1="52" x2="200" y2="138" marker-end="url(#ae3)"/>
+  <text class="lbl" x="185" y="20" text-anchor="middle">f<tspan baseline-shift="sub" font-size="10">∗</tspan></text>
+  <text class="lbl" x="112" y="103" text-anchor="end">Ψ(x)</text>
+  <text class="lbl" x="258" y="103" text-anchor="start">Ψ(x′)</text>
+</svg>
+<figcaption>よ↓F における射の条件。Ψ(x′)·f<sub>∗</sub> = Ψ(x)</figcaption>
+</figure>
+
+<p>ここで定理2.2.4 の自然性が効く。要素から自然変換を作る構成 Ψ は c ∈ C について自然だった。この自然性を射 f : c → c′ に適用すると、要素 Ff(x′) ∈ Fc について</p>
+
+<p style="text-align:center">Ψ(Ff(x′)) = Ψ(x′)·f<sub>∗</sub></p>
+
+<p>が成り立つ。したがって三角形の可換性 Ψ(x′)·f<sub>∗</sub> = Ψ(x) は Ψ(Ff(x′)) = Ψ(x) と同値であり、Ψ が全単射だから Ff(x′) = x と同値である。これは ∫F における射の定義そのものである。よって射の対応も全単射で、同型が得られた。<span class="qed">□</span></p>
+
+<h2>命題2.4.8 — 普遍要素は始対象・終対象である</h2>
+
+<p>要素の圏の重要な使い道は、あらゆる普遍性を「あるデータ——定義2.3.3 の普遍要素——が、適切な圏、すなわち表現可能関手の要素の圏において始対象または終対象を定める」という形に符号化できると示すことである。</p>
+
+<div class="thm"><b>命題2.4.8（普遍要素は普遍要素である）.</b> 共変関手 F : C → Set と要素 x ∈ Fc について、x が普遍要素であることと、対象 (c,x) ∈ ∫F が始対象であることは同値である。したがって F が表現可能であることと、その要素の圏が始対象をもつことは同値である。
+<p>双対に、反変関手 F : C<sup>op</sup> → Set と要素 x ∈ Fc について、x が普遍要素であることと (c,x) ∈ ∫F が終対象であることは同値である。したがって F が表現可能であることと、その要素の圏が終対象をもつことは同値である。</p></div>
+
+<p>証明の前に、この特徴づけの見通しを述べる。まず条件が<b>必要</b>であることは既知の道具で分かる。自然同型 C(c,−) ≅ F は圏の同型 ∫F ≅ ∫C(c,−) ≅ c/C を誘導し（演習2.4.viii と例2.4.6）、c/C には始対象がある——恒等射 id<sub>c</sub> がそれである。よって F が表現可能なら ∫F は始対象をもつ。</p>
+
+<p class="note">脚注14 — 演習2.4.iii が注意するように、c/C の始対象は id<sub>c</sub> だけとは限らない。</p>
+
+<p>驚くべきは<b>逆</b>のほう、すなわち ∫F に始対象があれば F の表現可能性が従う、という点である。鍵は例によって米田の補題、それも定理2.2.4 の形のものである。</p>
+
+<p class="note">脚注15 — 主張も証明の方針も出そろったので、まず自分で議論を組み立ててみることを本文は勧めている。</p>
+
+<p><span class="proof-head">証明.</span> 定義2.3.3 により、x ∈ Fc が普遍要素であるとは、米田の補題が定める自然変換 Ψ(x) : C(c,−) ⇒ F が自然同型であることだった。定義1.4.3 により、自然変換が自然同型であることは、すべての d ∈ C について成分 Ψ(x)<sub>d</sub> : C(c,d) → Fd が同型であること、すなわち全単射であることと同値である。</p>
+
+<p>したがって、x ∈ Fc が普遍要素であることは</p>
+
+<p style="text-align:center">すべての d ∈ C とすべての y ∈ Fd に対し、Ψ(x)<sub>d</sub>(f) = y となる f : c → d がただ一つ存在する</p>
+
+<p>ことと同値である。米田の補題の証明における構成では Ψ(x)<sub>d</sub>(f) ≔ Ff(x) だったから、これは</p>
+
+<p style="text-align:center">すべての d ∈ C とすべての y ∈ Fd に対し、Ff(x) = y となる f : c → d がただ一つ存在する</p>
+
+<p>と言い換えられる。そして Ff(x) = y という条件は、f が ∫F における射 (c,x) → (d,y) であることの定義そのものである。つまりこの主張は「∫F のすべての対象 (d,y) に対して、射 (c,x) → (d,y) がただ一つ存在する」と述べている。よって x ∈ Fc が普遍要素であることと (c,x) ∈ ∫F が始対象であることは同値である。<span class="qed">□</span></p>
+
+<h2>命題2.4.9 — 表現たちのなす部分圏</h2>
+
+<p>表現は集合論の伝統的な意味では一意でないが、圏論的に適切な意味では一意である。</p>
+
+<div class="thm"><b>命題2.4.9.</b> 任意の関手 F : C → Set について、∫F のうち F の表現たちが張る充満部分圏は、空であるか、可縮亜群であるかのいずれかである。</div>
+
+<p><span class="proof-head">証明.</span> F が表現可能でなければ表現は一つもなく、この部分圏は空である。そうでなければ、命題2.4.8 により F の表現は ∫F の始対象を定める。補題1.6.16（の始対象版）により、始対象たちが張る部分圏は空か可縮亜群である。すなわち、どの二つの始対象の間にもちょうど一本の（同型）射がある。<span class="qed">□</span></p>
+
+<p>「表現は同型を除いて一意」という系2.3.2 の主張が、ここでは「表現たちのなす圏は可縮である」という形になる。可縮亜群とは終圏 1 と圏同値な圏、明示的には空でなくどの hom にもちょうど1本の射がある圏だから、対象がいくつあっても「本質的に一点」である。</p>
+
+<h2>例2.4.10 — G-集合と作用亜群</h2>
+
+<p>左 G-集合 X : BG → Set の要素の圏は、例1.5.19 の<b>作用亜群</b> X//G と同型である。BG の対象は一つだけなので ∫X の対象は X の要素 x そのもの、射 g : x → y は g·x = y を満たす群の元 g ∈ G である。すべての射が可逆だから、これは亜群になる。</p>
+
+<p>例2.3.7 で見たように、X が表現可能なら X のどの要素も普遍要素として選べる。したがって「表現たちが張る充満部分圏」は ∫X 全体であり、命題2.4.9 から次が従う: <b>X が表現可能であることと、∫X ≅ X//G が可縮亜群であることは同値</b>。</p>
+
+<p>これを使って、例2.3.7 で保留にした主張——空でない自由かつ推移的な左 G-集合は表現可能である——を証明する。G の X への作用が自由かつ推移的なら、任意の要素の組 x, y ∈ X に対し g·x = y となる g ∈ G がただ一つ存在する（推移性が存在を、自由性が一意性を与える）。これは作用亜群 X//G、すなわち要素の圏 ∫X のどの hom にもちょうど1本の射があるということである。X は空でないから、これらの圏は可縮亜群であり、X は表現可能である。</p>
+
+<h2>例2.4.11 — 離散力学系</h2>
+
+<p>例2.1.1 で導入した離散力学系——集合 X と自己写像 f : X → X と特別な要素 x<sub>0</sub> ∈ X の組——の圏は、忘却関手 U : End → Set の要素の圏である。ここで End は自己写像を備えた集合の圏で、その射は (2.1.2) と同様の図式を可換にする関数、すなわち自己写像と可換な関数である。∫U の対象は「自己写像つきの集合と、その台集合の要素」だから、まさに離散力学系である。</p>
+
+<p>この関手 U は対象 (ℕ, s : ℕ → ℕ) に表現され、その表現は普遍要素 0 ∈ ℕ で与えられる。命題2.4.8 により、例2.1.1 で観察した普遍性——(ℕ, s, 0) が普遍的な離散力学系であること、すなわち離散力学系の圏の始対象であること——が従う。</p>
+
+<h2>例2.4.12 — 要素の圏いろいろ</h2>
+
+<p>2.1・2.3 で見た表現たちを、要素の圏の言葉で読み直す。</p>
+
+<p><b>(i) 反変冪集合関手.</b> 対象は部分集合を選んだ集合、すなわち組 A′ ⊆ A である。射 f : (A′ ⊆ A) → (B′ ⊆ B) は関数 f : A → B であって f<sup>−1</sup>(B′) = A′ を満たすもの（反変なので引き戻しの条件）。例2.1.6(i) の表現に対応する終対象は、2元集合 Ω ≔ {⊤, ⊥} と、その中の一点部分集合 {⊤} ⊂ Ω である。これが<b>部分集合を備えた普遍的な集合</b>である: どんな A′ ⊆ A に対しても h<sup>−1</sup>(⊤) = A′ となる関数 h : A → Ω がただ一つ存在する（特性関数）。なお {⊤} ⊂ Ω は唯一の終対象ではない。{⊥} ⊂ Ω とも、2元集合の他のどの一点部分集合とも同型である。</p>
+
+<p class="note">脚注16 — 集合のトポスにおいて {⊤} ⊂ Ω は部分対象分類子（subobject classifier）と呼ばれる。§E.4 参照。</p>
+
+<p><b>(ii) ベクトル空間の忘却関手.</b> ∫U（U : Vect<sub>k</sub> → Set）の対象は、ある k-ベクトル空間 V の中のベクトル v である。射 (V,v) → (W,w) は v を w に送る線型写像 T : V → W。U を表現するベクトル空間 k と普遍要素 1 ∈ k の組は始対象を定めるが、それだけではない。零でないスカラー c ∈ k は線型同型 c·− : k → k を定めるから、c ≠ 0 なる組 (k, c) もまた始対象である。より一般に、1次元ベクトル空間 V と零でないベクトル v の組はすべて始対象を定める。</p>
+
+<p><b>(iii) 双線型写像.</b> ∫Bilin(V,W;−) の対象は、k-ベクトル空間 U を余域とする双線型写像 f : V × W → U である。射は線型写像 T : U → U′ であって、関数の図式</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 340 180" width="340" role="img" aria-label="V×W から U への f、U から U′ への T、V×W から U′ への f′ のなす三角形">
+  <defs><marker id="ae4" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="40" text-anchor="middle">V × W</text>
+  <text x="250" y="40" text-anchor="middle">U</text>
+  <text x="250" y="152" text-anchor="middle">U′</text>
+  <line x1="112" y1="35" x2="236" y2="35" marker-end="url(#ae4)"/>
+  <line x1="250" y1="55" x2="250" y2="134" marker-end="url(#ae4)"/>
+  <line x1="95" y1="52" x2="233" y2="142" marker-end="url(#ae4)"/>
+  <text class="lbl" x="174" y="24" text-anchor="middle">f</text>
+  <text class="lbl" x="260" y="100" text-anchor="start">T</text>
+  <text class="lbl" x="128" y="102" text-anchor="middle">f′</text>
+</svg>
+</figure>
+
+<p>を可換にするもの、すなわち双線型写像 f′ が f と線型写像 T の合成であるようなものである。例2.3.8 で述べた普遍双線型写像 ⊗ : V × W → V ⊗<sub>k</sub> W の普遍性は、まさに ⊗ がこの圏の始対象であるという主張である。</p>
+
+<p><b>(iv) 群の n 個の元.</b> 関手 U(−)<sup>n</sup> : Group → Set の要素の圏の対象は、群 G と n 個の元 g<sub>1</sub>, …, g<sub>n</sub> ∈ G の組である。射 (g<sub>1</sub>,…,g<sub>n</sub> ∈ G) → (h<sub>1</sub>,…,h<sub>n</sub> ∈ H) は、すべての i について φ(g<sub>i</sub>) = h<sub>i</sub> を満たす準同型 φ : G → H である。<b>n 個の元を備えた普遍的な群</b>を F<sub>n</sub> と書く。これは指定された元 x<sub>1</sub>, …, x<sub>n</sub> ∈ F<sub>n</sub> をもち、任意の g<sub>1</sub>, …, g<sub>n</sub> ∈ G に対して φ(x<sub>i</sub>) = g<sub>i</sub> となる群準同型 φ : F<sub>n</sub> → G がただ一つ存在する、という普遍性をもつ。n 個の生成元 x<sub>1</sub>, …, x<sub>n</sub> 上の自由群がこの性質をもつ: F<sub>n</sub> のすべての元は x<sub>i</sub> とその逆元の積だから n 個の像 φ(x<sub>i</sub>) ∈ G が φ 全体を決め、しかも x<sub>i</sub> の間に関係式がないから G の元の選び方に制約がない。</p>
+
+<p><b>(v) 双対ベクトル.</b> 関手 U(−)<sup>∗</sup> : Vect<sub>k</sub><sup>op</sup> → Set の要素の圏の対象は、ベクトル空間とその双対ベクトルの組、すなわち余域が k の線型写像 f : V → k にほかならない。f : V → k から g : W → k への射は、f = g·T を満たす線型写像 T : V → W である。したがってこの要素の圏はスライス圏 Vect<sub>k</sub>/k と同型である（例2.4.6 のとおり）。恒等射 id<sub>k</sub> : k → k は終対象、つまり普遍的な双対ベクトルであり、零でない定数によるスカラー倍も同様である。</p>
+
+<p><b>(vi) 環の元.</b> ∫U（U : Ring → Set）の対象は、単位的環 R とその元 r ∈ R の組で、射は選ばれた元を保つ環準同型である。始対象は x ∈ ℤ[x] である。要素の圏において、対象 x ∈ ℤ[x] は恒等射でない自己射をもたない——始対象は決してもたない。しかし環の圏における ℤ[x] は自己射をたくさんもつ: 普遍性 Ring(ℤ[x],−) ≅ U により、写像 ℤ[x] → ℤ[x] は整数係数多項式 p(x) ∈ ℤ[x] で分類される。系2.2.8 により、U : Ring → Set の自然な自己射はすべてこの形の成分をもたねばならない。すなわち、環の忘却関手の自然な自己射の成分は、整数係数多項式 p を用いた写像 p(x) : R → R, r ↦ p(r) である。</p>
+
+<h2>定義2.4.13 — 離散左ファイブレーション・離散右ファイブレーション</h2>
+
+<p>どんな圏 E も要素の圏として現れる。一点集合を値とする定数関手 Δ∗ : E → Set を取ればよく、この関手の表現は E の始対象を定める。しかし面白い例は、いま見てきたもののように、E が<b>別の</b>圏 C で添字づけられた関手の要素の圏になっていて、射影関手 Π : E → C で結ばれている場合に現れる。要素の圏から出るこの射影関手には特別な性質があり、実はその性質が射影関手を特徴づけてしまう。</p>
+
+<div class="thm"><b>定義2.4.13.</b> 関手 Π : E → C が<b>離散左ファイブレーション</b>であるとは、C の任意の射 f : c → c′ と、域の対象 c の任意の持ち上げ e ∈ E に対して、e を域とし f を持ち上げる E の射がただ一つ存在することをいう。双対に、Π : E → C が<b>離散右ファイブレーション</b>であるとは、任意の射 f : c → c′ と余域の対象 c′ の任意の持ち上げ e′ ∈ E に対して、e′ を余域とし f を持ち上げる E の射がただ一つ存在することをいう。</div>
+
+<p>ここで「c の持ち上げ」とは Πe = c となる対象 e のこと、「f の持ち上げ」とは Π で f に送られる E の射のことである。左は「域を指定すれば持ち上げが一意」、右は「余域を指定すれば持ち上げが一意」と覚えられる。</p>
+
+<p>この性質は<b>持ち上げ図式</b>で書ける。関手 Π : E → C が離散左ファイブレーションであるとは、下の実線の可換四角形が与えられたとき、両方の三角形を可換にする破線の射がただ一つ存在することをいう。関手 1 → E は E の対象の選択、関手 2 → C は C の射の選択であり、0 : 1 → 2 は 2 の対象 0（射の始点側）を選ぶ関手である。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 300 180" width="300" role="img" aria-label="離散左ファイブレーションの持ち上げ図式。左辺は 0 : 1 → 2">
+  <defs><marker id="ae5" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="65" y="40" text-anchor="middle">1</text>
+  <text x="235" y="40" text-anchor="middle">E</text>
+  <text x="65" y="150" text-anchor="middle">2</text>
+  <text x="235" y="150" text-anchor="middle">C</text>
+  <line x1="80" y1="35" x2="220" y2="35" marker-end="url(#ae5)"/>
+  <line x1="65" y1="52" x2="65" y2="132" marker-end="url(#ae5)"/>
+  <line x1="235" y1="52" x2="235" y2="132" marker-end="url(#ae5)"/>
+  <line x1="80" y1="145" x2="220" y2="145" marker-end="url(#ae5)"/>
+  <line x1="82" y1="133" x2="221" y2="52" stroke-dasharray="5 4" marker-end="url(#ae5)"/>
+  <text class="lbl" x="150" y="24" text-anchor="middle">e</text>
+  <text class="lbl" x="55" y="97" text-anchor="end">0</text>
+  <text class="lbl" x="245" y="97" text-anchor="start">Π</text>
+  <text class="lbl" x="150" y="167" text-anchor="middle">f</text>
+  <text class="lbl" x="118" y="101" text-anchor="end">∃!</text>
+</svg>
+<figcaption>離散左ファイブレーション: 射 f と、その域の持ち上げ e が与えられたときの一意な持ち上げ</figcaption>
+</figure>
+
+<p>離散右ファイブレーションの持ち上げ図式は、左辺を 1 : 1 → 2、すなわち 2 の対象 1（射の終点側）を選ぶ関手に取り替えたものである。今度は f の余域の持ち上げ e′ が与えられている。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 300 180" width="300" role="img" aria-label="離散右ファイブレーションの持ち上げ図式。左辺は 1 : 1 → 2">
+  <defs><marker id="ae6" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="65" y="40" text-anchor="middle">1</text>
+  <text x="235" y="40" text-anchor="middle">E</text>
+  <text x="65" y="150" text-anchor="middle">2</text>
+  <text x="235" y="150" text-anchor="middle">C</text>
+  <line x1="80" y1="35" x2="220" y2="35" marker-end="url(#ae6)"/>
+  <line x1="65" y1="52" x2="65" y2="132" marker-end="url(#ae6)"/>
+  <line x1="235" y1="52" x2="235" y2="132" marker-end="url(#ae6)"/>
+  <line x1="80" y1="145" x2="220" y2="145" marker-end="url(#ae6)"/>
+  <line x1="82" y1="133" x2="221" y2="52" stroke-dasharray="5 4" marker-end="url(#ae6)"/>
+  <text class="lbl" x="150" y="24" text-anchor="middle">e′</text>
+  <text class="lbl" x="55" y="97" text-anchor="end">1</text>
+  <text class="lbl" x="245" y="97" text-anchor="start">Π</text>
+  <text class="lbl" x="150" y="167" text-anchor="middle">f</text>
+  <text class="lbl" x="118" y="101" text-anchor="end">∃!</text>
+</svg>
+<figcaption>離散右ファイブレーション: 射 f と、その余域の持ち上げ e′ が与えられたときの一意な持ち上げ</figcaption>
+</figure>
+
+<h2>命題2.4.14 — 要素の圏による特徴づけ</h2>
+
+<div class="thm"><b>命題2.4.14.</b> 要素の圏の構成は充満忠実関手
+<p style="text-align:center">∫− : Set<sup>C</sup> → CAT/C,   ∫− : Set<sup>C<sup>op</sup></sup> → CAT/C</p>
+を定める。その本質的像は、共変な C-添字関手の場合には離散左ファイブレーションのなす充満部分圏であり、反変な C-添字関手の場合には離散右ファイブレーションのなす充満部分圏である。</div>
+
+<p>とくに、要素の圏から出る射影関手 Π : ∫F → C は、F が共変なら離散左ファイブレーション、反変なら離散右ファイブレーションである。命題2.4.14 はさらに、この性質が要素の圏の構成から得られる関手を特徴づけると主張している。また充満忠実性により、自然変換 α : F ⇒ G は C 上の関手 ∫α : ∫F → ∫G と同一視できる。</p>
+
+<p><span class="proof-head">証明.</span> 要素の圏の構成が充満忠実関手になることは演習2.4.viii に委ね、共変関手の場合の離散左ファイブレーションによる特徴づけを示す。</p>
+
+<p>まず、共変関手 F : C → Set から定まる射影 Π : ∫F → C が離散左ファイブレーションであることを見る。C の射 f : c → c′ と、その域の持ち上げ (c,x) ∈ ∫F が与えられたとする。定義2.4.1 により、域が (c,x) で f を持ち上げる射は余域が (c′, Ff(x)) でなければならず、逆にこの f : (c,x) → (c′, Ff(x)) は確かに ∫F の射である。よって持ち上げはただ一つ存在する。</p>
+
+<p>逆に、Π : E → C が離散左ファイブレーションだとする。関手 F : C → Set を次のように定義する。対象 c ∈ C には、c を持ち上げる E の対象からなる集合 Fc を対応させる。射 f : c → c′ には、関数 Ff : Fc → Fc′ を、c を持ち上げる対象 e ∈ Fc を「e を域として f を持ち上げる唯一の射の余域」に送るものとして定義する。</p>
+
+<p class="note">脚注17 — 実は c 上のファイバー E<sub>c</sub>、すなわち Π が c に送る対象と id<sub>c</sub> に送る射からなる部分圏は、離散圏である。演習2.4.ix。</p>
+
+<p>この対応が関手であること、すなわち F が恒等射と合成を保つことを確かめる。どちらも「域を指定した持ち上げの一意性」から従う。射 f : c → c′ と g : c′ → c″ に対して Fg·Ff = F(g·f) を示すには、c を持ち上げる対象 e で両辺の値が一致することを見ればよい。右辺は e を、e を域として g·f を持ち上げる唯一の射の余域に送る。左辺は e をまず、e を域として f を持ち上げる唯一の射の余域 Ff(e) に送り、次に Ff(e) を域として g を持ち上げる唯一の射の余域に送る。この二つの射を E で合成したものは e を域とする g·f の持ち上げだから、一意性によりさきほどの射と同じものであり、余域 F(g·f)(e) と Fg(Ff(e)) は等しい。恒等射の場合も同様、というよりもっと易しい。</p>
+
+<p>こうして離散左ファイブレーション Π : E → C から関手 F : C → Set が構成できた。この F の要素の圏を取ると、また離散左ファイブレーション Π : ∫F → C が得られ、各 c ∈ C 上の対象は構成から E の c 上の対象と同型である。両者の射は「C 上の離散左ファイブレーションの域である」という事実から一意に決まるので、C 上で E ≅ ∫F である。<span class="qed">□</span></p>
+
+<h2>節の締め — 次章への問い</h2>
+
+<p>普遍性による定義は、これから先の章で重要な主題として繰り返し現れる。その予告として、次の問いを置いておく。局所小な圏 C の二つの対象 A, B を固定し、関手</p>
+
+<p style="text-align:center">C(A,−) × C(B,−) : C → Set</p>
+
+<p>を定義する。これは対象 X を、集合 C(A,X) × C(B,X)——射 a : A → X と b : B → X の組全体——に送る。<b>この関手が表現可能であるとは、どういうことだろうか。</b></p>
+
+<h2>節末問題</h2>
+
+<p class="note">原文は英語。以下は和訳・言い換え。</p>
+
+<ul>
+  <li><b>2.4.i</b> — 共変関手 F : C → Set の要素の圏と、米田埋め込み よ : C<sup>op</sup> → Set<sup>C</sup> および対象 F : 1 → Set<sup>C</sup> に関して定義されるコンマ圏 よ↓F との間に、反変な同型を定義せよ。</li>
+  <li><b>2.4.ii</b> — F : C → Set が与えられたとき、∫F が、一点集合 ∗ : 1 → Set と関手 F : C → Set に関するコンマ圏 ∗↓F と同型であることを示せ。反変関手についても同様の結果を述べて証明せよ。</li>
+  <li><b>2.4.iii</b> — c/C のすべての始対象と、C/c のすべての終対象を特徴づけよ。</li>
+  <li><b>2.4.iv</b> — 双対性の原理を使って、「共変関手が表現可能であるのは、その要素の圏が始対象をもつとき、かつそのときに限る」の証明を、「反変関手が表現可能であるのは、その要素の圏が終対象をもつとき、かつそのときに限る」の証明に変換せよ。</li>
+  <li><b>2.4.v</b> — シェルピンスキー空間が「開部分集合を備えた普遍的な位相空間」であるとはどういう意味か説明せよ。</li>
+  <li><b>2.4.vi</b> — 集合を、その上の前順序全体の集合に送る反変関手 F : Set<sup>op</sup> → Set を定義せよ。その要素の圏は何か。F は表現可能か。</li>
+  <li><b>2.4.vii</b> — 局所小な圏 C について、両側 hom 関手 Hom(−,−) : C<sup>op</sup> × C → Set を、その定義域 C<sup>op</sup> × C の共変関手と見る。Hom の要素の圏は<b>ねじれ矢印圏</b>（twisted arrow category）と呼ばれる。その対象と射を記述して、この名前を正当化せよ。</li>
+  <li><b>2.4.viii</b> — 要素の圏の構成が、充満忠実関手 ∫(−) : Set<sup>C</sup> → CAT/C の対象への作用を与えることを示せ。そこから、F, G : C → Set が自然同型であることと、C 上で ∫F ≅ ∫G となることが同値だと結論せよ。</li>
+  <li><b>2.4.ix</b> — 離散左ファイブレーションまたは離散右ファイブレーション Π : E → C のファイバーが離散圏であることを示せ。すなわち各 c ∈ C について、Π が c に送る E の対象と Π が id<sub>c</sub> に送る E の射からなる部分圏 E<sub>c</sub> が離散圏であることを示せ。</li>
+</ul>
+
+</body>
+</html>

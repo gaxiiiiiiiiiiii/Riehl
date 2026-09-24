@@ -23,6 +23,19 @@ statement の直前の `#check` にある。
                扱う規模の会計を、小ささの仮定に置き換えたことになる
   評価関手     data は Mathlib と同じだが、`map` の自然性と `map_id` が `rfl` で閉じない
                ので自前で組む。statement では Mathlib の `evaluation` を使う
+  自然同型の   ev_id を自然変換として先に置く。c 成分の `myEvIdApp`（F 方向の自然性）と、
+  組み方       それを束ねる `myEvId`（c 方向の自然性）の2段で、義務は1つずつ。
+               `myCoyonedaLemma` は組み立てだけで、成分の同型は `coyonedaEquiv` から、
+               自然性は2つの `naturality` フィールドから渡す。Mathlib は
+               `curriedCoyonedaLemma` の中で自然変換を無名で与えていて対応する宣言を
+               持たないため、自前の2つを参照する
+  注意2.2.7 の Remark なので演習は置かないが、本の出現順の位置にセクションだけ作り、中身は
+  セクション   Recap にしてある。米田の補題の Mathlib での主張は
+               `coyonedaLemma : coyonedaPairing C ≅ coyonedaEvaluation C` で、両辺の
+               2つの関手の中身を見ないと statement が読めないため、そこだけを写した。
+               Recap は本来「その節が導入するのではない知識」の置き場なので、これは例外。
+               `coyonedaLemma` は statement だけを写し、証明は Mathlib のものに委ねる。
+               演習 `myCoyonedaLemma` と同じ対象なので、実装を写すと答えになるため
   命題2.2.3    Mathlib の対応物は自己準同型（X = G）の場合だけで、値も反対モノイド Gᵐᵒᵖ
                の側に落ちる
   系2.2.8 の   本は「C は表現された関手が張る充満部分圏と同型」と述べる。Mathlib では
@@ -47,15 +60,18 @@ statement を置かない節末問題:
   2.2.vi   説明問題
   2.2.vii  特徴づけの主張の形自体が答えの一部になる
 
-本文中の例（例2.2.1・例2.2.2・例2.2.9）は載せない。注意2.2.7 は Remark だが、定理2.2.4 の
-自然性の主張に Lean の statement を与える唯一の形なので、そのパッケージングだけを使う。
-対応する Mathlib の宣言は `coyonedaEvaluation`・`coyonedaPairing` と、両者の自然同型
-`coyonedaLemma`、curried 形の `curriedCoyonedaLemma`（反変側は `yonedaEvaluation`・
-`yonedaPairing`・`yonedaLemma`・`curriedYonedaLemma`）。
+本文中の例（例2.2.1・例2.2.2・例2.2.9）は載せない。注意2.2.7 は Remark なので演習は置かない
+が、定理2.2.4 の自然性に中身のある statement を与えるのがこのパッケージングなので、上記の
+とおりセクションと Recap は置く。要素レベルの自然性は Mathlib にも `coyonedaEquiv_comp`・
+`coyonedaEquiv_naturality` としてあるが、前者は縦合成の定義そのもので `rfl` で閉じるため
+定理としては置かない。反変側は `yonedaEvaluation`・`yonedaPairing`・`yonedaLemma`・
+`curriedYonedaLemma`。
 
 参考: 主に扱う Mathlib のファイル
   - `Mathlib/CategoryTheory/Yoneda.lean`（`yoneda`・`coyoneda`・`yonedaEquiv`・
     `coyonedaEquiv`・`Yoneda.yoneda_full`・`Coyoneda.coyoneda_full`・`coyonedaLemma`）
+  - `Mathlib/CategoryTheory/Opposites.lean`（`Functor.rightOp`）
+  - `Mathlib/CategoryTheory/Products/Basic.lean`（`evaluation`）
   - `Mathlib/CategoryTheory/EssentialImage.lean`（`Functor.toEssImage`）
   - `Mathlib/CategoryTheory/Category/Preorder.lean`（`Preorder.smallCategory`）
   - `Mathlib/CategoryTheory/Preadditive/Mat.lean`（`Mat`）
@@ -176,6 +192,7 @@ where
 
 
 
+
 #check @CategoryTheory.evaluation
 
 def myEvaluation (C : Type u₁) [SmallCategory C] (D : Type u₁) [SmallCategory D] :
@@ -183,24 +200,66 @@ def myEvaluation (C : Type u₁) [SmallCategory C] (D : Type u₁) [SmallCategor
   obj X :=
     { obj := fun F => F.obj X
       map := fun α => α.app X
-      map_id := sorry
-      map_comp := sorry }
-  map f :=
-    { app := fun F => F.map f
-      naturality := sorry }
-  map_id := sorry
-  map_comp := sorry
+      map_id F := by simp
+      map_comp {Y Z W} F G := by simp
+    }
+  map {X Y} f :=
+    { app := fun F =>  F.map f
+      naturality {F G} α := by rw [α.naturality]
+    }
+  map_id c := by ext F; simp
+  map_comp {X Y Z} α β := by ext F; simp
 
 #check @CategoryTheory.curriedCoyonedaLemma
+
+def myEvIdApp (C : Type u₁) [SmallCategory C] (c : C) :
+    (coyoneda.rightOp ⋙ coyoneda).obj c ⟶ (evaluation C (Type u₁)).obj c where
+  app F := ↾fun α => coyonedaEquiv (X := c) (F := F) α
+  naturality f := by
+    #check coyoneda.rightOp
+    #check coyoneda (C := C ⥤ Type u₁)　
+
+def myEvId (C : Type u₁) [SmallCategory C] :
+    coyoneda.rightOp ⋙ coyoneda ⟶ evaluation C (Type u₁) where
+  app c := myEvIdApp C c
+  naturality F G α := sorry
 
 def myCoyonedaLemma (C : Type u₁) [SmallCategory C] :
     coyoneda.rightOp ⋙ coyoneda ≅ evaluation C (Type u₁) :=
   NatIso.ofComponents
-    (app := fun c =>
-      NatIso.ofComponents
-        (app := fun F => Equiv.toIso (coyonedaEquiv (X := c) (F := F)))
-        (naturality := sorry))
-    (naturality := sorry)
+    (fun c => NatIso.ofComponents
+      (fun F => Equiv.toIso (coyonedaEquiv (X := c) (F := F)))
+      (fun β => (myEvIdApp C c).naturality β))
+    (fun f => (myEvId C).naturality f)
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 注意2.2.7
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+/-
+ev_id が c と F の双方に自然であることは、対 (c, F) を積圏 C × Set^C の対象と見た
+2つの関手のあいだの自然同型として、一枚の主張にまとまる。
+
+このセクションは Recap のみで、演習は置かない。
+-/
+
+namespace Recap
+
+-- ev : (c, F) ↦ ULift (Fc)
+def coyonedaEvaluation (C : Type u₁) [Category.{v₁} C] :
+    C × (C ⥤ Type v₁) ⥤ Type (max u₁ v₁) :=
+  evaluationUncurried C (Type v₁) ⋙ uliftFunctor
+
+-- Hom(よ(−),−) : (c, F) ↦ Hom(C(c,−), F)
+def coyonedaPairing (C : Type u₁) [Category.{v₁} C] :
+    C × (C ⥤ Type v₁) ⥤ Type (max u₁ v₁) :=
+  Functor.prod coyoneda.rightOp (𝟭 (C ⥤ Type v₁)) ⋙ Functor.hom (C ⥤ Type v₁)
+
+-- ev_id : Hom(よ(−),−) ≅ ev
+def coyonedaLemma (C : Type u₁) [Category.{v₁} C] :
+    coyonedaPairing C ≅ coyonedaEvaluation C :=
+  CategoryTheory.coyonedaLemma C
+
+end Recap
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 系2.2.8（米田埋め込み）
