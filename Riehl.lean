@@ -4,3 +4,7 @@ import Riehl.Ch1_Categories.S1_7_TwoCategory
 import Riehl.Ch2_Yoneda.S2_1_Representable
 import Riehl.Ch2_Yoneda.S2_2_Yoneda
 import Riehl.Ch2_Yoneda.S2_3_UniversalProperty
+import Riehl.Ch3_Limits.S3_1_UniversalCones
+import Riehl.Ch3_Limits.S3_2_LimitsInSet
+import Riehl.Ch3_Limits.S3_3_Functoriality
+import Riehl.Ch3_Limits.S3_4_Preservation

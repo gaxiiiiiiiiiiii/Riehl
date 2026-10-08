@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3.2 集合の圏における極限</title>
+<style>
+  :root {
+    --bg: #fdfcf9;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --accent: #8a4c14;
+    --line: #d8d3c8;
+    --box-bg: #f5f2ea;
+    --code-bg: #f0ede5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1e22;
+      --fg: #e4e1da;
+      --muted: #9aa2ab;
+      --accent: #e0a468;
+      --line: #3a3f46;
+      --box-bg: #24262b;
+      --code-bg: #2a2d33;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    line-height: 1.95;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.5rem; font-family: "Hiragino Sans", sans-serif; border-bottom: 2px solid var(--accent); padding-bottom: .4rem; }
+  h2 { font-size: 1.12rem; font-family: "Hiragino Sans", sans-serif; color: var(--accent); margin-top: 2.6rem; }
+  p { margin: .9rem 0; font-size: .97rem; }
+  li { font-size: .97rem; margin: .4rem 0; }
+  .note { color: var(--muted); font-size: .88em; }
+  .thm {
+    background: var(--box-bg);
+    border-left: 3px solid var(--accent);
+    padding: .7rem 1.1rem;
+    margin: 1.2rem 0;
+  }
+  .thm b { font-family: "Hiragino Sans", sans-serif; }
+  .proof-head { font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .qed { float: right; }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
+  svg.cd line.dashed { stroke-dasharray: 5 4; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--box-bg); font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<h1>3.2 集合の圏における極限</h1>
+
+<p class="note">Emily Riehl, <i>Category Theory in Context</i> §3.2（pp.93–98）の内容を、個人学習のために日本語で書き直した解説。番号（定理3.2.4 など）は本と揃えてある。翻訳ではなく、同じ内容を自分の言葉で再構成したもの。</p>
+
+<h2>記号表</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>記号</th><th>型・意味</th></tr>
+  <tr><td>Set</td><td>集合と関数の圏</td></tr>
+  <tr><td>∗</td><td>固定した一点集合。恒等関手 id<sub>Set</sub> を表現する</td></tr>
+  <tr><td>x : ∗ → X</td><td>要素 x ∈ X を、一点集合からの関数と同一視したもの</td></tr>
+  <tr><td>J</td><td>小圏。ob J は対象の集合、mor J は射の集合</td></tr>
+  <tr><td>F : J → Set</td><td>集合に値を取る小図式</td></tr>
+  <tr><td>Cone(X, F)</td><td>頂点 X を持つ F 上の錐の集合。定義3.1.5 の関手 Cone(−, F) の X での値</td></tr>
+  <tr><td>lim F</td><td>F の極限。この節では Cone(∗, F) として構成する</td></tr>
+  <tr><td>λ<sub>j</sub> : lim F → Fj</td><td>極限錐の脚。錐 μ をその j 番目の脚 μ<sub>j</sub> ∈ Fj に送る</td></tr>
+  <tr><td>ζ·Δx</td><td>錐 ζ : ΔX ⇒ F を関数 x : ∗ → X で引き戻した錐 Δ∗ ⇒ F</td></tr>
+  <tr><td>dom f, cod f</td><td>射 f の域と余域</td></tr>
+  <tr><td>∏<sub>j∈ob J</sub> Fj</td><td>J の対象で添字づけられた集合の積</td></tr>
+  <tr><td>∏<sub>f∈mor J</sub> F(cod f)</td><td>J の射で添字づけられた積。f 成分は F(cod f)</td></tr>
+  <tr><td>B ×<sub>A</sub> C</td><td>余スパン B → A ← C の引き戻し（ファイバー積）</td></tr>
+  <tr><td>BG</td><td>群 G を自己射集合とする一対象圏。関手 BG → Set は左 G-集合</td></tr>
+  <tr><td>X<sup>G</sup></td><td>G-集合 X の G-固定点の集合</td></tr>
+  <tr><td>A<sup>e</sup></td><td>冪等射 e : A → A の固定点の集合</td></tr>
+</table>
+</div>
+
+<h2>この節の問い</h2>
+
+<p>極限は、どんな形の図式についても、どんな圏の中でも定義できる。しかし定義が書けることと、その普遍性を持つ対象が存在することは別である。この節は、値を集合の圏に取る図式に話を絞り、添字圏が小さいという大きさの制約のもとで、極限がつねに存在することを構成的に証明する。この一般的な構成を特別な形の図式に当てはめると、集合の積、等化子、引き戻し、列の逆極限の具体的な計算が得られる。これらの公式は §3.5 で、より一般の圏における極限と余極限の計算に使う一般的な結果の直感を与える。</p>
+
+<h2>定義3.2.1 — 小図式、完備、余完備</h2>
+
+<div class="thm"><b>定義3.2.1.</b> 図式が<b>小さい</b>（small）とは、その添字圏が小圏であることをいう。圏 C が<b>完備</b>（complete）とは、C に値を取るすべての小図式の極限を持つことであり、<b>余完備</b>（cocomplete）とは、すべての小図式の余極限を持つことである。</div>
+
+<p>完備な圏とは「すべての小さな極限を持つ」圏である。Set が完備であることを示すために、小図式 F : J → Set を取る。極限とは、集合 X を頂点 X の F 上の錐の集合に送る関手の表現</p>
+
+<p style="text-align:center">Set(X, lim F) ≅ Cone(X, F)</p>
+
+<p>である。ここで X を固定した一点集合 ∗ に特殊化する。∗ は恒等関手 id<sub>Set</sub> : Set → Set を表現するので、</p>
+
+<p style="text-align:center">(3.2.2)  lim F ≅ Set(∗, lim F) ≅ Cone(∗, F).</p>
+
+<p>この節の考え方は、(3.2.2) を極限の明示的な構成的定義として採用することである。構成の各所で、∗ が Set の恒等関手を表現するという事実を使い、要素 x ∈ X と射 x : ∗ → X を同一視する。例2.1.5(i) で見たとおりこの対応は自然なので、関数 f : X → Y を要素に適用した値 f(x) ∈ Y は、合成 fx : ∗ → Y に対応する。</p>
+
+<h2>定義3.2.3 — 小さな集合値極限</h2>
+
+<p>極限の候補として、頂点が一点集合である錐の集合を取る。この集合から各 Fj への関数は、錐からその j 番目の脚を読み出すものとする。</p>
+
+<div class="thm"><b>定義3.2.3（小さな集合値極限）.</b> 任意の小図式 F : J → Set に対し、
+<p style="text-align:center">lim F := Cone(∗, F)</p>
+を頂点 ∗ を持つ F 上の錐の集合として定義する。F 上の極限錐の脚は、J の対象 j で添字づけられた関数 λ<sub>j</sub> : lim F → Fj であって、錐 μ : Δ∗ ⇒ F を、その j 番目の脚 μ<sub>j</sub> : ∗ → Fj を集合 Fj の要素と見たものに送る。
+<p style="text-align:center">λ<sub>j</sub>(μ) := μ<sub>j</sub> ∈ Fj</p></div>
+
+<p>この脚の族が F 上の錐を定めることを確かめるには、J の各射 f : j → k について次の三角形が可換なことを見ればよい。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 330 175" width="330" role="img" aria-label="極限錐の脚が満たす三角形">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="165" y="42" text-anchor="middle">lim F</text>
+  <text x="60" y="150" text-anchor="middle">Fj</text>
+  <text x="270" y="150" text-anchor="middle">Fk</text>
+  <line x1="145" y1="52" x2="78" y2="132" marker-end="url(#a1)"/>
+  <text class="lbl" x="100" y="88" text-anchor="end">λ<tspan dy="3" font-size="10.5">j</tspan></text>
+  <line x1="185" y1="52" x2="252" y2="132" marker-end="url(#a1)"/>
+  <text class="lbl" x="230" y="88" text-anchor="start">λ<tspan dy="3" font-size="10.5">k</tspan></text>
+  <line x1="82" y1="145" x2="248" y2="145" marker-end="url(#a1)"/>
+  <text class="lbl" x="165" y="168" text-anchor="middle">Ff</text>
+</svg>
+</figure>
+
+<p>集合 lim F の任意の要素 μ : Δ∗ ⇒ F について、</p>
+
+<p style="text-align:center">Ff(λ<sub>j</sub>(μ)) = Ff(μ<sub>j</sub>) = Ff·μ<sub>j</sub> = μ<sub>k</sub> = λ<sub>k</sub>(μ).</p>
+
+<p>中央の等号は、μ : Δ∗ ⇒ F が錐であることから従う。これで錐 λ : Δ lim F ⇒ F が定まった。</p>
+
+<h2>定理3.2.4 — Set は完備である</h2>
+
+<p>Set がすべての小さな極限を持つことを示すには、定義3.2.3 で構成した錐が普遍性を持つことを示せばよい。</p>
+
+<div class="thm"><b>定理3.2.4.</b> 圏 Set は完備である。すなわち、すべての小さな極限を持つ。</div>
+
+<p>定義3.2.3 と定理3.2.4 の大きさの仮定は本質的である。J が小さければ Set<sup>J</sup> は局所小で、とくに Cone(∗, F)、すなわち ∗ における定数図式から F への自然変換の集まりは集合になる。§3.7 で、Set が大きな極限のうち一部は持つが、すべては持たないことを示す。</p>
+
+<p><span class="proof-head">証明.</span> λ : Δ lim F ⇒ F が普遍的な錐であることを示す。任意の頂点 X を持つ錐 ζ : ΔX ⇒ F を取り、ζ が関数 f : X → lim F を通して λ から一意に分解することを示す。</p>
+
+<p>X の各要素 x を関数 x : ∗ → X と見ると、錐 ζ を x で引き戻した錐 ζ·Δx : Δ∗ ⇒ F がある。f(x) ∈ lim F = Cone(∗, F) をこの錐 ζ·Δx と定義する。極限錐 λ の脚の定義から、</p>
+
+<p style="text-align:center">λ<sub>j</sub>(f(x)) = λ<sub>j</sub>(ζ·Δx) = (ζ·Δx)<sub>j</sub> = ζ<sub>j</sub>·x</p>
+
+<p>なので、錐 ζ は f を通して錐 λ から分解する。この計算は同時に、定義 f(x) = ζ·Δx が必然であることも示している。分解 ζ = λ·Δf が成り立つためには、f(x) ∈ lim F は j 成分が ζ<sub>j</sub>·x であるような頂点 ∗ の錐でなければならず、それは ζ·Δx にほかならない。これで分解の一意性が示され、lim F が F の極限を定めることが確かめられた。<span class="qed">□</span></p>
+
+<h2>例3.2.5 — 集合の積</h2>
+
+<p>定義3.2.3 をさまざまな図式に当てはめて、集合の極限を計算する。</p>
+
+<p>定理3.2.4 により、集合 J の要素 j で添字づけられた集合 A<sub>j</sub> の積は、この集合の集まりの上の、頂点 ∗ を持つ錐の集合である。J で添字づけられた離散図式上の頂点 ∗ の錐とは、各集合から要素を一つずつ選んだ J-組にすぎない。したがって Set における圏論的な積は、通常のデカルト積と一致する。</p>
+
+<p style="text-align:center">∏<sub>j∈J</sub> A<sub>j</sub> := {(a<sub>j</sub> ∈ A<sub>j</sub>)<sub>j∈J</sub>}</p>
+
+<h2>例3.2.6 — 終対象</h2>
+
+<p>Set の終対象は、空図式上の頂点 ∗ を持つ錐の集合である。そのような錐のデータは頂点の選択だけからなるので、錐はただ一つしかない。これは終対象が一点集合であることの再証明になっている。</p>
+
+<h2>例3.2.7 — 等化子</h2>
+
+<p>平行な関数の対 f, g : X ⇉ Y に対し、その等化子は頂点 ∗ を持つ錐の集合、すなわち fx = gx を満たす写像 x : ∗ → X の集合である。見慣れた記法で書けば、等化子は次の集合 E である。</p>
+
+<p style="text-align:center">E := {x ∈ X | f(x) = g(x)}</p>
+
+<h2>例3.2.8 — 列の逆極限</h2>
+
+<p>図式 F : ω<sup>op</sup> → Set の極限の要素は、次の形の錐である。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 520 190" width="520" role="img" aria-label="ω^op 型図式上の頂点 ∗ の錐">
+  <defs><marker id="a2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="315" y="40" text-anchor="middle">∗</text>
+  <text x="40" y="160" text-anchor="middle">⋯</text>
+  <text x="150" y="160" text-anchor="middle">F3</text>
+  <text x="260" y="160" text-anchor="middle">F2</text>
+  <text x="370" y="160" text-anchor="middle">F1</text>
+  <text x="480" y="160" text-anchor="middle">F0</text>
+  <line x1="60" y1="155" x2="132" y2="155" marker-end="url(#a2)"/>
+  <line x1="170" y1="155" x2="242" y2="155" marker-end="url(#a2)"/>
+  <text class="lbl" x="206" y="180" text-anchor="middle">f<tspan dy="3" font-size="10.5">3,2</tspan></text>
+  <line x1="280" y1="155" x2="352" y2="155" marker-end="url(#a2)"/>
+  <text class="lbl" x="316" y="180" text-anchor="middle">f<tspan dy="3" font-size="10.5">2,1</tspan></text>
+  <line x1="390" y1="155" x2="462" y2="155" marker-end="url(#a2)"/>
+  <text class="lbl" x="426" y="180" text-anchor="middle">f<tspan dy="3" font-size="10.5">1,0</tspan></text>
+  <line x1="298" y1="47" x2="160" y2="142" marker-end="url(#a2)"/>
+  <text class="lbl" x="215" y="88" text-anchor="end">x<tspan dy="3" font-size="10.5">3</tspan></text>
+  <line x1="306" y1="52" x2="268" y2="140" marker-end="url(#a2)"/>
+  <text class="lbl" x="278" y="105" text-anchor="end">x<tspan dy="3" font-size="10.5">2</tspan></text>
+  <line x1="324" y1="52" x2="362" y2="140" marker-end="url(#a2)"/>
+  <text class="lbl" x="352" y="105" text-anchor="start">x<tspan dy="3" font-size="10.5">1</tspan></text>
+  <line x1="332" y1="47" x2="470" y2="142" marker-end="url(#a2)"/>
+  <text class="lbl" x="415" y="88" text-anchor="start">x<tspan dy="3" font-size="10.5">0</tspan></text>
+</svg>
+</figure>
+
+<p>この錐のデータは、各三角形を可換にする要素の組 (x<sub>n</sub> ∈ Fn)<sub>n∈ω</sub> である。したがって極限は次の集合になる。</p>
+
+<p style="text-align:center">lim F := {(x<sub>n</sub>)<sub>n</sub> ∈ ∏<sub>n∈ω</sub> Fn | f<sub>n,n−1</sub>(x<sub>n</sub>) = x<sub>n−1</sub>}</p>
+
+<h2>例3.2.9 — 引き戻し</h2>
+
+<p>関数の余スパン B →<sup>f</sup> A ←<sup>g</sup> C の引き戻しの要素は、この図式上の頂点 ∗ を持つ錐、すなわち次の可換な四角形である。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 330 200" width="330" role="img" aria-label="頂点 ∗ の錐としての可換四角形">
+  <defs><marker id="a3" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="42" text-anchor="middle">∗</text>
+  <text x="270" y="42" text-anchor="middle">C</text>
+  <text x="60" y="175" text-anchor="middle">B</text>
+  <text x="270" y="175" text-anchor="middle">A</text>
+  <line x1="78" y1="37" x2="252" y2="37" marker-end="url(#a3)"/>
+  <text class="lbl" x="165" y="26" text-anchor="middle">c</text>
+  <line x1="60" y1="52" x2="60" y2="157" marker-end="url(#a3)"/>
+  <text class="lbl" x="50" y="108" text-anchor="end">b</text>
+  <line x1="270" y1="52" x2="270" y2="157" marker-end="url(#a3)"/>
+  <text class="lbl" x="280" y="108" text-anchor="start">g</text>
+  <line x1="78" y1="170" x2="252" y2="170" marker-end="url(#a3)"/>
+  <text class="lbl" x="165" y="193" text-anchor="middle">f</text>
+</svg>
+</figure>
+
+<p>この形の錐のデータは、f(b) = g(c) を満たす要素の対 b ∈ B, c ∈ C である。したがって引き戻しは次の集合として定義される。</p>
+
+<p style="text-align:center">B ×<sub>A</sub> C := {(b, c) ∈ B × C | f(b) = g(c)}</p>
+
+<h2>例3.2.10 — G-集合の固定点</h2>
+
+<p>左 G-集合 X : BG → Set の極限は、頂点 ∗ を持つ錐の集合である。写像 x : ∗ → X が X 上の錐を定めるための必要十分条件は、すべての g ∈ G について次の三角形が可換なこと、すなわち g·x = x がすべての g ∈ G について成り立つことである。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 330 175" width="330" role="img" aria-label="G-集合上の頂点 ∗ の錐の条件">
+  <defs><marker id="a4" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="165" y="42" text-anchor="middle">∗</text>
+  <text x="60" y="150" text-anchor="middle">X</text>
+  <text x="270" y="150" text-anchor="middle">X</text>
+  <line x1="152" y1="52" x2="78" y2="132" marker-end="url(#a4)"/>
+  <text class="lbl" x="103" y="88" text-anchor="end">x</text>
+  <line x1="178" y1="52" x2="252" y2="132" marker-end="url(#a4)"/>
+  <text class="lbl" x="228" y="88" text-anchor="start">x</text>
+  <line x1="82" y1="145" x2="248" y2="145" marker-end="url(#a4)"/>
+  <text class="lbl" x="165" y="168" text-anchor="middle">g<tspan dy="-5" font-size="10.5">∗</tspan></text>
+</svg>
+</figure>
+
+<p>したがって lim X ≅ X<sup>G</sup>、すなわち X の G-固定点の集合である。</p>
+
+<h2>引き戻しは積の等化子である</h2>
+
+<p>例3.2.9 を例3.2.5 と例3.2.7 に見比べると、引き戻しは積を含む図式の等化子として構成できそうに見える。実際、関数の対 f : B → A, g : C → A に対し、引き戻し B ×<sub>A</sub> C は次の図式の等化子である。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 430 80" width="430" role="img" aria-label="引き戻しを積の等化子として表す図式">
+  <defs><marker id="a5" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="47" text-anchor="middle">B ×<tspan dy="3" font-size="10.5">A</tspan><tspan dy="-3"> C</tspan></text>
+  <text x="225" y="47" text-anchor="middle">B × C</text>
+  <text x="390" y="47" text-anchor="middle">A</text>
+  <line x1="112" y1="42" x2="192" y2="42" marker-end="url(#a5)"/>
+  <line x1="262" y1="36" x2="372" y2="36" marker-end="url(#a5)"/>
+  <text class="lbl" x="317" y="25" text-anchor="middle">fπ<tspan dy="3" font-size="10.5">B</tspan></text>
+  <line x1="262" y1="48" x2="372" y2="48" marker-end="url(#a5)"/>
+  <text class="lbl" x="317" y="70" text-anchor="middle">gπ<tspan dy="3" font-size="10.5">C</tspan></text>
+</svg>
+</figure>
+
+<p>同様に、例3.2.8 は塔の極限を積の部分集合として定義している。これらは、任意の小図式の極限を同じやり方で構成する一般的な定理の特別な場合である。</p>
+
+<h2>定理3.2.11 — 極限は積の間の等化子である</h2>
+
+<div class="thm"><b>定理3.2.11.</b> Set における任意の小さな極限は、積の間の写像の対の等化子として表せる。明示的には、任意の小図式 F : J → Set に対して、次の等化子図式がある。</div>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 520 80" width="520" role="img" aria-label="極限を積の間の等化子として表す図式">
+  <defs><marker id="a6" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="50" y="47" text-anchor="middle">lim<tspan dy="3" font-size="10.5">J</tspan><tspan dy="-3"> F</tspan></text>
+  <text x="240" y="47" text-anchor="middle">∏<tspan dy="3" font-size="10.5">j∈ob J</tspan><tspan dy="-3"> Fj</tspan></text>
+  <text x="440" y="47" text-anchor="middle">∏<tspan dy="3" font-size="10.5">f∈mor J</tspan><tspan dy="-3"> F(cod f)</tspan></text>
+  <line x1="88" y1="42" x2="185" y2="42" marker-end="url(#a6)"/>
+  <line x1="298" y1="36" x2="368" y2="36" marker-end="url(#a6)"/>
+  <text class="lbl" x="333" y="25" text-anchor="middle">c</text>
+  <line x1="298" y1="48" x2="368" y2="48" marker-end="url(#a6)"/>
+  <text class="lbl" x="333" y="70" text-anchor="middle">d</text>
+</svg>
+<figcaption>(3.2.12)</figcaption>
+</figure>
+
+<p><span class="proof-head">証明.</span> 定理3.2.4 により、F : J → Set の極限の要素は、F 上の頂点 ∗ を持つ錐と対応する。そのような錐のデータは、J の対象 j で添字づけられた各集合 Fj の要素 λ<sub>j</sub> である。要素の族 (λ<sub>j</sub>)<sub>j∈J</sub> が F 上の錐になるための条件は J の射で添字づけられる。各射 f について、次の三角形の可換性、すなわち Ff(λ<sub>dom f</sub>) = λ<sub>cod f</sub> を要求する。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 370 175" width="370" role="img" aria-label="射 f が課す錐の条件">
+  <defs><marker id="a7" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="185" y="42" text-anchor="middle">∗</text>
+  <text x="60" y="150" text-anchor="middle">F(dom f)</text>
+  <text x="310" y="150" text-anchor="middle">F(cod f)</text>
+  <line x1="170" y1="52" x2="78" y2="132" marker-end="url(#a7)"/>
+  <text class="lbl" x="112" y="88" text-anchor="end">λ<tspan dy="3" font-size="10.5">dom f</tspan></text>
+  <line x1="200" y1="52" x2="292" y2="132" marker-end="url(#a7)"/>
+  <text class="lbl" x="258" y="88" text-anchor="start">λ<tspan dy="3" font-size="10.5">cod f</tspan></text>
+  <line x1="112" y1="145" x2="258" y2="145" marker-end="url(#a7)"/>
+  <text class="lbl" x="185" y="168" text-anchor="middle">Ff</text>
+</svg>
+</figure>
+
+<p>いま述べたデータが等化子図式 (3.2.12) の域を定める。(λ<sub>j</sub>)<sub>j∈J</sub> は積 ∏<sub>j∈ob J</sub> Fj の要素である。条件のほうが余域と平行な写像の対を定める。錐の条件を表す等式は、∏<sub>f∈mor J</sub> F(cod f) の要素の対を同一視するものであることに注意する。</p>
+
+<p>残るのは (3.2.12) の平行な射 c と d の定義である。∏<sub>j∈ob J</sub> Fj の要素 (λ<sub>j</sub>)<sub>j</sub> を、F 上の頂点 ∗ の錐の脚と思う。c はこれを要素 (λ<sub>cod f</sub>)<sub>f</sub> ∈ ∏<sub>f∈mor J</sub> F(cod f) に送り、d は要素 (Ff(λ<sub>dom f</sub>))<sub>f</sub> ∈ ∏<sub>f∈mor J</sub> F(cod f) に送る。等化子は、この二つの要素が等しくなる ∏<sub>j∈ob J</sub> Fj の部分集合であり、それは錐の両立条件を満たす写像の組 (λ<sub>j</sub> : ∗ → Fj)<sub>j∈J</sub> の集合にほかならない。これと、例3.2.5・例3.2.7 で与えた Set の積と等化子の明示的な記述を合わせて、lim<sub>J</sub> F が c と d の等化子であることの証明が完成する。<span class="qed">□</span></p>
+
+<h2>注意3.2.13 — c と d の圏論的な定義</h2>
+
+<p>定理3.2.11 の等化子図式の写像は、積 ∏<sub>f∈mor J</sub> F(cod f) の普遍性を使って圏論的にも定義できる。注意3.1.27 により、c と d を定めるには成分関数、すなわち f ∈ mor J で添字づけられた射影 π<sub>f</sub> との合成を定めれば必要十分である。c の成分は、上の三角形に示すように、それ自身が射影である。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 400 175" width="400" role="img" aria-label="c の f 成分は射影">
+  <defs><marker id="a8" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="80" y="42" text-anchor="middle">∏<tspan dy="3" font-size="10.5">j</tspan><tspan dy="-3"> Fj</tspan></text>
+  <text x="320" y="42" text-anchor="middle">∏<tspan dy="3" font-size="10.5">f</tspan><tspan dy="-3"> F(cod f)</tspan></text>
+  <text x="320" y="150" text-anchor="middle">F(cod f)</text>
+  <line x1="122" y1="37" x2="255" y2="37" marker-end="url(#a8)"/>
+  <text class="lbl" x="188" y="26" text-anchor="middle">c</text>
+  <line x1="320" y1="55" x2="320" y2="130" marker-end="url(#a8)"/>
+  <text class="lbl" x="330" y="96" text-anchor="start">π<tspan dy="3" font-size="10.5">f</tspan></text>
+  <line x1="98" y1="55" x2="272" y2="135" marker-end="url(#a8)"/>
+  <text class="lbl" x="170" y="112" text-anchor="end">π<tspan dy="3" font-size="10.5">cod f</tspan></text>
+</svg>
+</figure>
+
+<p>すなわち、添字 f ∈ mor J における c の成分は、積 ∏<sub>j</sub> Fj から対象 cod f ∈ J で添字づけられた成分への射影である。</p>
+
+<p>写像 d の f における成分は、下の四角形に示すように、積 ∏<sub>j</sub> Fj から対象 dom f ∈ J で添字づけられた成分へ射影し、写像 Ff : F(dom f) → F(cod f) と合成して定める。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 400 200" width="400" role="img" aria-label="d の f 成分は射影と Ff の合成">
+  <defs><marker id="a9" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="80" y="42" text-anchor="middle">∏<tspan dy="3" font-size="10.5">j</tspan><tspan dy="-3"> Fj</tspan></text>
+  <text x="320" y="42" text-anchor="middle">∏<tspan dy="3" font-size="10.5">f</tspan><tspan dy="-3"> F(cod f)</tspan></text>
+  <text x="80" y="175" text-anchor="middle">F(dom f)</text>
+  <text x="320" y="175" text-anchor="middle">F(cod f)</text>
+  <line x1="122" y1="37" x2="255" y2="37" marker-end="url(#a9)"/>
+  <text class="lbl" x="188" y="26" text-anchor="middle">d</text>
+  <line x1="80" y1="55" x2="80" y2="157" marker-end="url(#a9)"/>
+  <text class="lbl" x="70" y="110" text-anchor="end">π<tspan dy="3" font-size="10.5">dom f</tspan></text>
+  <line x1="320" y1="55" x2="320" y2="157" marker-end="url(#a9)"/>
+  <text class="lbl" x="330" y="110" text-anchor="start">π<tspan dy="3" font-size="10.5">f</tspan></text>
+  <line x1="130" y1="170" x2="268" y2="170" marker-end="url(#a9)"/>
+  <text class="lbl" x="199" y="193" text-anchor="middle">Ff</text>
+</svg>
+</figure>
+
+<p>これらの関数の要素への作用を見れば、圏論的な記述が定理3.2.11 の証明で述べた明示的な記述と一致することが確かめられる。</p>
+
+<p>注意3.2.13 は、定理3.2.11 の主張を Set 以外の圏に一般化するために使う。双対性の原理により、この一般化は余極限を構成する公式も与える。定理3.5.11 を参照。</p>
+
+<h2>例3.2.14 — 冪等射の分裂</h2>
+
+<p><b>冪等射</b>（idempotent）とは、ある対象の自己射 e : A → A で e·e = e を満たすものである。Set における冪等射の極限は頂点 ∗ を持つ錐の集合、すなわち ea = a を満たす a ∈ A の集合である。これは冪等射 e の固定点の集合で、しばしば A<sup>e</sup> と書かれる。</p>
+
+<p>別のやり方として、定理3.2.11 を演習3.2.iii の簡略化した形で適用すると、極限 A<sup>e</sup> は次の等化子として構成される。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 400 80" width="400" role="img" aria-label="冪等射の固定点を等化子として表す図式">
+  <defs><marker id="a10" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="47" text-anchor="middle">A<tspan dy="-6" font-size="11">e</tspan></text>
+  <text x="200" y="47" text-anchor="middle">A</text>
+  <text x="340" y="47" text-anchor="middle">A</text>
+  <line x1="82" y1="42" x2="182" y2="42" marker-end="url(#a10)"/>
+  <text class="lbl" x="132" y="31" text-anchor="middle">s</text>
+  <line x1="218" y1="36" x2="322" y2="36" marker-end="url(#a10)"/>
+  <text class="lbl" x="270" y="25" text-anchor="middle">id<tspan dy="3" font-size="10.5">A</tspan></text>
+  <line x1="218" y1="48" x2="322" y2="48" marker-end="url(#a10)"/>
+  <text class="lbl" x="270" y="70" text-anchor="middle">e</text>
+</svg>
+</figure>
+
+<p>e·e = e なので、写像 e は平行対上の錐を定める。等化子の普遍性により、e はただ一つの写像 r を通して s から分解する。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 400 180" width="400" role="img" aria-label="e の s を通した分解">
+  <defs><marker id="a11" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="42" text-anchor="middle">A</text>
+  <text x="60" y="152" text-anchor="middle">A<tspan dy="-6" font-size="11">e</tspan></text>
+  <text x="200" y="152" text-anchor="middle">A</text>
+  <text x="340" y="152" text-anchor="middle">A</text>
+  <line class="dashed" x1="60" y1="52" x2="60" y2="130" marker-end="url(#a11)"/>
+  <text class="lbl" x="50" y="96" text-anchor="end">r</text>
+  <line x1="78" y1="48" x2="186" y2="136" marker-end="url(#a11)"/>
+  <text class="lbl" x="140" y="82" text-anchor="start">e</text>
+  <line x1="82" y1="147" x2="182" y2="147" marker-end="url(#a11)"/>
+  <text class="lbl" x="132" y="170" text-anchor="middle">s</text>
+  <line x1="218" y1="141" x2="322" y2="141" marker-end="url(#a11)"/>
+  <text class="lbl" x="270" y="130" text-anchor="middle">id<tspan dy="3" font-size="10.5">A</tspan></text>
+  <line x1="218" y1="153" x2="322" y2="153" marker-end="url(#a11)"/>
+  <text class="lbl" x="270" y="175" text-anchor="middle">e</text>
+</svg>
+</figure>
+
+<p>分解 e = sr を、冪等射を<b>分裂させる</b>（split）という。ここで srs = es = s が成り立つので、rs と id<sub>A<sup>e</sup></sub> はどちらも、錐 s : A<sup>e</sup> → A の s を通した分解を与える。一意性により rs = id<sub>A<sup>e</sup></sub> なので、A<sup>e</sup> は A のレトラクトである。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 400 80" width="400" role="img" aria-label="A^e は A のレトラクト">
+  <defs><marker id="a12" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="47" text-anchor="middle">A<tspan dy="-6" font-size="11">e</tspan></text>
+  <text x="200" y="47" text-anchor="middle">A</text>
+  <text x="340" y="47" text-anchor="middle">A<tspan dy="-6" font-size="11">e</tspan></text>
+  <line x1="82" y1="42" x2="182" y2="42" marker-end="url(#a12)"/>
+  <text class="lbl" x="132" y="31" text-anchor="middle">s</text>
+  <line x1="218" y1="42" x2="318" y2="42" marker-end="url(#a12)"/>
+  <text class="lbl" x="268" y="31" text-anchor="middle">r</text>
+</svg>
+<figcaption>rs = id<sub>A<sup>e</sup></sub></figcaption>
+</figure>
+
+<p>逆に、任意のレトラクトの図式 B →<sup>s</sup> A →<sup>r</sup> B, rs = id<sub>B</sub> は A 上の冪等射 sr を生じ、この冪等射は B によって分裂する。読者は、次が等化子図式であることを確かめてみるとよい。演習3.4.vi を参照。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 400 80" width="400" role="img" aria-label="レトラクトから得られる等化子図式">
+  <defs><marker id="a13" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="47" text-anchor="middle">B</text>
+  <text x="200" y="47" text-anchor="middle">A</text>
+  <text x="340" y="47" text-anchor="middle">A</text>
+  <line x1="78" y1="42" x2="182" y2="42" marker-end="url(#a13)"/>
+  <text class="lbl" x="130" y="31" text-anchor="middle">s</text>
+  <line x1="218" y1="36" x2="322" y2="36" marker-end="url(#a13)"/>
+  <text class="lbl" x="270" y="25" text-anchor="middle">id<tspan dy="3" font-size="10.5">A</tspan></text>
+  <line x1="218" y1="48" x2="322" y2="48" marker-end="url(#a13)"/>
+  <text class="lbl" x="270" y="70" text-anchor="middle">sr</text>
+</svg>
+</figure>
+
+<h2>節末問題</h2>
+
+<p class="note">原文は英語。以下は和訳・言い換え。</p>
+
+<ul>
+  <li><b>3.2.i</b> — 関数 f : X → Y のグラフを、Set の積と等化子を使って圏論的に記述し、f のグラフを通した分解を構成せよ。X × Y の部分対象として、グラフが (1, f) : X ↣ X × Y と同型であることを示せ。Set が余積と余等化子も持つこと（命題3.6.1）を先取りして、余グラフの双対的な記述を与え、それが X ⊔ Y の、ファイバーが空でない Y で添字づけられた分割を定めると見なせることを説明せよ。</li>
+  <li><b>3.2.ii</b> — 小圏は、Set の中の特定の図式として定義し直せる。データは、示唆的な名前を付けた集合の対と関数
+  <figure class="cd">
+  <svg class="cd" viewBox="0 0 330 100" width="330" role="img" aria-label="対象の集合と射の集合の間の dom, id, cod">
+    <defs><marker id="a14" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+    <text x="60" y="50" text-anchor="middle">ob C</text>
+    <text x="270" y="50" text-anchor="middle">mor C</text>
+    <line x1="232" y1="27" x2="98" y2="27" marker-end="url(#a14)"/>
+    <text class="lbl" x="165" y="18" text-anchor="middle">dom<tspan dy="3" font-size="10.5">C</tspan></text>
+    <line x1="98" y1="43" x2="232" y2="43" marker-end="url(#a14)"/>
+    <text class="lbl" x="165" y="59" text-anchor="middle" font-size="11.5">id<tspan dy="3" font-size="9.5">C</tspan></text>
+    <line x1="232" y1="68" x2="98" y2="68" marker-end="url(#a14)"/>
+    <text class="lbl" x="165" y="90" text-anchor="middle">cod<tspan dy="3" font-size="10.5">C</tspan></text>
+  </svg>
+  </figure>
+  と、まだ定義していない「合成関数」からなる。このデータを含む引き戻しを使って、合成関数の域となる合成可能な射の対の集合を定義し、圏の公理を Set の可換図式として定式化せよ。Set を引き戻しを持つ圏 E に置き換えると、これは E の内部圏を定める。</li>
+  <li><b>3.2.iii</b> — 任意の小図式 F : J → Set について、等化子図式 (3.2.12) を修正して、第二の積を非恒等射だけで添字づけた少し小さな等化子図式
+  <figure class="cd">
+  <svg class="cd" viewBox="0 0 560 80" width="560" role="img" aria-label="非恒等射だけで添字づけた等化子図式">
+    <defs><marker id="a15" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+    <text x="50" y="47" text-anchor="middle">lim<tspan dy="3" font-size="10.5">J</tspan><tspan dy="-3"> F</tspan></text>
+    <text x="230" y="47" text-anchor="middle">∏<tspan dy="3" font-size="10.5">j∈ob J</tspan><tspan dy="-3"> Fj</tspan></text>
+    <text x="460" y="47" text-anchor="middle">∏<tspan dy="3" font-size="10.5">f∈mor J, f≠id</tspan><tspan dy="-3"> F(cod f)</tspan></text>
+    <line x1="88" y1="42" x2="175" y2="42" marker-end="url(#a15)"/>
+    <line x1="288" y1="36" x2="358" y2="36" marker-end="url(#a15)"/>
+    <line x1="288" y1="48" x2="358" y2="48" marker-end="url(#a15)"/>
+  </svg>
+  </figure>
+  が得られることを示せ。さらに、第二の積の添字集合を「原子的な」射、すなわち非恒等射の合成として分解できない非恒等射だけに絞れることを論ぜよ。</li>
+  <li><b>3.2.iv</b> — 局所小な圏 C の任意の射の対 f : a → b, g : c → d について、f から g への可換な四角形の集合 Sq(f, g)（左辺 f、右辺 g、上辺 a → c、下辺 b → d の可換四角形全体）を、Set における引き戻しとして構成せよ。</li>
+  <li><b>3.2.v</b> — 演習3.2.iv を一般化して、任意の小圏 J、局所小な圏 C、平行な関手の対 F, G : J ⇉ C について、F から G への自然変換の集合 Hom(F, G) が Set の小さな極限として定義できることを示せ。（ヒント: Hom(F, G) を極限とする図式は、J の射を対象とし、J の各射 f : x → y に対して射 id<sub>x</sub> → f と id<sub>y</sub> → f を持つ圏 J<sup>§</sup> で添字づけられる。）</li>
+  <li><b>3.2.vi</b> — 任意の小圏 J、局所小な圏 C、平行な関手の対 F, G : J ⇉ C について、次が等化子図式であることを示せ。
+  <figure class="cd">
+  <svg class="cd" viewBox="0 0 560 80" width="560" role="img" aria-label="自然変換の集合を等化子として表す図式">
+    <defs><marker id="a16" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+    <text x="60" y="47" text-anchor="middle">Hom(F, G)</text>
+    <text x="250" y="47" text-anchor="middle">∏<tspan dy="3" font-size="10.5">j∈ob J</tspan><tspan dy="-3"> C(Fj, Gj)</tspan></text>
+    <text x="470" y="47" text-anchor="middle">∏<tspan dy="3" font-size="10.5">f : j→k</tspan><tspan dy="-3"> C(Fj, Gk)</tspan></text>
+    <line x1="118" y1="42" x2="178" y2="42" marker-end="url(#a16)"/>
+    <line x1="325" y1="36" x2="395" y2="36" marker-end="url(#a16)"/>
+    <line x1="325" y1="48" x2="395" y2="48" marker-end="url(#a16)"/>
+  </svg>
+  </figure>
+  これは演習3.2.v で構成した図式に定理3.2.11 を適用して得られる等化子図式ではなく、Hom(F, G) を Set の極限として表す第二の公式である。</li>
+  <li><b>3.2.vii</b> — 任意の小図式 F : C → Set の極限が、要素の圏からの標準的な射影 Π : ∫F → C の切断を定める関手 C → ∫F の集合と同型であることを証明せよ。この極限の記述を使って、極限錐を定義せよ。</li>
+</ul>
+
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3.4 極限と余極限の保存・反映・創出</title>
+<style>
+  :root {
+    --bg: #fdfcf9;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --accent: #8a4c14;
+    --line: #d8d3c8;
+    --box-bg: #f5f2ea;
+    --code-bg: #f0ede5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1e22;
+      --fg: #e4e1da;
+      --muted: #9aa2ab;
+      --accent: #e0a468;
+      --line: #3a3f46;
+      --box-bg: #24262b;
+      --code-bg: #2a2d33;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    line-height: 1.95;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.5rem; font-family: "Hiragino Sans", sans-serif; border-bottom: 2px solid var(--accent); padding-bottom: .4rem; }
+  h2 { font-size: 1.12rem; font-family: "Hiragino Sans", sans-serif; color: var(--accent); margin-top: 2.6rem; }
+  p { margin: .9rem 0; font-size: .97rem; }
+  li { font-size: .97rem; margin: .4rem 0; }
+  .note { color: var(--muted); font-size: .88em; }
+  .thm {
+    background: var(--box-bg);
+    border-left: 3px solid var(--accent);
+    padding: .7rem 1.1rem;
+    margin: 1.2rem 0;
+  }
+  .thm b { font-family: "Hiragino Sans", sans-serif; }
+  .proof-head { font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .qed { float: right; }
+  .fn { color: var(--muted); font-size: .88rem; border-top: 1px solid var(--line); padding-top: .5rem; }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
+  svg.cd path:not([fill]) { fill: none; stroke: currentColor; stroke-width: 1.1; }
+  svg.cd .dashed { stroke-dasharray: 5 4; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--box-bg); font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<h1>3.4 極限と余極限の保存・反映・創出</h1>
+
+<p class="note">Emily Riehl, <i>Category Theory in Context</i> §3.4（pp.102–109）の内容を、個人学習のために日本語で書き直した解説。番号（定義3.4.1 など）は本と揃えてある。翻訳ではなく、同じ内容を自分の言葉で再構成したもの。</p>
+
+<h2>記号表</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>記号</th><th>型・意味</th></tr>
+  <tr><td>F : C → D</td><td>関手</td></tr>
+  <tr><td>K : J → C</td><td>J 型の図式</td></tr>
+  <tr><td>FK : J → D</td><td>図式 K の F による像。合成関手</td></tr>
+  <tr><td>λ : Δc ⇒ K</td><td>頂点 c を持つ K 上の錐</td></tr>
+  <tr><td>Fλ : ΔFc ⇒ FK</td><td>錐 λ の F による像。脚は (Fλ<sub>j</sub> : Fc → FKj)<sub>j∈J</sub></td></tr>
+  <tr><td>κ : F lim K → lim FK</td><td>comparison map。F で写した極限錐を FK の極限錐から分解する射</td></tr>
+  <tr><td>𝒪(X)</td><td>位相空間 X の開集合が包含でなす poset</td></tr>
+  <tr><td>c/C</td><td>対象 c の下のスライス圏。対象は射 c → x、射は c からの射と可換な射</td></tr>
+  <tr><td>Π : c/C → C</td><td>c → x を x に送る忘却関手</td></tr>
+  <tr><td>C<sup>A</sup></td><td>関手 A → C と自然変換の圏</td></tr>
+  <tr><td>ob A</td><td>A の対象だけからなる離散部分圏</td></tr>
+  <tr><td>ev : C<sup>A</sup> → C<sup>ob A</sup></td><td>関手を対象上の値の族に制限する忘却関手</td></tr>
+  <tr><td>ev<sub>a</sub> : C<sup>A</sup> → C</td><td>対象 a ∈ A での値を取る評価関手</td></tr>
+  <tr><td>∫F</td><td>関手 F : C → Set の要素の圏</td></tr>
+  <tr><td>Set<sub>∗</sub>, Top<sub>∗</sub></td><td>基点付き集合の圏、基点付き空間の圏</td></tr>
+</table>
+</div>
+
+<h2>この節の問い</h2>
+
+<p>この節では、関手と極限・余極限の関わり方を調べる。手始めに、関手 F : C → D と C の引き戻しの図式を考える。関手は可換性を保つので、C の引き戻しの四角形の像は D の可換な四角形になる。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 640 170" width="640" role="img" aria-label="引き戻しの四角形とその F による像">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="e1" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker><marker id="m1" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="40" text-anchor="middle">X ×<tspan baseline-shift="-3" font-size="10.5">Z</tspan> Y</text>
+  <text x="190" y="40" text-anchor="middle">Y</text>
+  <text x="60" y="140" text-anchor="middle">X</text>
+  <text x="190" y="140" text-anchor="middle">Z</text>
+  <line x1="98" y1="35" x2="176" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="137" y="25" text-anchor="middle">q</text>
+  <line x1="60" y1="50" x2="60" y2="122" marker-end="url(#a1)"/>
+  <text class="lbl" x="50" y="90" text-anchor="end">p</text>
+  <line x1="190" y1="50" x2="190" y2="122" marker-end="url(#a1)"/>
+  <text class="lbl" x="200" y="90" text-anchor="start">g</text>
+  <line x1="76" y1="135" x2="176" y2="135" marker-end="url(#a1)"/>
+  <text class="lbl" x="126" y="158" text-anchor="middle">f</text>
+  <path d="M72,62 L84,62 L84,52" fill="none" stroke="currentColor" stroke-width="1"/>
+  <text x="232" y="92" text-anchor="start">∈ C</text>
+  <text x="300" y="92" text-anchor="middle">⇝</text>
+  <text x="390" y="40" text-anchor="middle">F(X ×<tspan baseline-shift="-3" font-size="10.5">Z</tspan> Y)</text>
+  <text x="560" y="40" text-anchor="middle">FY</text>
+  <text x="390" y="140" text-anchor="middle">FX</text>
+  <text x="560" y="140" text-anchor="middle">FZ</text>
+  <line x1="440" y1="35" x2="540" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="490" y="25" text-anchor="middle">Fq</text>
+  <line x1="390" y1="50" x2="390" y2="122" marker-end="url(#a1)"/>
+  <text class="lbl" x="380" y="90" text-anchor="end">Fp</text>
+  <line x1="560" y1="50" x2="560" y2="122" marker-end="url(#a1)"/>
+  <text class="lbl" x="570" y="90" text-anchor="start">Fg</text>
+  <line x1="412" y1="135" x2="540" y2="135" marker-end="url(#a1)"/>
+  <text class="lbl" x="476" y="158" text-anchor="middle">Ff</text>
+  <text x="605" y="92" text-anchor="start">∈ D</text>
+</svg>
+</figure>
+
+<p>右の四角形で、Ff と Fg は元の余スパンの D における像であり、Fp と Fq は、その余スパン上の極限錐の像である。一般に、図式上の錐の像は図式の像の上の錐になるが、極限錐の像が極限錐になるとは限らない。ただし D に Ff と Fg の引き戻しが存在すれば、元の図式の極限の像から像の図式の極限への canonical comparison map がある。この射は、Ff と Fg がなす余スパン上の錐の射である。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 470 240" width="470" role="img" aria-label="F で写した錐から引き戻しへの comparison map">
+  <defs><marker id="a2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="e2" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker><marker id="m2" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="80" y="40" text-anchor="middle">F(X ×<tspan baseline-shift="-3" font-size="10.5">Z</tspan> Y)</text>
+  <text x="250" y="120" text-anchor="middle">FX ×<tspan baseline-shift="-3" font-size="10.5">FZ</tspan> FY</text>
+  <text x="410" y="120" text-anchor="middle">FY</text>
+  <text x="250" y="210" text-anchor="middle">FX</text>
+  <text x="410" y="210" text-anchor="middle">FZ</text>
+  <path d="M130,32 C260,20 360,50 400,102" marker-end="url(#a2)"/>
+  <text class="lbl" x="300" y="30" text-anchor="middle">Fq</text>
+  <path d="M70,52 C90,130 150,190 230,205" marker-end="url(#a2)"/>
+  <text class="lbl" x="118" y="160" text-anchor="end">Fp</text>
+  <line class="dashed" x1="118" y1="52" x2="205" y2="100" marker-end="url(#a2)"/>
+  <text class="lbl" x="172" y="68" text-anchor="start">∃!</text>
+  <line x1="300" y1="115" x2="392" y2="115" marker-end="url(#a2)"/>
+  <line x1="250" y1="132" x2="250" y2="192" marker-end="url(#a2)"/>
+  <line x1="410" y1="132" x2="410" y2="192" marker-end="url(#a2)"/>
+  <line x1="272" y1="205" x2="392" y2="205" marker-end="url(#a2)"/>
+  <text class="lbl" x="420" y="165" text-anchor="start">Fg</text>
+  <text class="lbl" x="332" y="228" text-anchor="middle">Ff</text>
+  <path d="M262,142 L274,142 L274,132" fill="none" stroke="currentColor" stroke-width="1"/>
+</svg>
+</figure>
+
+<p>この観察は一般化できる。J 型で C に値を取る図式 K : J → C の F による像は、J 型で D に値を取る図式 FK : J → D である。同様に、C の図式上の任意の錐 λ : Δc ⇒ K の F による像は、D の対応する図式上の錐 Fλ : ΔFc ⇒ FK である。この錐は、自然変換 λ を F で whiskering して得られる（注意1.7.6）。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 330 140" width="330" role="img" aria-label="錐 λ と関手 F の whiskering">
+  <defs><marker id="a3" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="e3" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker><marker id="m3" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="40" y="75" text-anchor="middle">J</text>
+  <text x="170" y="75" text-anchor="middle">C</text>
+  <text x="300" y="75" text-anchor="middle">D</text>
+  <path d="M55,62 Q105,25 155,62" marker-end="url(#a3)"/>
+  <text class="lbl" x="105" y="32" text-anchor="middle">Δc</text>
+  <path d="M55,82 Q105,120 155,82" marker-end="url(#a3)"/>
+  <text class="lbl" x="105" y="126" text-anchor="middle">K</text>
+  <text x="105" y="78" text-anchor="middle">⇓λ</text>
+  <line x1="185" y1="70" x2="285" y2="70" marker-end="url(#a3)"/>
+  <text class="lbl" x="235" y="59" text-anchor="middle">F</text>
+</svg>
+</figure>
+
+<p>F·Δc = ΔFc なので、whiskering した自然変換は、頂点 Fc を持つ FK 上の錐 Fλ を定める。記法が示唆するとおり、錐 Fλ の脚は (Fλ<sub>j</sub> : Fc → FKj)<sub>j∈J</sub> である。</p>
+
+<p>λ が極限錐でも、Fλ が極限錐とは限らない。図式 FK の極限が存在するとき、錐 Fλ を D の極限錐から分解する canonical comparison map κ : F lim K → lim FK がある。余極限についても双対的なことが言える。演習3.4.i を参照。</p>
+
+<h2>定義3.4.1 — 極限の保存・反映・創出</h2>
+
+<p>関手が定義域と余域の極限・余極限をどう仲介するかを述べる言葉を導入する。</p>
+
+<div class="thm"><b>定義3.4.1.</b> 図式 K : J → C について、関手 F : C → D が
+<ul>
+  <li>K の極限を<b>保存する</b>（preserves）とは、K 上の任意の極限錐の像が、合成した図式 FK 上の極限錐になることをいう</li>
+  <li>K の極限を<b>反映する</b>（reflects）とは、K 上の錐であって、その F による像が図式 FK の極限錐になるものが、すべて K 上の極限錐であることをいう</li>
+  <li>K の極限を<b>創出する</b>（creates）とは、FK が D で極限を持つならば K も極限を持ち、そのうえで K 上の錐が極限錐であることとその F による像が極限錐であることが同値になることをいう<sup>12</sup></li>
+</ul></div>
+
+<p class="fn"><sup>12</sup> 三つの条件のうち三番目がもっとも微妙である。F が K の極限を創出するなら F はそれを反映もするが、F が K の極限を保存することが要求されるのは FK の極限が存在する場合に限られる。</p>
+
+<p>ふつうは、ある種類の図式、例えば特定の形や大きさの図式の極限を保存・反映・創出する関手、という言い方をする。定義3.4.1 を双対化すると、関手がある種類の余極限を保存・反映・創出することの意味が得られる。「保存する」「反映する」「創出する」という言葉はもっと広い意味でも使われる。例えば演習1.5.iv は、充満忠実な関手が同型を保存・反映・創出することを示している。</p>
+
+<h2>注意3.4.2 — 上の階と下の階</h2>
+
+<p>これらの言葉の感覚をつかむには、次の比喩が役に立つ。関手 F : C → D は「上の階」（圏 C）から「下の階」（圏 D）への写像である。上の階の図式、すなわち関手 K : J → C は、F と合成して得られる下の階の図式の上にある。</p>
+
+<p>この比喩で言えば、F が極限を<b>保存する</b>とは、上の階の極限錐がすべて下の階の極限錐に写ることである。F が極限を<b>反映する</b>とは、下の階の極限錐に写る上の階の錐がすべて上の階の極限錐であることである。F が極限を<b>創出する</b>とは、下の階に極限錐があるというだけで上の階に極限錐が存在し、そのうえで極限が保存も反映もされることである。引き戻しの図式の場合、情報の受け渡しは次のようになる。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 620 300" width="620" role="img" aria-label="引き戻しについての保存・反映・創出">
+  <defs><marker id="a4" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="e4" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker><marker id="m4" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="30" y="70" text-anchor="middle">C</text>
+  <text x="30" y="250" text-anchor="middle">D</text>
+  <line x1="30" y1="82" x2="30" y2="232" marker-end="url(#a4)"/>
+  <text class="lbl" x="40" y="160" text-anchor="start">F</text>
+  <text x="62" y="70" text-anchor="middle">∋</text>
+  <text x="62" y="250" text-anchor="middle">∋</text>
+  <text x="110" y="40" text-anchor="middle">p</text>
+  <text x="220" y="40" text-anchor="middle">c″</text>
+  <text x="110" y="110" text-anchor="middle">c′</text>
+  <text x="220" y="110" text-anchor="middle">c</text>
+  <line x1="132" y1="35" x2="200" y2="35" marker-end="url(#a4)"/>
+  <line x1="110" y1="50" x2="110" y2="92" marker-end="url(#a4)"/>
+  <line x1="220" y1="50" x2="220" y2="92" marker-end="url(#a4)"/>
+  <line x1="132" y1="105" x2="198" y2="105" marker-end="url(#a4)"/>
+  <path d="M122,62 L132,62 L132,52" fill="none" stroke="currentColor" stroke-width="1"/>
+  <text x="290" y="40" text-anchor="middle">p</text>
+  <text x="400" y="40" text-anchor="middle">c″</text>
+  <text x="290" y="110" text-anchor="middle">c′</text>
+  <text x="400" y="110" text-anchor="middle">c</text>
+  <line x1="312" y1="35" x2="380" y2="35" marker-end="url(#a4)"/>
+  <line x1="290" y1="50" x2="290" y2="92" marker-end="url(#a4)"/>
+  <line x1="400" y1="50" x2="400" y2="92" marker-end="url(#a4)"/>
+  <line x1="312" y1="105" x2="378" y2="105" marker-end="url(#a4)"/>
+  <path d="M302,62 L312,62 L312,52" fill="none" stroke="currentColor" stroke-width="1"/>
+  <text x="470" y="40" text-anchor="middle">p</text>
+  <text x="580" y="40" text-anchor="middle">c″</text>
+  <text x="470" y="110" text-anchor="middle">c′</text>
+  <text x="580" y="110" text-anchor="middle">c</text>
+  <line class="dashed" x1="492" y1="35" x2="560" y2="35" marker-end="url(#a4)"/>
+  <line class="dashed" x1="470" y1="50" x2="470" y2="92" marker-end="url(#a4)"/>
+  <line x1="580" y1="50" x2="580" y2="92" marker-end="url(#a4)"/>
+  <line x1="492" y1="105" x2="558" y2="105" marker-end="url(#a4)"/>
+  <path d="M482,62 L492,62 L492,52" fill="none" stroke="currentColor" stroke-width="1"/>
+  <text x="110" y="220" text-anchor="middle">Fp</text>
+  <text x="220" y="220" text-anchor="middle">Fc″</text>
+  <text x="110" y="290" text-anchor="middle">Fc′</text>
+  <text x="220" y="290" text-anchor="middle">Fc</text>
+  <line x1="132" y1="215" x2="200" y2="215" marker-end="url(#a4)"/>
+  <line x1="110" y1="230" x2="110" y2="272" marker-end="url(#a4)"/>
+  <line x1="220" y1="230" x2="220" y2="272" marker-end="url(#a4)"/>
+  <line x1="132" y1="285" x2="198" y2="285" marker-end="url(#a4)"/>
+  <path d="M122,242 L132,242 L132,232" fill="none" stroke="currentColor" stroke-width="1"/>
+  <text x="290" y="220" text-anchor="middle">Fp</text>
+  <text x="400" y="220" text-anchor="middle">Fc″</text>
+  <text x="290" y="290" text-anchor="middle">Fc′</text>
+  <text x="400" y="290" text-anchor="middle">Fc</text>
+  <line x1="312" y1="215" x2="380" y2="215" marker-end="url(#a4)"/>
+  <line x1="290" y1="230" x2="290" y2="272" marker-end="url(#a4)"/>
+  <line x1="400" y1="230" x2="400" y2="272" marker-end="url(#a4)"/>
+  <line x1="312" y1="285" x2="378" y2="285" marker-end="url(#a4)"/>
+  <path d="M302,242 L312,242 L312,232" fill="none" stroke="currentColor" stroke-width="1"/>
+  <text x="470" y="220" text-anchor="middle">d</text>
+  <text x="580" y="220" text-anchor="middle">Fc″</text>
+  <text x="470" y="290" text-anchor="middle">Fc′</text>
+  <text x="580" y="290" text-anchor="middle">Fc</text>
+  <line x1="492" y1="215" x2="560" y2="215" marker-end="url(#a4)"/>
+  <line x1="470" y1="230" x2="470" y2="272" marker-end="url(#a4)"/>
+  <line x1="580" y1="230" x2="580" y2="272" marker-end="url(#a4)"/>
+  <line x1="492" y1="285" x2="558" y2="285" marker-end="url(#a4)"/>
+  <path d="M482,242 L492,242 L492,232" fill="none" stroke="currentColor" stroke-width="1"/>
+  <text class="lbl" x="165" y="170" text-anchor="middle">保存する ↓</text>
+  <text class="lbl" x="345" y="170" text-anchor="middle">反映する ↑</text>
+  <text class="lbl" x="525" y="170" text-anchor="middle">創出する ↑</text>
+</svg>
+</figure>
+
+<p>定義3.4.1 のどの条件も、あらかじめ極限が存在することを要求していない。要求しているのは、C または D で極限錐が一つ見つかったときに、別のある極限錐が存在することである。問題の極限が存在するとわかっている状況では、関手が極限を保存することを別の形で特徴づけられる。</p>
+
+<h2>補題3.4.3 — comparison map による特徴づけ</h2>
+
+<div class="thm"><b>補題3.4.3.</b> J 型の極限を持つ圏の間の関手 F : C → D を考える。F が J 型の図式 K の極限を保存するのは、canonical comparison map κ : F(lim<sub>J</sub> K) → lim<sub>J</sub> FK が同型であるとき、かつそのときに限る。</div>
+
+<p><span class="proof-head">証明.</span> 演習3.4.i。<span class="qed">□</span></p>
+
+<h2>定義3.4.4 — 被覆と層</h2>
+
+<p>極限を保存する関手の重要な族は次の節と次の章に現れる。ここでは、極限の保存が重要な仮定になる例を一つ挙げる。</p>
+
+<div class="thm"><b>定義3.4.4.</b> X を位相空間とし、X の開集合が包含によってなす poset を 𝒪(X) と書く。I で添字づけられた開集合の族 U<sub>i</sub> ⊂ U が U を<b>被覆する</b>（cover）とは、集合 U<sub>i</sub> と、二つずつの共通部分 U<sub>i</sub> ∩ U<sub>j</sub> からの包含とがなす図式の余極限が U であることをいう。前層 F : 𝒪(X)<sup>op</sup> → Set が<b>層</b>（sheaf）であるとは、F がこれらの余極限を保存する、すなわち Set の極限に写すことをいう。<sup>13</sup></div>
+
+<p>定理3.2.11 を適用すると、層であるという仮定は、U の任意の開被覆 {U<sub>i</sub>}<sub>i∈I</sub> について次が等化子図式であることを意味する。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 620 82" width="620" role="img" aria-label="層の条件を表す等化子図式">
+  <defs><marker id="a5" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="e5" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker><marker id="m5" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="50" y="47" text-anchor="middle">F(U)</text>
+  <text x="250" y="47" text-anchor="middle">∏<tspan baseline-shift="-3" font-size="10.5">i∈I</tspan> F(U<tspan baseline-shift="-3" font-size="10.5">i</tspan>)</text>
+  <text x="530" y="47" text-anchor="middle">∏<tspan baseline-shift="-3" font-size="10.5">i,j∈I</tspan> F(U<tspan baseline-shift="-3" font-size="10.5">i</tspan> ∩ U<tspan baseline-shift="-3" font-size="10.5">j</tspan>)</text>
+  <line x1="82" y1="42" x2="200" y2="42" marker-end="url(#a5)" marker-start="url(#m5)"/>
+  <text class="lbl" x="141" y="31" text-anchor="middle">(F(U<tspan baseline-shift="-3" font-size="10.5">i</tspan> ↪ U))<tspan baseline-shift="-3" font-size="10.5">i</tspan></text>
+  <line x1="305" y1="36" x2="445" y2="36" marker-end="url(#a5)"/>
+  <text class="lbl" x="375" y="25" text-anchor="middle">F(U<tspan baseline-shift="-3" font-size="10.5">i</tspan> ∩ U<tspan baseline-shift="-3" font-size="10.5">j</tspan> ↪ U<tspan baseline-shift="-3" font-size="10.5">i</tspan>)·π<tspan baseline-shift="-3" font-size="10.5">i</tspan></text>
+  <line x1="305" y1="48" x2="445" y2="48" marker-end="url(#a5)"/>
+  <text class="lbl" x="375" y="70" text-anchor="middle">F(U<tspan baseline-shift="-3" font-size="10.5">i</tspan> ∩ U<tspan baseline-shift="-3" font-size="10.5">j</tspan> ↪ U<tspan baseline-shift="-3" font-size="10.5">j</tspan>)·π<tspan baseline-shift="-3" font-size="10.5">j</tspan></text>
+</svg>
+</figure>
+
+<p class="fn"><sup>13</sup> U は 𝒪(X) において余積 ∐<sub>i∈I</sub> U<sub>i</sub> とも同型である。しかし層の条件を述べるには、U を二つずつの共通部分からの包含 U<sub>j</sub> ↩ U<sub>i</sub> ∩ U<sub>j</sub> ↪ U<sub>i</sub> を含む図式の余極限として記述する必要がある。</p>
+
+<p>以下の補題は、極限や余極限を反映・創出する関手の一般的な例を与える。</p>
+
+<h2>補題3.4.5 — 充満忠実関手は極限を反映する</h2>
+
+<div class="thm"><b>補題3.4.5.</b> 充満忠実な関手は、その余域に存在する任意の極限と余極限を反映する。</div>
+
+<p><span class="proof-head">証明.</span> 図式 K : J → C 上の錐 λ : Δc ⇒ K が極限錐であるとは、K 上の他の任意の錐 μ : Δx ⇒ K が λ をただ一通りに通して分解することである。充満忠実な関手 F : C → D を取り、錐 Fλ : ΔFc ⇒ FK がこの性質を持つと仮定する。</p>
+
+<p>K 上の錐 μ : Δx ⇒ K を取る。その像 Fμ : ΔFx ⇒ FK は FK 上の錐なので、ある射 h : Fx → Fc をただ一通りに通して Fλ から分解する。F は充満なので h = Fg を満たす射 g : x → c がある。各 j について F(λ<sub>j</sub>·g) = Fλ<sub>j</sub>·h = Fμ<sub>j</sub> であり、F は忠実なので λ<sub>j</sub>·g = μ<sub>j</sub> である。したがって μ は g を通して λ から分解する。μ を分解する射 g′ がもう一つあれば、Fg′ も Fμ を Fλ から分解するので、Fλ の普遍性の一意性から Fg′ = Fg となり、忠実性から g′ = g である。これで λ が極限錐であることが示された。余極限についても同様である。<span class="qed">□</span></p>
+
+<h2>補題3.4.6 — 圏同値は極限を保存・反映・創出する</h2>
+
+<div class="thm"><b>補題3.4.6.</b> 任意の圏同値は、その定義域または余域に存在する任意の極限と余極限を保存し、反映し、創出する。</div>
+
+<p><span class="proof-head">証明.</span> 圏同値 F : C → D は充満忠実なので、補題3.4.5 により極限と余極限を反映する。残る二つの主張には、次の観察を使う。C の任意の図式 K と、その像の上の任意の錐 μ : Δd ⇒ FK について、μ は F の像にある錐と同型である。</p>
+
+<p>実際、F は本質的全射なので、ある対象 x ∈ C と同型 f : Fx ≅ d がある。μ に同型 f を前合成すると、頂点が F の像にある同型な錐 μf : ΔFx ⇒ FK が得られる。F は充満忠実なので、この錐の脚 (μ<sub>j</sub>·f : Fx → FKj)<sub>j</sub> はそれぞれ x → Kj の射にただ一通りに持ち上がり、Fν = μf を満たす C の錐 ν : Δx ⇒ K を定める。持ち上げた脚の族が錐の条件を満たすことも、F の忠実性から従う。</p>
+
+<p><b>保存.</b> C の極限錐 λ : Δc ⇒ K の像を考える。像の上の任意の錐 μ : Δd ⇒ FK について、上で構成した同型な錐 μf のただ一つの持ち上げ ν : Δx ⇒ K を取る。λ は極限錐なので、ν はただ一つの射 g : x → c を通して λ から分解する。F は充満忠実なので、Fg は錐 Fν = μf の Fλ を通したただ一つの分解を与える。これを f<sup>−1</sup> と合成した Fg·f<sup>−1</sup> が、元の錐 μ の Fλ を通したただ一つの分解である。よって圏同値は極限を保存する。</p>
+
+<p><b>創出.</b> C の図式 K と、D における極限錐 μ : Δd ⇒ FK を取る。上で構成した同型な錐 μf : ΔFx ⇒ FK も極限錐であり、その持ち上げ ν : Δx ⇒ K は、Fν = μf が極限錐で、圏同値は極限を反映するので、K の極限錐である。したがって K は極限を持つ。K 上の錐が極限錐であることとその像が極限錐であることの同値は、すでに示した保存と反映から従う。よって圏同値は極限を創出する。余極限についても同様である。<span class="qed">□</span></p>
+
+<h2>定義3.4.7 — 厳密な創出</h2>
+
+<p>極限や余極限の創出には「邪悪な」（evil）厳密化がある。この厳密化は、圏同値ではふつう成り立たないが、他の圏論的な場面には現れる。</p>
+
+<div class="thm"><b>定義3.4.7.</b> 関手 F : C → D がある種類の図式について極限を<b>厳密に創出する</b>（strictly creates）とは、その種類の任意の図式 K : J → C と FK : J → D 上の任意の極限錐について、
+<ul>
+  <li>その錐の K 上の錐への持ち上げがただ一つ存在し、</li>
+  <li>しかもその持ち上げが C の極限錐である</li>
+</ul>
+ことをいう。</div>
+
+<h2>連結な圏</h2>
+
+<div class="thm">圏 J が<b>連結</b>（connected）であるとは、J が空でなく、J の台となる quiver において任意の二つの対象が射の有限のジグザグで結ばれることをいう。図式が<b>連結</b>であるとは、その添字圏が連結であることをいう。</div>
+
+<h2>命題3.4.8 — スライス圏の忘却関手</h2>
+
+<div class="thm"><b>命題3.4.8.</b> 任意の対象 c ∈ C について、忘却関手 Π : c/C → C は極限と連結な余極限を厳密に創出する。したがって圏 c/C は、C が持つ任意の極限と連結な余極限を持つ。</div>
+
+<p>この結果の一般化が演習3.4.ii にある。</p>
+
+<p><span class="proof-head">証明.</span> c/C の J 型の図式を与えることは、関手 K : J → C と、頂点 c を持つ錐 κ : Δc ⇒ K の組を与えることと同じである。図式 (K, κ) : J → c/C と忘却関手 Π : c/C → C の合成は K である。</p>
+
+<p><b>極限.</b> K が C で極限錐を持つなら、その錐が (K, κ) 上の c/C の錐にただ一通りに持ち上がり、しかも持ち上げが極限錐であることを示す。C の極限錐 λ : Δℓ ⇒ K を取る。錐 κ : Δc ⇒ K は、ただ一つの射 t : c → ℓ を通して極限錐 λ から分解する。J が平行対の圏</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 200 80" width="200" role="img" aria-label="平行対の圏">
+  <defs><marker id="a6" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="e6" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker><marker id="m6" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="40" y="47" text-anchor="middle">a</text>
+  <text x="160" y="47" text-anchor="middle">b</text>
+  <line x1="55" y1="36" x2="145" y2="36" marker-end="url(#a6)"/>
+  <text class="lbl" x="100" y="25" text-anchor="middle">f</text>
+  <line x1="55" y1="48" x2="145" y2="48" marker-end="url(#a6)"/>
+  <text class="lbl" x="100" y="70" text-anchor="middle">g</text>
+</svg>
+</figure>
+
+<p>の場合、この手順は次のようになる。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 660 205" width="660" role="img" aria-label="c/C の図式とその下の極限錐、誘導される射 t">
+  <defs><marker id="a7" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="e7" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker><marker id="m7" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="30" y="100" text-anchor="middle">c</text>
+  <text x="130" y="100" text-anchor="middle">Ka</text>
+  <text x="130" y="190" text-anchor="middle">Kb</text>
+  <line x1="44" y1="95" x2="110" y2="95" marker-end="url(#a7)"/>
+  <text class="lbl" x="77" y="84" text-anchor="middle">κ<tspan baseline-shift="-3" font-size="10.5">a</tspan></text>
+  <line x1="42" y1="108" x2="112" y2="176" marker-end="url(#a7)"/>
+  <text class="lbl" x="62" y="150" text-anchor="end">κ<tspan baseline-shift="-3" font-size="10.5">b</tspan></text>
+  <line x1="124" y1="110" x2="124" y2="172" marker-end="url(#a7)"/>
+  <line x1="136" y1="110" x2="136" y2="172" marker-end="url(#a7)"/>
+  <text class="lbl" x="116" y="145" text-anchor="end">Kf</text>
+  <text class="lbl" x="144" y="145" text-anchor="start">Kg</text>
+  <text x="190" y="70" text-anchor="start">∈ c/C</text>
+  <text x="215" y="150" text-anchor="middle">⇝</text>
+  <text x="300" y="30" text-anchor="middle">ℓ</text>
+  <text x="300" y="100" text-anchor="middle">Ka</text>
+  <text x="300" y="190" text-anchor="middle">Kb</text>
+  <line x1="300" y1="40" x2="300" y2="82" marker-end="url(#a7)"/>
+  <text class="lbl" x="310" y="64" text-anchor="start">λ<tspan baseline-shift="-3" font-size="10.5">a</tspan></text>
+  <line x1="294" y1="110" x2="294" y2="172" marker-end="url(#a7)"/>
+  <line x1="306" y1="110" x2="306" y2="172" marker-end="url(#a7)"/>
+  <text class="lbl" x="286" y="145" text-anchor="end">Kf</text>
+  <text class="lbl" x="314" y="145" text-anchor="start">Kg</text>
+  <text x="345" y="70" text-anchor="start">∈ C</text>
+  <text x="395" y="150" text-anchor="middle">⇝</text>
+  <text x="450" y="100" text-anchor="middle">c</text>
+  <text x="550" y="100" text-anchor="middle">Ka</text>
+  <text x="550" y="190" text-anchor="middle">Kb</text>
+  <text x="550" y="30" text-anchor="middle">ℓ</text>
+  <line x1="464" y1="95" x2="530" y2="95" marker-end="url(#a7)"/>
+  <text class="lbl" x="497" y="110" text-anchor="middle">κ<tspan baseline-shift="-3" font-size="10.5">a</tspan></text>
+  <line x1="462" y1="108" x2="532" y2="176" marker-end="url(#a7)"/>
+  <text class="lbl" x="482" y="150" text-anchor="end">κ<tspan baseline-shift="-3" font-size="10.5">b</tspan></text>
+  <line x1="544" y1="110" x2="544" y2="172" marker-end="url(#a7)"/>
+  <line x1="556" y1="110" x2="556" y2="172" marker-end="url(#a7)"/>
+  <text class="lbl" x="536" y="145" text-anchor="end">Kf</text>
+  <text class="lbl" x="564" y="145" text-anchor="start">Kg</text>
+  <line x1="550" y1="40" x2="550" y2="82" marker-end="url(#a7)"/>
+  <text class="lbl" x="560" y="64" text-anchor="start">λ<tspan baseline-shift="-3" font-size="10.5">a</tspan></text>
+  <line class="dashed" x1="462" y1="88" x2="538" y2="34" marker-end="url(#a7)"/>
+  <text class="lbl" x="488" y="55" text-anchor="end">t</text>
+  <text class="lbl" x="506" y="76" text-anchor="middle">∃!</text>
+  <text x="600" y="70" text-anchor="start">∈ c/C</text>
+</svg>
+</figure>
+
+<p>このデータは、λ を持ち上げる (K, κ) 上の c/C の錐を与え、その頂点は対象 t : c → ℓ である。持ち上げはこれしかない。c/C の錐の脚は c/C の射なので、頂点 s : c → ℓ は λ<sub>j</sub>·s = κ<sub>j</sub> をすべての j について満たさなければならず、そのような s は λ の普遍性から t に限られる。</p>
+
+<p>この錐が c/C の極限錐であることは直接確かめられる。c/C における (K, κ) 上の錐は、頂点 s : c → x と脚 μ<sub>j</sub> : x → Kj であって μ<sub>j</sub>·s = κ<sub>j</sub> を満たすものからなる。C で μ は λ からただ一つの射 u : x → ℓ を通して分解する。u·s と t はどちらも κ を λ から分解するので u·s = t となり、u は c/C の射 (x, s) → (ℓ, t) である。構成から、Π : c/C → C はこの極限を保存する。</p>
+
+<p><b>連結な余極限.</b> J が連結で、K が C で余極限錐 μ : K ⇒ Δp を持つとする。このデータが (K, κ) の下の c/C の錐にただ一通りに持ち上がり、しかもそれが余極限錐であることを示す。まず、余極限の対象 p を忘却関手 Π : c/C → C に沿って持ち上げる。対象 j ∈ J を一つ選び、持ち上げた対象を合成</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 300 45" width="300" role="img" aria-label="持ち上げた余極限の対象">
+  <defs><marker id="a8" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="e8" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker><marker id="m8" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="30" y="30" text-anchor="middle">c</text>
+  <text x="150" y="30" text-anchor="middle">Kj</text>
+  <text x="270" y="30" text-anchor="middle">p</text>
+  <line x1="44" y1="25" x2="130" y2="25" marker-end="url(#a8)"/>
+  <text class="lbl" x="87" y="14" text-anchor="middle">κ<tspan baseline-shift="-3" font-size="10.5">j</tspan></text>
+  <line x1="170" y1="25" x2="256" y2="25" marker-end="url(#a8)"/>
+  <text class="lbl" x="213" y="14" text-anchor="middle">μ<tspan baseline-shift="-3" font-size="10.5">j</tspan></text>
+</svg>
+</figure>
+
+<p>と定める。これは錐 κ : Δc ⇒ K の脚と余極限錐 μ : K ⇒ Δp の脚の合成である。J は連結なので、合成 μ<sub>j</sub>·κ<sub>j</sub> : c → p は j の選び方によらない。実際、射 f : j → k について μ<sub>k</sub>·κ<sub>k</sub> = μ<sub>k</sub>·Kf·κ<sub>j</sub> = μ<sub>j</sub>·κ<sub>j</sub> であり、任意の二つの対象はこのような射のジグザグで結ばれる。持ち上げた余錐の脚 μ<sub>j</sub> は c/C の射でなければならないので、頂点はこの合成に限られる。</p>
+
+<p>次に、(K, κ) : J → c/C の下の錐、すなわち頂点 s : c → x と脚 ν<sub>j</sub> : Kj → x であって ν<sub>j</sub>·κ<sub>j</sub> = s を満たすものが与えられたとする。台となる C の錐は、ただ一つの射 u : p → x を通して p から分解する。このとき u·μ<sub>j</sub>·κ<sub>j</sub> = ν<sub>j</sub>·κ<sub>j</sub> = s なので、この分解は c/C の分解にただ一通りに持ち上がる。対象 c は図式 K の「反対側」にあり、錐の分解に必要な可換性の条件には関与しないからである。以上で、Π : c/C → C が連結な余極限を厳密に創出することが示された。<span class="qed">□</span></p>
+
+<h2>命題3.4.9 — 関手圏の極限は各点で計算される</h2>
+
+<p>最後の結果は、関手圏が極限と余極限を値の圏から「各点ごとに」受け継ぐことを示す。関手圏に値を取る図式 F : J → C<sup>A</sup> について、関手 lim F : A → C は、対象 a ∈ A で lim<sub>j∈J</sub> F(j, a) を取るものとして、この極限が存在するときに定義できる。これは関数についてのなじみ深い操作に似ている。例えば、アーベル群の準同型の有限個の族 f<sub>j</sub> : A → C の和は、a ∈ A で C における和 ∑<sub>j</sub> f<sub>j</sub>(a) を取る準同型である。</p>
+
+<p>この結果を正確に述べるために、小さな添字圏 A の対象を、極大な離散部分圏 ob A ↪ A と見る。</p>
+
+<div class="thm"><b>命題3.4.9.</b> A が小さいとき、忘却関手 ev : C<sup>A</sup> → C<sup>ob A</sup> はすべての極限と余極限を厳密に創出する。したがって
+<ol type="i">
+  <li>C<sup>A</sup> は、C が持つ任意の極限と余極限を持ち、</li>
+  <li>これらの極限と余極限は「各点で定義される」。すなわち、各 a ∈ A について評価関手 ev<sub>a</sub> : C<sup>A</sup> → C は、C に存在するすべての極限と余極限を保存する。</li>
+</ol></div>
+
+<p><span class="proof-head">証明.</span> ev : C<sup>A</sup> → C<sup>ob A</sup> がすべての極限と余極限を厳密に創出することを示す。図式 F : J → C<sup>A</sup> を取り、各 a ∈ A について図式 F(−, a) : J → C が極限 lim<sub>j∈J</sub> F(j, a) を持つと仮定する。同型 C<sup>ob A</sup> ≅ ∏<sub>ob A</sub> C と演習3.4.v により、この仮定は図式 ev·F : J → C<sup>ob A</sup> が極限を持つことと同値である。</p>
+
+<p><b>極限の対象.</b> ob A で添字づけられた対象の族 lim<sub>j∈J</sub> F(j, a) は、関手 A → C に延びる。この関手は、F の変数を入れ替え（演習1.7.vi）、命題3.3.1 の極限関手と合成して得られる。<sup>14</sup></p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 440 100" width="440" role="img" aria-label="変数を入れ替えた F と極限関手の合成">
+  <defs><marker id="a9" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="e9" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker><marker id="m9" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="30" y="35" text-anchor="middle">A</text>
+  <text x="170" y="35" text-anchor="middle">C<tspan baseline-shift="6" font-size="10.5">J</tspan></text>
+  <text x="350" y="35" text-anchor="middle">C</text>
+  <line x1="46" y1="30" x2="150" y2="30" marker-end="url(#a9)"/>
+  <text class="lbl" x="98" y="19" text-anchor="middle">F</text>
+  <line x1="192" y1="30" x2="334" y2="30" marker-end="url(#a9)"/>
+  <text class="lbl" x="263" y="19" text-anchor="middle">lim<tspan baseline-shift="-3" font-size="10.5">J</tspan></text>
+  <text x="30" y="85" text-anchor="middle">a</text>
+  <text x="350" y="85" text-anchor="middle">lim<tspan baseline-shift="-3" font-size="10.5">j∈J</tspan> F(j, a)</text>
+  <line x1="46" y1="80" x2="290" y2="80" marker-end="url(#a9)"/>
+  <line x1="46" y1="74" x2="46" y2="86"/>
+</svg>
+</figure>
+
+<p>これで、ob A で添字づけられた C の極限の対象の族を持ち上げる対象 lim<sub>J</sub> F ∈ C<sup>A</sup> が構成された。</p>
+
+<p class="fn"><sup>14</sup> 命題3.3.1 の主張で述べたとおり、lim<sub>J</sub> F を定義するには、各 a ∈ A について J 型の図式 F(−, a) が極限を持つことだけを仮定すればよい。</p>
+
+<p><b>極限錐.</b> 次に、ob A で添字づけられた C の極限錐の族を持ち上げる極限錐 λ : Δ(lim<sub>J</sub> F) ⇒ F を構成する。この錐の脚は C<sup>A</sup> の射、すなわち自然変換 λ<sub>j</sub> : lim<sub>J</sub> F ⇒ F<sub>j</sub> であり、各 a ∈ A での成分はすでに決まっている。a ∈ A を固定して j ∈ J を動かすと、射 λ<sub>j,a</sub> : lim<sub>j∈J</sub> F(j, a) → F(j, a) は a で添字づけられた C の J 型の極限錐の脚である。A の射 f : a → a′ は J 型の図式の間の自然変換 F(−, a) ⇒ F(−, a′) を与え、命題3.3.1 と同じようにこれを使って lim<sub>J</sub> F の f への作用を定める。この定め方により、錐の脚 λ<sub>j</sub> は A について自然になる。</p>
+
+<p><b>普遍性.</b> 最後に、錐 λ が極限錐の普遍性を持つことを示す。対象 X ∈ C<sup>A</sup> と、頂点 X を持つ F 上の J 型の錐 μ : ΔX ⇒ F が与えられたとき、C<sup>A</sup> の射 α : X ⇒ lim F を通したただ一つの分解を構成したい。評価関手 ev : C<sup>A</sup> → C<sup>ob A</sup> と合成した後ではそのような分解があり、それが各 a ∈ A での自然変換 α の成分を定める。射 f : a → a′ における自然性は、C における極限 lim<sub>j∈J</sub> F(j, a′) の普遍性の一意性から従う。残りの要請、すなわち α が μ の λ を通した分解であることと、その性質を持つ α がただ一つであることは、どちらも C<sup>ob A</sup> で確かめられる。自然変換が等しいのは、その成分がすべて等しいとき、かつそのときに限るからである。以上で証明が完了する。<span class="qed">□</span></p>
+
+<p>C がある極限や余極限を持たなければ、C<sup>ob A</sup> もそれを持たず、逆も成り立つ（演習3.4.v）。定義3.4.1 で注意したとおり、関手が極限や余極限を厳密に創出するという条件は、余域の圏にそれらが存在しなければ空虚に成り立つ。したがって C がある極限や余極限を持たない場合、命題3.4.9 は、対応する極限や余極限が C<sup>A</sup> に存在するかどうかについても、それがどう構成されるかについても何も述べない。</p>
+
+<h2>例3.4.10 — 各点的でない極限</h2>
+
+<p>図式の圏における各点的でない極限と余極限の例として、次の対象と射を持つ poset を考える。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 220 160" width="220" role="img" aria-label="四つの対象の poset">
+  <defs><marker id="a10" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="e10" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker><marker id="m10" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="110" y="25" text-anchor="middle">n</text>
+  <text x="40" y="85" text-anchor="middle">w</text>
+  <text x="180" y="85" text-anchor="middle">e</text>
+  <text x="110" y="145" text-anchor="middle">s</text>
+  <line x1="100" y1="32" x2="50" y2="70" marker-end="url(#a10)"/>
+  <line x1="120" y1="32" x2="170" y2="70" marker-end="url(#a10)"/>
+  <line x1="100" y1="136" x2="50" y2="98" marker-end="url(#a10)"/>
+  <line x1="120" y1="136" x2="170" y2="98" marker-end="url(#a10)"/>
+</svg>
+</figure>
+
+<p>この poset では n ≤ w, n ≤ e, s ≤ w, s ≤ e であり、比較不能な対象の二項積（交わり）や二項余積（結び）は存在しない。例えば w と e の下界は n と s で、そのうち最大のものはない。</p>
+
+<p>この poset の射の圏、すなわち射 x ≤ y を対象とし、x ≤ x′ かつ y ≤ y′ のときに射 (x ≤ y) → (x′ ≤ y′) がただ一つある圏も、二項積と二項余積のうちいくつかは持つがすべては持たず、持つもののうちいくつかは各点的でない。</p>
+
+<ul>
+  <li>射 n → w と n → e の積は、n 上の恒等射である。対象 (x ≤ y) からこの二つへの射があるのは、x ≤ n かつ y ≤ w, y ≤ e のときであり、x ≤ y と合わせると x = y = n に限られる。この積は、n を含む w と e の交わりと考えられる。終域の成分 n は、存在しない積 w ∧ e の代わりに現れている</li>
+  <li>射 n → e と s → e の余積は、e 上の恒等射である。これは e の中での n と s の結びと考えられる。始域の成分 e は、存在しない結び n ∨ s の代わりに現れている</li>
+</ul>
+
+<h2>節末問題</h2>
+
+<p class="note">原文は英語。以下は和訳・言い換え。</p>
+
+<ul>
+  <li><b>3.4.i</b> — 補題3.4.3 を双対の形で証明せよ。任意の図式 K : J → C と任意の関手 F : C → D について、
+  <ol type="i">
+    <li>二つの余極限がともに存在すると仮定して、標準的な射 κ : colim FK → F colim K を定義せよ。</li>
+    <li>関手 F が K の余極限を保存するのは、この射が同型であるとき、かつそのときに限ることを示せ。</li>
+  </ol></li>
+  <li><b>3.4.ii</b> — 命題3.4.8 を一般化して、任意の関手 F : C → Set について、射影関手 Π : ∫F → C が次を満たすことを示せ。
+  <ol type="i">
+    <li>C が持ち F が保存するすべての極限を厳密に創出する。</li>
+    <li>C が持つすべての連結な余極限を厳密に創出する。</li>
+  </ol></li>
+  <li><b>3.4.iii</b> — 次の二つがともに成り立てば、F : C → D がある種類の図式について極限を創出することを証明せよ。
+  <ol type="i">
+    <li>C はそれらの極限を持ち、F はそれを保存する。</li>
+    <li>F : C → D は同型を反映する。</li>
+  </ol></li>
+  <li><b>3.4.iv</b> — 忘却関手 U : Set<sub>∗</sub> → Set と U : Top<sub>∗</sub> → Top が余積を保存しないことを示し、この結果が命題3.4.8 の連結性の仮定が必要であることを示している理由を説明せよ。</li>
+  <li><b>3.4.v</b> — 圏の積 ∏<sub>i∈I</sub> C<sub>i</sub> を考える。
+  <ol type="i">
+    <li>各射影関手 π<sub>k</sub> : ∏<sub>i∈I</sub> C<sub>i</sub> → C<sub>k</sub> が極限を保存することを示せ。</li>
+    <li>射影関手 π<sub>k</sub> : ∏<sub>i∈I</sub> C<sub>i</sub> → C<sub>k</sub> が<b>共同で極限を創出する</b>（jointly create limits）ことを示せ。すなわち、任意の図式 F : J → ∏<sub>i∈I</sub> C<sub>i</sub> について、各成分の図式 π<sub>k</sub>F : J → C<sub>k</sub> が極限を持つならば、それらの極限が F の極限の成分を定める。</li>
+  </ol>
+  以上から、圏の積がある極限や余極限を持つのは、各成分の圏がそれを持つとき、かつそのときに限ることを結論せよ。</li>
+  <li><b>3.4.vi</b> — A 上の分裂冪等射 sr を定めるレトラクトの図式
+  <figure class="cd">
+<svg class="cd" viewBox="0 0 430 45" width="430" role="img" aria-label="レトラクトの図式">
+  <defs><marker id="a11" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="e11" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker><marker id="m11" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="30" y="30" text-anchor="middle">B</text>
+  <text x="150" y="30" text-anchor="middle">A</text>
+  <text x="270" y="30" text-anchor="middle">B</text>
+  <line x1="44" y1="25" x2="132" y2="25" marker-end="url(#a11)" marker-start="url(#m11)"/>
+  <text class="lbl" x="88" y="14" text-anchor="middle">s</text>
+  <line x1="166" y1="25" x2="254" y2="25" marker-end="url(#e11)"/>
+  <text class="lbl" x="210" y="14" text-anchor="middle">r</text>
+  <text x="320" y="30" text-anchor="start">rs = id<tspan baseline-shift="-3" font-size="10.5">B</tspan></text>
+</svg>
+</figure>
+  を考える。
+  <ol type="i">
+    <li>次の図式がそれぞれ等化子図式と余等化子図式であることを証明せよ。
+    <figure class="cd">
+<svg class="cd" viewBox="0 0 610 80" width="610" role="img" aria-label="分裂冪等射の等化子図式と余等化子図式">
+  <defs><marker id="a12" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="e12" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker><marker id="m12" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="30" y="47" text-anchor="middle">B</text>
+  <text x="140" y="47" text-anchor="middle">A</text>
+  <text x="260" y="47" text-anchor="middle">A</text>
+  <line x1="44" y1="42" x2="124" y2="42" marker-end="url(#a12)" marker-start="url(#m12)"/>
+  <text class="lbl" x="84" y="31" text-anchor="middle">s</text>
+  <line x1="156" y1="36" x2="244" y2="36" marker-end="url(#a12)"/>
+  <text class="lbl" x="200" y="25" text-anchor="middle">id<tspan baseline-shift="-3" font-size="10.5">A</tspan></text>
+  <line x1="156" y1="48" x2="244" y2="48" marker-end="url(#a12)"/>
+  <text class="lbl" x="200" y="70" text-anchor="middle">sr</text>
+  <text x="350" y="47" text-anchor="middle">A</text>
+  <text x="470" y="47" text-anchor="middle">A</text>
+  <text x="580" y="47" text-anchor="middle">B</text>
+  <line x1="366" y1="36" x2="454" y2="36" marker-end="url(#a12)"/>
+  <text class="lbl" x="410" y="25" text-anchor="middle">id<tspan baseline-shift="-3" font-size="10.5">A</tspan></text>
+  <line x1="366" y1="48" x2="454" y2="48" marker-end="url(#a12)"/>
+  <text class="lbl" x="410" y="70" text-anchor="middle">sr</text>
+  <line x1="486" y1="42" x2="566" y2="42" marker-end="url(#e12)"/>
+  <text class="lbl" x="526" y="31" text-anchor="middle">r</text>
+</svg>
+</figure></li>
+    <li>B が、冪等射 sr が定める図式の極限であり、かつ余極限でもあることを証明せよ。</li>
+    <li>上で述べた極限と余極限が任意の関手で保存されることを証明せよ。この性質を持つ極限・余極限を<b>絶対</b>（absolute）極限・余極限という。</li>
+  </ol></li>
+</ul>
+
+</body>
+</html>

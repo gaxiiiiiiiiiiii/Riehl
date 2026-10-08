@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3.3 極限と余極限の関手性</title>
+<style>
+  :root {
+    --bg: #fdfcf9;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --accent: #8a4c14;
+    --line: #d8d3c8;
+    --box-bg: #f5f2ea;
+    --code-bg: #f0ede5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1e22;
+      --fg: #e4e1da;
+      --muted: #9aa2ab;
+      --accent: #e0a468;
+      --line: #3a3f46;
+      --box-bg: #24262b;
+      --code-bg: #2a2d33;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    line-height: 1.95;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.5rem; font-family: "Hiragino Sans", sans-serif; border-bottom: 2px solid var(--accent); padding-bottom: .4rem; }
+  h2 { font-size: 1.12rem; font-family: "Hiragino Sans", sans-serif; color: var(--accent); margin-top: 2.6rem; }
+  p { margin: .9rem 0; font-size: .97rem; }
+  li { font-size: .97rem; margin: .4rem 0; }
+  .note { color: var(--muted); font-size: .88em; }
+  .thm {
+    background: var(--box-bg);
+    border-left: 3px solid var(--accent);
+    padding: .7rem 1.1rem;
+    margin: 1.2rem 0;
+  }
+  .thm b { font-family: "Hiragino Sans", sans-serif; }
+  .proof-head { font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .qed { float: right; }
+  .fn { color: var(--muted); font-size: .88rem; border-top: 1px solid var(--line); padding-top: .5rem; }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
+  svg.cd line.dashed { stroke-dasharray: 5 4; }
+  svg.cd line.dotted { stroke-dasharray: 1.5 3.5; stroke-width: 1.5; stroke-linecap: round; }
+  svg.cd line.dbl-out { stroke-width: 4.2; }
+  svg.cd line.dbl-in { stroke: var(--bg); stroke-width: 1.8; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--box-bg); font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<h1>3.3 極限と余極限の関手性</h1>
+
+<p class="note">Emily Riehl, <i>Category Theory in Context</i> §3.3（pp.98–102）の内容を、個人学習のために日本語で書き直した解説。番号（命題3.3.1 など）は本と揃えてある。翻訳ではなく、同じ内容を自分の言葉で再構成したもの。</p>
+
+<h2>記号表</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>記号</th><th>型・意味</th></tr>
+  <tr><td>C<sup>J</sup></td><td>関手 J → C と自然変換の圏。J 型の図式の圏</td></tr>
+  <tr><td>Δ : C → C<sup>J</sup></td><td>対象 c を c における定数図式 Δc に送る関手</td></tr>
+  <tr><td>lim F</td><td>図式 F の極限として選んだ対象</td></tr>
+  <tr><td>ε : Δ(lim F) ⇒ F</td><td>F の極限錐として選んだ錐</td></tr>
+  <tr><td>lim α : lim F → lim G</td><td>自然変換 α : F ⇒ G が極限の間に誘導する射</td></tr>
+  <tr><td>β·α</td><td>自然変換の垂直合成</td></tr>
+  <tr><td>C<sup>•→•←•</sup></td><td>余スパンの圏。引き戻しを取る図式の圏</td></tr>
+  <tr><td>Top</td><td>位相空間と連続写像の圏</td></tr>
+  <tr><td>I</td><td>標準的な単位区間 [0, 1]</td></tr>
+  <tr><td>Path(X), Point(X)</td><td>空間 X の道の集合 Top(I, X) と点の集合 Top(∗, X)</td></tr>
+  <tr><td>ev<sub>0</sub>, ev<sub>1</sub></td><td>道をその始点・終点に送る関数 Path(X) → Point(X)</td></tr>
+  <tr><td>π<sub>0</sub>X</td><td>空間 X の弧状連結成分の集合</td></tr>
+  <tr><td>BG</td><td>群 G を自己射の集合とする一対象圏。関手 BG → Set は G-集合</td></tr>
+  <tr><td>2, 2′</td><td>二元集合に ℤ/2 を自明に作用させた ℤ/2-集合と、生成元が二元を入れ替える ℤ/2-集合</td></tr>
+  <tr><td>Fin, Fin<sub>iso</sub></td><td>有限集合と関数の圏、有限集合と全単射の圏</td></tr>
+  <tr><td>Sym(X), Ord(X)</td><td>有限集合 X の置換の集合、全順序の集合</td></tr>
+  <tr><td>S<sub>n</sub></td><td>n 元集合 n の対称群</td></tr>
+  <tr><td>α<sub>X,Y,Z</sub></td><td>積の結合性の同型 X × (Y × Z) ≅ (X × Y) × Z</td></tr>
+  <tr><td>π<sub>1</sub>, π<sub>2</sub></td><td>二項積の第一射影・第二射影</td></tr>
+  <tr><td>δ : C → C</td><td>例3.3.7 で π<sub>1</sub> と π<sub>2</sub> の共通の切断として得られる写像</td></tr>
+</table>
+</div>
+
+<h2>この節の問い</h2>
+
+<p>命題3.1.7 により、極限と余極限は、存在すれば一意な同型を除いて一意に定まる。この節では、形 J を固定したとき、J 型の図式にその極限を対応させる操作が関手になることを示し、その帰結を調べる。</p>
+
+<p>関手性は標準性とは別の性質である。ある図式の極限を与える対象は一般にたくさんあり、互いに同型だが、その中の一つを選ぶ理由はふつう存在しない。極限関手を作るには、図式ごとに極限を一つ選ぶ必要がある。</p>
+
+<h2>命題3.3.1 — 極限関手</h2>
+
+<div class="thm"><b>命題3.3.1.</b> C がすべての J 型の極限を持つとき、各図式に極限を一つずつ選ぶと、それが関手 lim : C<sup>J</sup> → C の対象への作用を定める。より一般に、任意の圏 C と J について、C<sup>J</sup> の充満部分圏であって極限が存在する図式全体が張るものの上に、極限関手が定義される。</div>
+
+<p>この関手は標準的に定まるものではなく、各図式に対して「その」極限とする対象を任意に選ぶことで定まる。ここで選択公理を使っている。極限と余極限を関手ではなくアナ関手（anafunctor）として扱えば、この選択は避けられる。文献 [Mak96] を参照。</p>
+
+<p><span class="proof-head">証明.</span> 各図式 F ∈ C<sup>J</sup> について、極限 lim F と極限錐 ε : Δ(lim F) ⇒ F を一つずつ選ぶ。これで lim の対象への作用が決まる。残るのは射への作用である。</p>
+
+<p>C<sup>J</sup> の射、すなわち自然変換 α : F ⇒ G を取る。F の極限錐 ε と α を垂直に合成すると、</p>
+
+<p style="text-align:center">Δ(lim F) ⟹<sup>ε</sup> F ⟹<sup>α</sup> G</p>
+
+<p>は頂点 lim F を持つ G 上の錐 α·ε になる。G について選んだ極限錐 ε : Δ(lim G) ⇒ G の普遍性により、錐 α·ε は頂点の間のただ一つの射 lim F → lim G を通して分解する。この射を lim α : lim F → lim G と定める。定義から、lim α は等式</p>
+
+<p style="text-align:center">ε·Δ(lim α) = α·ε</p>
+
+<p>を満たすただ一つの射である。ここで左辺の ε は G の極限錐、右辺の ε は F の極限錐である。</p>
+
+<p>引き戻しの場合に描くと次のようになる。C<sup>•→•←•</sup> の射は、二つの余スパン B →<sup>f</sup> A ←<sup>g</sup> C と B′ →<sup>f′</sup> A′ ←<sup>g′</sup> C′ の間の成分 α<sub>B</sub>, α<sub>A</sub>, α<sub>C</sub> の組であって、二つの四角形 α<sub>A</sub>f = f′α<sub>B</sub> と α<sub>A</sub>g = g′α<sub>C</sub> を可換にするものである。下図の実線がこのデータである。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 400 330" width="400" role="img" aria-label="余スパンの間の射と、引き戻しの間に誘導される射">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="170" y="42" text-anchor="middle">P</text>
+  <text x="340" y="42" text-anchor="middle">C</text>
+  <text x="80" y="112" text-anchor="middle">B</text>
+  <text x="250" y="112" text-anchor="middle">A</text>
+  <text x="170" y="222" text-anchor="middle">P′</text>
+  <text x="340" y="222" text-anchor="middle">C′</text>
+  <text x="80" y="292" text-anchor="middle">B′</text>
+  <text x="250" y="292" text-anchor="middle">A′</text>
+  <line class="dashed" x1="186" y1="37" x2="322" y2="37" marker-end="url(#a1)"/>
+  <line class="dashed" x1="158" y1="48" x2="96" y2="96" marker-end="url(#a1)"/>
+  <line x1="98" y1="107" x2="232" y2="107" marker-end="url(#a1)"/>
+  <text class="lbl" x="205" y="126" text-anchor="middle">f</text>
+  <line x1="328" y1="48" x2="266" y2="96" marker-end="url(#a1)"/>
+  <text class="lbl" x="304" y="80" text-anchor="start">g</text>
+  <line class="dashed" x1="190" y1="217" x2="322" y2="217" marker-end="url(#a1)"/>
+  <line class="dashed" x1="158" y1="228" x2="96" y2="276" marker-end="url(#a1)"/>
+  <line x1="100" y1="287" x2="232" y2="287" marker-end="url(#a1)"/>
+  <text class="lbl" x="165" y="308" text-anchor="middle">f′</text>
+  <line x1="328" y1="228" x2="266" y2="276" marker-end="url(#a1)"/>
+  <text class="lbl" x="304" y="262" text-anchor="start">g′</text>
+  <line x1="80" y1="120" x2="80" y2="272" marker-end="url(#a1)"/>
+  <text class="lbl" x="70" y="200" text-anchor="end">α<tspan dy="3" font-size="10.5">B</tspan></text>
+  <line x1="250" y1="120" x2="250" y2="272" marker-end="url(#a1)"/>
+  <text class="lbl" x="258" y="165" text-anchor="start">α<tspan dy="3" font-size="10.5">A</tspan></text>
+  <line x1="340" y1="50" x2="340" y2="202" marker-end="url(#a1)"/>
+  <text class="lbl" x="350" y="130" text-anchor="start">α<tspan dy="3" font-size="10.5">C</tspan></text>
+  <line class="dotted" x1="170" y1="52" x2="170" y2="200" marker-end="url(#a1)"/>
+  <text class="lbl" x="178" y="160" text-anchor="start">lim α</text>
+</svg>
+</figure>
+
+<p>上下の余スパンについて引き戻し P = B ×<sub>A</sub> C と P′ = B′ ×<sub>A′</sub> C′ を選ぶ。破線がそれぞれの引き戻し錐の脚である。P から B′ と C′ への合成 α<sub>B</sub>·(P → B) と α<sub>C</sub>·(P → C) は、二つの四角形の可換性により下の余スパン上の錐をなす。P′ の普遍性から、この錐を分解する射 P → P′ がただ一つ存在する。点線で描いたこの射が、関手 lim : C<sup>•→•←•</sup> → C のこの射への作用である。</p>
+
+<p>関手であることは、普遍性の一意性から従う。まず恒等射について。F の極限錐 ε : Δ(lim F) ⇒ F は、恒等射 id<sub>lim F</sub> を通して自分自身から分解する。錐 id<sub>F</sub>·ε = ε を分解する射はただ一つなので、lim(id<sub>F</sub>) = id<sub>lim F</sub> である。</p>
+
+<p>次に合成について。C<sup>J</sup> の合成可能な射の対 α : F ⇒ G, β : G ⇒ H を取る。lim α と lim β の定義から、次の自然変換の図式の二つの四角形は可換である。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 380 270" width="380" role="img" aria-label="lim α と lim β の定義を縦に並べた可換図式">
+  <defs><marker id="d1" viewBox="0 0 10 12" refX="8" refY="6" markerWidth="10" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L8,6 L0,12" fill="none" stroke="currentColor" stroke-width="1.2"/></marker></defs>
+  <text x="110" y="42" text-anchor="middle">Δ(lim F)</text>
+  <text x="300" y="42" text-anchor="middle">F</text>
+  <text x="110" y="142" text-anchor="middle">Δ(lim G)</text>
+  <text x="300" y="142" text-anchor="middle">G</text>
+  <text x="110" y="242" text-anchor="middle">Δ(lim H)</text>
+  <text x="300" y="242" text-anchor="middle">H</text>
+  <line class="dbl-out" x1="160" y1="37" x2="284" y2="37" marker-end="url(#d1)"/>
+  <line class="dbl-in" x1="159" y1="37" x2="281" y2="37"/>
+  <text class="lbl" x="220" y="26" text-anchor="middle">ε</text>
+  <line class="dbl-out" x1="160" y1="137" x2="284" y2="137" marker-end="url(#d1)"/>
+  <line class="dbl-in" x1="159" y1="137" x2="281" y2="137"/>
+  <text class="lbl" x="220" y="126" text-anchor="middle">ε</text>
+  <line class="dbl-out" x1="160" y1="237" x2="284" y2="237" marker-end="url(#d1)"/>
+  <line class="dbl-in" x1="159" y1="237" x2="281" y2="237"/>
+  <text class="lbl" x="220" y="262" text-anchor="middle">ε</text>
+  <line class="dbl-out" x1="110" y1="52" x2="110" y2="118" marker-end="url(#d1)"/>
+  <line class="dbl-in" x1="110" y1="51" x2="110" y2="115"/>
+  <text class="lbl" x="98" y="90" text-anchor="end">Δ(lim α)</text>
+  <line class="dbl-out" x1="110" y1="152" x2="110" y2="218" marker-end="url(#d1)"/>
+  <line class="dbl-in" x1="110" y1="151" x2="110" y2="215"/>
+  <text class="lbl" x="98" y="190" text-anchor="end">Δ(lim β)</text>
+  <line class="dbl-out" x1="300" y1="52" x2="300" y2="118" marker-end="url(#d1)"/>
+  <line class="dbl-in" x1="300" y1="51" x2="300" y2="115"/>
+  <text class="lbl" x="312" y="90" text-anchor="start">α</text>
+  <line class="dbl-out" x1="300" y1="152" x2="300" y2="218" marker-end="url(#d1)"/>
+  <line class="dbl-in" x1="300" y1="151" x2="300" y2="215"/>
+  <text class="lbl" x="312" y="190" text-anchor="start">β</text>
+</svg>
+</figure>
+
+<p>上の四角形は ε·Δ(lim α) = α·ε、下の四角形は ε·Δ(lim β) = β·ε を表す。Δ は関手なので Δ(lim β)·Δ(lim α) = Δ(lim β · lim α) であり、二つの四角形を貼り合わせると</p>
+
+<p style="text-align:center">ε·Δ(lim β · lim α) = β·ε·Δ(lim α) = β·α·ε</p>
+
+<p>が得られる。すなわち lim β · lim α は、頂点 lim F を持つ H 上の錐 β·α·ε を H の極限錐から分解する射である。一方、lim(β·α) は定義により同じ錐を分解する射である。分解する射はただ一つなので lim β · lim α = lim(β·α) となり、極限関手は合成を保つ。<span class="qed">□</span></p>
+
+<h2>例3.3.2 — 弧状連結成分の関手</h2>
+
+<p>関手 Path : Top → Set は、空間 X を X の道の集合 Path(X) := Top(I, X) に送る。一点空間から I への二つの包含 0, 1 : ∗ ⇉ I を前合成すると、空間 X を平行な関数の対</p>
+
+<p style="text-align:center">Path(X) ≅ Top(I, X) ⇉ Top(∗, X) ≅ Point(X)</p>
+
+<p>に送る関手 P : Top → Set<sup>•⇉•</sup> が得られる。二つの関数 ev<sub>0</sub>, ev<sub>1</sub> は、道をその始点と終点に送る。この対の余等化子を取る。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 420 80" width="420" role="img" aria-label="道の始点と終点による余等化子">
+  <defs>
+    <marker id="a2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+    <marker id="e2" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker>
+  </defs>
+  <text x="60" y="47" text-anchor="middle">Path(X)</text>
+  <text x="220" y="47" text-anchor="middle">Point(X)</text>
+  <text x="370" y="47" text-anchor="middle">π<tspan dy="3" font-size="11">0</tspan><tspan dy="-3">X</tspan></text>
+  <line x1="108" y1="36" x2="172" y2="36" marker-end="url(#a2)"/>
+  <text class="lbl" x="140" y="25" text-anchor="middle">ev<tspan dy="3" font-size="10.5">0</tspan></text>
+  <line x1="108" y1="48" x2="172" y2="48" marker-end="url(#a2)"/>
+  <text class="lbl" x="140" y="70" text-anchor="middle">ev<tspan dy="3" font-size="10.5">1</tspan></text>
+  <line x1="268" y1="42" x2="345" y2="42" marker-end="url(#e2)"/>
+</svg>
+</figure>
+
+<p>この余等化子は、X の点の集合を、道で結べる二点を同一視する関係で割った商であり、X の弧状連結成分の集合 π<sub>0</sub>X である。命題3.3.1 の双対により余等化子を取る操作は関手 colim : Set<sup>•⇉•</sup> → Set を定めるので、合成</p>
+
+<p style="text-align:center">π<sub>0</sub> := Top →<sup>P</sup> Set<sup>•⇉•</sup> →<sup>colim</sup> Set</p>
+
+<p>として弧状連結成分の関手が得られる。</p>
+
+<h2>系3.3.3 — 自然同型は極限の同型を誘導する</h2>
+
+<p>命題3.3.1 の構成は、C がその形の極限や余極限をすべて持つかどうかに依存しない。二つの図式の間の自然変換は、両方の極限が存在すればその間の射を誘導し、両方の余極限が存在すればその間の射を誘導する。さらに、自然変換が自然同型なら、誘導される射は同型である。</p>
+
+<div class="thm"><b>系3.3.3.</b> 図式の間の自然同型は、それらの極限の間、あるいは余極限の間に、存在する限り、自然に定まる同型を誘導する。</div>
+
+<p><span class="proof-head">証明.</span> 命題3.3.1 の証明は、C<sup>J</sup> の充満部分圏であって C に極限を持つ関手全体が張るものの上に、極限関手を定義している。自然同型は C<sup>J</sup> の同型なので、この部分圏の同型である。関手は同型を同型に送る（補題1.3.8）ので、極限関手はこの自然同型を極限の間の同型に送る。余極限についても同様である。<span class="qed">□</span></p>
+
+<p>Eilenberg と Mac Lane が自然性の概念を定式化した計算上の主な動機は、この結果を注意深く正しく述べることにあった。当時は極限と余極限の一般論はまだなかったが、[EM45, 21.2] は有向図式の場合の系3.3.3 を証明している。次の二つの例が示すように、系3.3.3 の仮定のうち自然性は外せない。対象ごとの同型では、極限や余極限の同型は得られない。</p>
+
+<h2>例3.3.4 — 対象ごとに同型だが自然に同型でない G-集合</h2>
+
+<p>群 G について、二つの G-集合 X, Y : BG ⇉ Set が対象ごとに同型であるのは、BG の対象がただ一つなので、それらの台集合が同型であるときである。一方、X と Y が自然同型であるのは、G-同変な同型、すなわち各 g ∈ G の作用と可換な全単射 X ≅ Y が存在するときである。後者の条件は前者より強い。</p>
+
+<p>例として G = ℤ/2 を取り、二つの ℤ/2-集合を考える。2 は二元集合に ℤ/2 を自明に作用させたもの、2′ は同じ二元集合に生成元が二つの元を入れ替えるように作用させたものである。関手 Bℤ/2 → Set と見ると、2 と 2′ はどちらも二元集合なので対象ごとに同型である。しかし、生成元の作用は 2 では恒等写像、2′ では互換であり、全単射 φ : 2 → 2′ が作用と可換なら φ = 互換·φ となって φ の像が互換の固定点に入るが、互換は固定点を持たない。したがって 2 と 2′ は自然同型ではない。</p>
+
+<p>関手 X : BG → Set の極限は G-固定点の集合であり（例3.2.10）、余極限は G-軌道の集合である（演習3.6.i）。二つの ℤ/2-集合については次のようになる。</p>
+
+<ul>
+  <li>lim 2 は二元集合、lim 2′ は空集合</li>
+  <li>colim 2 は二元集合、colim 2′ は一点集合</li>
+</ul>
+
+<p>どちらの場合も、2 と 2′ の極限、余極限は同型でない。</p>
+
+<h2>例3.3.5 — 置換と全順序</h2>
+
+<p>有限集合 X に、その置換の集合 Sym(X) と全順序の集合 Ord(X) を対応させる。X が n 元集合なら、どちらも n! 個の元を持つ。これらの対応は、有限集合の間の任意の関数については関手的でないが、全単射については関手的である。全単射 σ : X → Y について、</p>
+
+<ul>
+  <li>Sym : Fin<sub>iso</sub> → Fin は共役で作用する。置換 τ ∈ Sym(X) を στσ<sup>−1</sup> ∈ Sym(Y) に送る</li>
+  <li>Ord : Fin<sub>iso</sub> → Fin は移送で作用する。X 上の全順序を、σ で写した Y 上の全順序に送る</li>
+</ul>
+
+<p>各 X について Sym(X) と Ord(X) は同型だが、この対象ごとの同型は自然ではない。実際、以下で見るように、これらの図式を制限したものの極限や余極限は同型とは限らない。</p>
+
+<p>組合せ論では、関手 F : Fin<sub>iso</sub> → Fin を<b>種</b>（species）と呼ぶ。n 元集合 n の像 F(n) を、n 上の<b>ラベル付き</b> F-構造の集合という。n 上の<b>ラベルなし</b> F-構造の集合は、Fin<sub>iso</sub> を n 元集合 n が張る充満部分圏、すなわち n の自己同型群と見た対称群 S<sub>n</sub> に制限し、次の図式の余極限を取って定義する。</p>
+
+<p style="text-align:center">BS<sub>n</sub> ↪ Fin<sub>iso</sub> →<sup>F</sup> Fin</p>
+
+<p>この余極限は、S<sub>n</sub> が F(n) に作用するときの軌道の集合である。Sym と Ord は対象ごとに同型なので、ラベル付き Sym-構造の集合とラベル付き Ord-構造の集合は同型である。しかしラベルなしの構造は異なる。</p>
+
+<ul>
+  <li>n 上のラベルなし Sym-構造の集合は、S<sub>n</sub> が S<sub>n</sub> に共役で作用するときの軌道の集合、すなわち n 元の置換の共役類の集合である</li>
+  <li>n 上のラベルなし Ord-構造の集合は一点集合である。n 上の任意の二つの全順序は、ある置換で互いに移り合う</li>
+</ul>
+
+<p>n ≥ 2 では恒等置換と互換が異なる共役類に属するので、二つの余極限は同型でない。詳しくは [Joy81] を参照。</p>
+
+<h2>極限の選択についての注意</h2>
+
+<p>選んだ極限や余極限の関手性には、いくつか注意が要る。極限は、存在すれば、極限錐の射と可換な同型を除いて一意である。これは極限が文字どおり一意であることとは違う。極限の普遍性を満たす対象がただ一つしかない場合でも、その対象の自己同型の一つ一つが異なる極限錐を与える。</p>
+
+<p>さらに、命題3.3.1 の極限関手を定めるための極限の選択を、互いに両立するように行えることはまれである。例えば Freyd と Scedrov は、引き戻しを持つ任意の圏において、標準的な引き戻し四角形の「横方向」の合成（演習3.1.vi の意味での合成）が合成した長方形の標準的な引き戻しになるように標準的な引き戻しを選べることを示した。しかし、同時に「縦方向」の合成も標準的な引き戻しになるように選ぶことはできない [FS90, §1.4]。</p>
+
+<p>選んだ極限の対象が等しい場合でも、極限の構成に伴うさまざまな自然同型は恒等射とは限らない。これを見るために、まず次の補題を述べる。</p>
+
+<h2>補題3.3.6 — 積の結合性</h2>
+
+<div class="thm"><b>補題3.3.6.</b> 二項積を持つ圏の任意の対象の三つ組 X, Y, Z について、X, Y, Z への射影と可換な自然同型
+<p style="text-align:center">α<sub>X,Y,Z</sub> : X × (Y × Z) ≅ (X × Y) × Z</p>
+がただ一つ存在する。</div>
+
+<p><span class="proof-head">証明.</span> 演習3.3.ii。<span class="qed">□</span></p>
+
+<p>補題3.3.6 は、積が自然な意味で結合的であることを述べている。したがって、二項積をどのように繰り返しても n 項積が定義できる。しかし、二項積の繰り返しで定まる対象 X × (Y × Z) と (X × Y) × Z が等しい場合、例えば骨格的な圏の中でも、その間の自然同型が恒等射になるとは限らない。α<sub>X,Y,Z</sub> が恒等射になるのは、二つの繰り返し積から X, Y, Z への射影がそれぞれ等しいとき、かつそのときに限る。次の例は Isbell [Isb69] が最初に考え、clingman [cli21] が後に整理したものである。</p>
+
+<h2>例3.3.7 — 結合性の同型が恒等射でない例</h2>
+
+<p>C を可算無限集合とする。Set における C と C の二項積は可算無限なので、頂点 C を持つ積錐を一つ固定できる。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 330 70" width="330" role="img" aria-label="頂点 C を持つ C と C の積錐">
+  <defs><marker id="e3" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker></defs>
+  <text x="40" y="47" text-anchor="middle">C</text>
+  <text x="165" y="47" text-anchor="middle">C</text>
+  <text x="290" y="47" text-anchor="middle">C</text>
+  <line x1="150" y1="42" x2="56" y2="42" marker-end="url(#e3)"/>
+  <text class="lbl" x="103" y="31" text-anchor="middle">π<tspan dy="3" font-size="10.5">1</tspan></text>
+  <line x1="180" y1="42" x2="274" y2="42" marker-end="url(#e3)"/>
+  <text class="lbl" x="227" y="31" text-anchor="middle">π<tspan dy="3" font-size="10.5">2</tspan></text>
+</svg>
+</figure>
+
+<p>射影 π<sub>1</sub>, π<sub>2</sub> はエピ射だが同型ではない。余域の各元上のファイバーが可算無限だからである。恒等射の対 (id<sub>C</sub>, id<sub>C</sub>) は頂点 C の錐をなすので、積の普遍性により π<sub>1</sub>δ = id<sub>C</sub> かつ π<sub>2</sub>δ = id<sub>C</sub> を満たす射 δ : C → C がただ一つ存在する。δ は π<sub>1</sub> と π<sub>2</sub> の共通の切断である。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 330 170" width="330" role="img" aria-label="恒等射の錐が誘導する共通の切断 δ">
+  <defs>
+    <marker id="a4" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+    <marker id="e4" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker>
+  </defs>
+  <text x="165" y="42" text-anchor="middle">C</text>
+  <text x="40" y="147" text-anchor="middle">C</text>
+  <text x="165" y="147" text-anchor="middle">C</text>
+  <text x="290" y="147" text-anchor="middle">C</text>
+  <line x1="152" y1="50" x2="54" y2="130" marker-end="url(#a4)"/>
+  <text class="lbl" x="92" y="82" text-anchor="end">id<tspan dy="3" font-size="10.5">C</tspan></text>
+  <line x1="178" y1="50" x2="276" y2="130" marker-end="url(#a4)"/>
+  <text class="lbl" x="238" y="82" text-anchor="start">id<tspan dy="3" font-size="10.5">C</tspan></text>
+  <line class="dashed" x1="165" y1="52" x2="165" y2="126" marker-end="url(#a4)"/>
+  <text class="lbl" x="173" y="94" text-anchor="start">δ</text>
+  <line x1="150" y1="142" x2="56" y2="142" marker-end="url(#e4)"/>
+  <text class="lbl" x="103" y="165" text-anchor="middle">π<tspan dy="3" font-size="10.5">1</tspan></text>
+  <line x1="180" y1="142" x2="274" y2="142" marker-end="url(#e4)"/>
+  <text class="lbl" x="227" y="165" text-anchor="middle">π<tspan dy="3" font-size="10.5">2</tspan></text>
+</svg>
+</figure>
+
+<p>この二項積錐から、頂点 C を持つ三項積錐が二通りに得られる。C × (C × C) として組むものと、(C × C) × C として組むものである。左・中央・右の C への射影は次のとおり。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 560 160" width="560" role="img" aria-label="二通りの三項積錐">
+  <defs><marker id="e5" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker></defs>
+  <text x="110" y="32" text-anchor="middle">C</text>
+  <text x="170" y="82" text-anchor="middle">C</text>
+  <text x="30" y="142" text-anchor="middle">C</text>
+  <text x="130" y="142" text-anchor="middle">C</text>
+  <text x="230" y="142" text-anchor="middle">C</text>
+  <line x1="100" y1="40" x2="38" y2="124" marker-end="url(#e5)"/>
+  <text class="lbl" x="60" y="78" text-anchor="end">π<tspan dy="3" font-size="10.5">1</tspan></text>
+  <line x1="120" y1="38" x2="160" y2="68" marker-end="url(#e5)"/>
+  <text class="lbl" x="148" y="46" text-anchor="start">π<tspan dy="3" font-size="10.5">2</tspan></text>
+  <line x1="162" y1="88" x2="138" y2="126" marker-end="url(#e5)"/>
+  <text class="lbl" x="143" y="104" text-anchor="end">π<tspan dy="3" font-size="10.5">1</tspan></text>
+  <line x1="178" y1="88" x2="222" y2="126" marker-end="url(#e5)"/>
+  <text class="lbl" x="206" y="104" text-anchor="start">π<tspan dy="3" font-size="10.5">2</tspan></text>
+  <text x="140" y="160" text-anchor="middle" class="lbl">C × (C × C)</text>
+  <text x="450" y="32" text-anchor="middle">C</text>
+  <text x="390" y="82" text-anchor="middle">C</text>
+  <text x="330" y="142" text-anchor="middle">C</text>
+  <text x="430" y="142" text-anchor="middle">C</text>
+  <text x="530" y="142" text-anchor="middle">C</text>
+  <line x1="440" y1="38" x2="400" y2="68" marker-end="url(#e5)"/>
+  <text class="lbl" x="412" y="46" text-anchor="end">π<tspan dy="3" font-size="10.5">1</tspan></text>
+  <line x1="460" y1="40" x2="522" y2="124" marker-end="url(#e5)"/>
+  <text class="lbl" x="500" y="78" text-anchor="start">π<tspan dy="3" font-size="10.5">2</tspan></text>
+  <line x1="382" y1="88" x2="338" y2="126" marker-end="url(#e5)"/>
+  <text class="lbl" x="354" y="104" text-anchor="end">π<tspan dy="3" font-size="10.5">1</tspan></text>
+  <line x1="398" y1="88" x2="422" y2="126" marker-end="url(#e5)"/>
+  <text class="lbl" x="417" y="104" text-anchor="start">π<tspan dy="3" font-size="10.5">2</tspan></text>
+  <text x="430" y="160" text-anchor="middle" class="lbl">(C × C) × C</text>
+</svg>
+</figure>
+
+<p>左の錐の脚は (π<sub>1</sub>, π<sub>1</sub>·π<sub>2</sub>, π<sub>2</sub>·π<sub>2</sub>)、右の錐の脚は (π<sub>1</sub>·π<sub>1</sub>, π<sub>2</sub>·π<sub>1</sub>, π<sub>2</sub>) である。三つの C への射影と可換な左の錐から右の錐への射はただ一つあり、それが α<sub>C,C,C</sub> である。この射が恒等射であるためには、錐の脚がそれぞれ等しいこと、すなわち</p>
+
+<p style="text-align:center">π<sub>1</sub> = π<sub>1</sub>·π<sub>1</sub>,  π<sub>1</sub>·π<sub>2</sub> = π<sub>2</sub>·π<sub>1</sub>,  π<sub>2</sub>·π<sub>2</sub> = π<sub>2</sub></p>
+
+<p>が必要である。第一の等式の両辺に右から δ を合成すると、π<sub>1</sub>δ = id<sub>C</sub> から id<sub>C</sub> = π<sub>1</sub> が得られ、第三の等式から同様に π<sub>2</sub> = id<sub>C</sub> が得られる。ところが恒等射の対 (id<sub>C</sub>, id<sub>C</sub>) は積の普遍性を持たない。C は二つ以上の元を持つので、異なる二つの射 f, g : ∗ → C があり、錐 (f, g) を分解する射 h は h = f かつ h = g を満たさなければならないからである。よって π<sub>1</sub> = π<sub>2</sub> = id<sub>C</sub> は成り立たず、α<sub>C,C,C</sub> は恒等射でない。<sup>11</sup></p>
+
+<p class="fn"><sup>11</sup> clingman は、一般の圏においてこの形の二項積図式を考え、誘導される射 C × (C × C) → (C × C) × C が恒等射であることと、関手 C(−, C) が部分終対象であること、すなわち任意の対象 X について X から C への射が高々一つであることが同値であることを証明している [cli21, 3.1]。</p>
+
+<h2>節末問題</h2>
+
+<p class="note">原文は英語。以下は和訳・言い換え。</p>
+
+<ul>
+  <li><b>3.3.i</b> — C を二項積を持つ圏とする。命題3.3.1 を特殊化して、積の双関手 − × − : C × C → C を定義せよ。C の射の対 f : A → B, g : C → D が、次の図のように積の射影と可換な射 f × g : A × C → B × D を誘導することを説明せよ。
+  <figure class="cd">
+  <svg class="cd" viewBox="0 0 400 180" width="400" role="img" aria-label="f × g と積の射影の可換性">
+    <defs><marker id="a6" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+    <text x="50" y="42" text-anchor="middle">A</text>
+    <text x="200" y="42" text-anchor="middle">A × C</text>
+    <text x="350" y="42" text-anchor="middle">C</text>
+    <text x="50" y="152" text-anchor="middle">B</text>
+    <text x="200" y="152" text-anchor="middle">B × D</text>
+    <text x="350" y="152" text-anchor="middle">D</text>
+    <line x1="170" y1="37" x2="66" y2="37" marker-end="url(#a6)"/>
+    <text class="lbl" x="118" y="26" text-anchor="middle">π<tspan dy="3" font-size="10.5">A</tspan></text>
+    <line x1="230" y1="37" x2="334" y2="37" marker-end="url(#a6)"/>
+    <text class="lbl" x="282" y="26" text-anchor="middle">π<tspan dy="3" font-size="10.5">C</tspan></text>
+    <line x1="170" y1="147" x2="66" y2="147" marker-end="url(#a6)"/>
+    <text class="lbl" x="118" y="170" text-anchor="middle">π<tspan dy="3" font-size="10.5">B</tspan></text>
+    <line x1="230" y1="147" x2="334" y2="147" marker-end="url(#a6)"/>
+    <text class="lbl" x="282" y="170" text-anchor="middle">π<tspan dy="3" font-size="10.5">D</tspan></text>
+    <line x1="50" y1="52" x2="50" y2="130" marker-end="url(#a6)"/>
+    <text class="lbl" x="40" y="96" text-anchor="end">f</text>
+    <line x1="200" y1="52" x2="200" y2="130" marker-end="url(#a6)"/>
+    <text class="lbl" x="208" y="96" text-anchor="start">f × g</text>
+    <line x1="350" y1="52" x2="350" y2="130" marker-end="url(#a6)"/>
+    <text class="lbl" x="360" y="96" text-anchor="start">g</text>
+  </svg>
+  </figure>
+  さらに、次の図式が可換であることを示せ。
+  <figure class="cd">
+  <svg class="cd" viewBox="0 0 340 180" width="340" role="img" aria-label="A × g, f × C, f × g, B × g, f × D の可換図式">
+    <defs><marker id="a7" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+    <text x="70" y="42" text-anchor="middle">A × C</text>
+    <text x="270" y="42" text-anchor="middle">A × D</text>
+    <text x="70" y="152" text-anchor="middle">B × C</text>
+    <text x="270" y="152" text-anchor="middle">B × D</text>
+    <line x1="102" y1="37" x2="236" y2="37" marker-end="url(#a7)"/>
+    <text class="lbl" x="170" y="26" text-anchor="middle">A × g</text>
+    <line x1="102" y1="147" x2="236" y2="147" marker-end="url(#a7)"/>
+    <text class="lbl" x="170" y="170" text-anchor="middle">B × g</text>
+    <line x1="70" y1="52" x2="70" y2="130" marker-end="url(#a7)"/>
+    <text class="lbl" x="60" y="96" text-anchor="end">f × C</text>
+    <line x1="270" y1="52" x2="270" y2="130" marker-end="url(#a7)"/>
+    <text class="lbl" x="280" y="96" text-anchor="start">f × D</text>
+    <line x1="100" y1="54" x2="240" y2="130" marker-end="url(#a7)"/>
+    <text class="lbl" x="178" y="82" text-anchor="start">f × g</text>
+  </svg>
+  </figure></li>
+  <li><b>3.3.ii</b> — 補題3.3.6 を証明せよ。さらに、任意の四つの対象 W, X, Y, Z について、それらの二項積の繰り返しの間で、補題3.3.6 のただ一つの自然同型たちが次の可換図式をなすことを示せ。
+  <figure class="cd">
+  <svg class="cd" viewBox="0 0 640 210" width="640" role="img" aria-label="四つの対象の繰り返し積の間の結合性の五角形">
+    <defs><marker id="a8" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+    <text x="320" y="32" text-anchor="middle">(W × X) × (Y × Z)</text>
+    <text x="80" y="102" text-anchor="middle">W × (X × (Y × Z))</text>
+    <text x="560" y="102" text-anchor="middle">((W × X) × Y) × Z</text>
+    <text x="200" y="182" text-anchor="middle">W × ((X × Y) × Z)</text>
+    <text x="440" y="182" text-anchor="middle">(W × (X × Y)) × Z</text>
+    <line x1="110" y1="86" x2="248" y2="36" marker-end="url(#a8)"/>
+    <text class="lbl" x="170" y="50" text-anchor="end">α<tspan dy="3" font-size="10.5">W,X,Y×Z</tspan></text>
+    <line x1="392" y1="36" x2="530" y2="86" marker-end="url(#a8)"/>
+    <text class="lbl" x="470" y="50" text-anchor="start">α<tspan dy="3" font-size="10.5">W×X,Y,Z</tspan></text>
+    <line x1="100" y1="112" x2="170" y2="164" marker-end="url(#a8)"/>
+    <text class="lbl" x="124" y="152" text-anchor="end">W × α<tspan dy="3" font-size="10.5">X,Y,Z</tspan></text>
+    <line x1="275" y1="177" x2="365" y2="177" marker-end="url(#a8)"/>
+    <text class="lbl" x="320" y="202" text-anchor="middle">α<tspan dy="3" font-size="10.5">W,X×Y,Z</tspan></text>
+    <line x1="470" y1="164" x2="540" y2="112" marker-end="url(#a8)"/>
+    <text class="lbl" x="516" y="152" text-anchor="start">α<tspan dy="3" font-size="10.5">W,X,Y</tspan><tspan dy="-3"> × Z</tspan></text>
+  </svg>
+  </figure></li>
+</ul>
+
+</body>
+</html>
