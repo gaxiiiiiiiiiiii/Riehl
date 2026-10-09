@@ -404,6 +404,8 @@ theorem lemma_3_4_5 (F : C ⥤ D) [F.Full] [F.Faithful] (K : J ⥤ C) :
 #check Cone.functorialityEquivalence
 #check Functor.mapConeInv
 
+#print CategoryTheory.Equivalence
+
 noncomputable def coneEquivalence (F : C ⥤ D) [F.IsEquivalence] (K : J ⥤ C) :
     Cone K ≌ Cone (K ⋙ F) where
   functor := {
@@ -519,16 +521,36 @@ noncomputable def coneEquivalence (F : C ⥤ D) [F.IsEquivalence] (K : J ⥤ C) 
           simp only [Functor.const_obj_obj, Lean.Elab.WF.paramLet, Cone.extend_pt, Cone.extend_π,
             NatTrans.comp_app, Functor.comp_obj, Functor.const_map_app, Functor.mapCone_pt,
             Functor.id_obj]
-          exact (F.objObjPreimageIso ( s.pt)).hom
+          exact (F.objObjPreimageIso (s.pt)).hom
         w := by simp
       }
       naturality {s t} f := by ext; simp
     }
-    inv := _
-    hom_inv_id := _
-    inv_hom_id := _
+    inv := {
+      app s := by
+        simp only [Functor.id_obj, Functor.const_obj_obj, Lean.Elab.WF.paramLet, Cone.extend_pt,
+          Cone.extend_π, NatTrans.comp_app, Functor.comp_obj, Functor.const_map_app]
+        refine {
+          hom := by
+            simp only [Functor.mapCone_pt]
+            exact (F.objObjPreimageIso (s.pt)).inv
+        }
+      naturality {s t} f:= by
+        ext; simp only [Functor.id_obj, Functor.const_obj_obj, Lean.Elab.WF.paramLet,
+          Cone.extend_pt, Cone.extend_π, NatTrans.comp_app, Functor.comp_obj, Functor.const_map_app,
+          Functor.mapCone_pt, Functor.id_map, id_eq, Cone.category_comp_hom, Functor.comp_map,
+          Functor.map_preimage, Iso.inv_hom_id_assoc]
+    }
+    hom_inv_id := by ext s; simp
+    inv_hom_id := by ext s; simp
   }
-  functor_unitIso_comp := sorry
+  functor_unitIso_comp s := by
+    -- Lean.Elab.WF.paramLet
+    ext; simp only [Functor.mapCone_pt, Functor.const_obj_obj, Lean.Elab.WF.paramLet,
+      Cone.extend_pt, Cone.extend_π, NatTrans.comp_app, Functor.comp_obj, Functor.const_map_app,
+      Functor.mapCone_π_app, Functor.id_obj, eq_mpr_eq_cast, cast_eq, Functor.map_preimage, id_eq,
+      Cone.category_comp_hom, Iso.inv_hom_id, Cone.category_id_hom]
+
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 補題3.4.6
@@ -537,38 +559,34 @@ noncomputable def coneEquivalence (F : C ⥤ D) [F.IsEquivalence] (K : J ⥤ C) 
 
 #check Adjunction.isEquivalencePreservesLimits
 
+-- Functor.mapConeInv
 theorem lemma_3_4_6_preserves (F : C ⥤ D) [F.IsEquivalence] (K : J ⥤ C) :
     PreservesLimit K F where
   preserves {c} Hc := ⟨{
     lift μ := by
       simp only [Functor.mapCone_pt]
       let f := F.objObjPreimageIso μ.pt
-      -- let μf : Cone (K ⋙ F) := {
-      --   pt := F.obj (F.objPreimage μ.pt)
-      --   π := (Functor.const J).map f.hom ≫ μ.π
-      -- }
-      let μf := μ.extend f.hom
-      #check Functor.mapConeInv F μ
-
-
-      let ν : Cone K := {
-        pt := F.objPreimage μ.pt
-        π := {
-          app j := F.preimage (μf.π.app j)
-          naturality {i j} g := by
-            simp only [Functor.const_obj_obj, Functor.const_obj_map, Category.id_comp]
-            simp only [NatTrans.comp_app, Functor.const_obj_obj, Functor.comp_obj,
-              Functor.const_map_app, μf]
-            apply F.map_injective
-            rw [F.map_comp, F.map_preimage, F.map_preimage]
-            rw [<- Functor.comp_map, Category.assoc, <- μ.π.naturality]
-            simp
-        }
-      }
-      apply f.inv ≫ F.map (Hc.lift ν)
-    fac := by
-
-    uniq := sorry
+      let ν := F.mapConeInv μ
+      exact f.inv ≫ F.map (Hc.lift ν)
+    fac s i := by
+      simp only [Functor.comp_obj, Functor.mapCone_pt, id_eq, Functor.mapCone_π_app, Category.assoc]
+      erw [<- F.map_comp, Hc.fac]
+      conv => arg 1; arg 2; change (F.mapCone (F.mapConeInv s)).π.app i
+      rw [<- (K.mapConeMapConeInv F s).hom.w i]
+      conv => arg 1; arg 2; arg 1; change (F.objObjPreimageIso s.pt).hom
+      erw [Iso.inv_hom_id_assoc]
+    uniq s m w := by
+      simp only [Functor.mapCone_pt, id_eq]
+      let m' : (F.mapConeInv s).pt ⟶ c.pt := F.preimage ((F.objObjPreimageIso s.pt).hom ≫ m)
+      rw [<- Hc.uniq (F.mapConeInv s) m']<;> simp only [m']<;> clear m'
+      · erw [F.map_preimage, Iso.inv_hom_id_assoc]
+      · intro i
+        apply F.map_injective
+        erw [F.map_comp, F.map_preimage]
+        erw [Category.assoc, w i]
+        conv => arg 2; change (F.mapCone (F.mapConeInv s)).π.app i
+        rw [<- (K.mapConeMapConeInv F s).hom.w i]
+        rfl
   }⟩
 
 #check Functor.reflectsLimits_of_isEquivalence
@@ -578,9 +596,16 @@ theorem lemma_3_4_6_reflects (F : C ⥤ D) [F.IsEquivalence] (K : J ⥤ C) :
 
 #check Functor.createsLimitsOfIsEquivalence
 #print CreatesLimit
-noncomputable def lemma_3_4_6_creates (F : C ⥤ D) [F.IsEquivalence] (K : J ⥤ C) :
-    CreatesLimit K F := by
-  #check CreatesLimit.mk
+noncomputable instance lemma_3_4_6_creates (F : C ⥤ D) [F.IsEquivalence] (K : J ⥤ C) :
+    CreatesLimit K F where
+  lifts c _ := {
+    liftedCone := F.mapConeInv c
+    validLift := K.mapConeMapConeInv F c
+  }
+
+
+
+
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 定義3.4.7
