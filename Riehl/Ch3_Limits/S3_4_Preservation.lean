@@ -51,8 +51,12 @@ statement の直前の `#check`・`#print` にある。
                 余極限と演習3.4.i・3.4.ii の余極限は双対ではない主張なので置く
   定義3.4.7     厳密な創出は、錐の等式 `F.mapCone c = d` で「持ち上げ」を述べる。本の
                 「邪悪な」厳密化は、同型ではなく等式で持ち上げを述べることにあたる。Mathlib
-                に対応物なし。命題3.4.8 の余極限側のために双対 `MyStrictlyCreatesColimit`
-                も置く
+                に対応物なし。形は Mathlib の `LiftsToLimit`・`CreatesLimit` に合わせ、
+                持ち上げの中身を `MyStrictLift`（`validLift` を `≅` から `=` に替え、
+                `unique` を足したもの）に束ね、`MyStrictlyCreatesLimit` はそれを返す
+                `lifts` 1 本とする。Mathlib と同じく Prop ではなくデータなので、これを
+                結論とする主張は `theorem` でなく `noncomputable def` になる。命題3.4.8
+                の余極限側のために双対 `MyStrictlyCreatesColimit` も置く
   連結な圏      本の定義（空でなく、任意の二対象が射の有限のジグザグで結ばれる）を
                 `MyIsConnected` として置く。ジグザグは一歩の関係 `myZag` の反射推移閉包
                 `Relation.ReflTransGen` で書く。Mathlib の `IsConnected` は「射で不変な関数
@@ -614,14 +618,25 @@ noncomputable instance lemma_3_4_6_creates (F : C ⥤ D) [F.IsEquivalence] (K : 
 -- K 上の錐への持ち上げがただ一つ存在し、しかもその持ち上げが C の極限錐であることをいう。
 -- 余極限についても双対的に定める。
 
-class MyStrictlyCreatesLimit (K : J ⥤ C) (F : C ⥤ D) : Prop where
-  lift : ∀ d : Cone (K ⋙ F), IsLimit d → ∃! c : Cone K, F.mapCone c = d
-  isLimit : ∀ d : Cone (K ⋙ F), IsLimit d → ∀ c : Cone K, F.mapCone c = d → Nonempty (IsLimit c)
+#print LiftsToLimit
 
-class MyStrictlyCreatesColimit (K : J ⥤ C) (F : C ⥤ D) : Prop where
-  lift : ∀ d : Cocone (K ⋙ F), IsColimit d → ∃! c : Cocone K, F.mapCocone c = d
-  isColimit : ∀ d : Cocone (K ⋙ F), IsColimit d →
-    ∀ c : Cocone K, F.mapCocone c = d → Nonempty (IsColimit c)
+structure MyStrictLift (K : J ⥤ C) (F : C ⥤ D) (d : Cone (K ⋙ F)) where
+  liftedCone : Cone K
+  validLift : F.mapCone liftedCone = d
+  unique : ∀ c : Cone K, F.mapCone c = d → c = liftedCone
+  makesLimit : IsLimit liftedCone
+
+class MyStrictlyCreatesLimit (K : J ⥤ C) (F : C ⥤ D) where
+  lifts : ∀ d : Cone (K ⋙ F), IsLimit d → MyStrictLift K F d
+
+structure MyStrictColift (K : J ⥤ C) (F : C ⥤ D) (d : Cocone (K ⋙ F)) where
+  liftedCocone : Cocone K
+  validLift : F.mapCocone liftedCocone = d
+  unique : ∀ c : Cocone K, F.mapCocone c = d → c = liftedCocone
+  makesColimit : IsColimit liftedCocone
+
+class MyStrictlyCreatesColimit (K : J ⥤ C) (F : C ⥤ D) where
+  lifts : ∀ d : Cocone (K ⋙ F), IsColimit d → MyStrictColift K F d
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 連結な圏（定義3.4.7 の後）
@@ -629,8 +644,9 @@ class MyStrictlyCreatesColimit (K : J ⥤ C) (F : C ⥤ D) : Prop where
 -- 圏 J が連結であるとは、J が空でなく、任意の二つの対象が射の有限のジグザグで結ばれること。
 -- 図式が連結であるとは、その添字圏が連結であること。
 
-def myZag (j k : J) : Prop := Nonempty (j ⟶ k) ∨ Nonempty (k ⟶ j)
+#print Relation.ReflTransGen
 
+def myZag (j k : J) : Prop := Nonempty (j ⟶ k) ∨ Nonempty (k ⟶ j)
 class MyIsConnected (J : Type v) [SmallCategory J] : Prop where
   nonempty : Nonempty J
   zigzag : ∀ j k : J, Relation.ReflTransGen myZag j k
@@ -638,7 +654,59 @@ class MyIsConnected (J : Type v) [SmallCategory J] : Prop where
 #print IsConnected
 #print IsPreconnected
 
-theorem myIsConnected_iff : MyIsConnected J ↔ IsConnected J := sorry
+theorem myIsConnected_iff : MyIsConnected J ↔ IsConnected J where
+mp H := by
+  rcases H with ⟨HJ, H⟩
+  refine {
+    is_nonempty := HJ
+    toIsPreconnected := {
+      iso_constant {X} F i := ⟨by
+        apply NatIso.ofComponents ?_ ?_
+        · intro j; simp only [Functor.const_obj_obj]
+          have E : F.obj i = F.obj j := by {
+            induction H i j with
+            | refl  => rfl
+            | @tail  a b H' H IH =>
+              rw [IH]
+              rcases H with ⟨⟨f⟩⟩ | ⟨⟨f⟩⟩<;>ext
+              · exact Discrete.eq_of_hom (F.map f)
+              · exact (Discrete.eq_of_hom (F.map f)).symm
+          }
+          rw [E]
+        · intro _ _ _
+          exact Subsingleton.elim _ _
+      ⟩
+    }
+  }
+mpr H := {
+  nonempty := H.is_nonempty
+  zigzag := by
+    let F : J ⥤ Discrete  (Quot (Relation.ReflTransGen myZag)) := {
+      obj j := ⟨Quot.mk (Relation.ReflTransGen myZag) j⟩
+      map {i j} f := {
+        eq := by
+          simp only
+          apply Quot.sound
+          apply Relation.ReflTransGen.tail; swap
+          · left; exact ⟨f⟩
+          · constructor
+      }
+    }
+    intro i j
+    let σ := (H.iso_constant F i).some.hom.app j
+    simp only [Functor.const_obj_obj, F] at σ
+    rcases σ with ⟨E⟩; simp only at E
+    rw [Quot.eq] at E
+    have hz : Std.Symm (@myZag J _) := ⟨fun _ _ h => h.symm⟩
+    have hs : Std.Symm (Relation.ReflTransGen (@myZag J _)) := Relation.ReflTransGen.stdSymm
+    induction E with
+    | rel _ _ h => exact hs.symm _ _ h
+    | refl _ => exact Relation.ReflTransGen.refl
+    | symm _ _ _ ih => exact hs.symm _ _ ih
+    | trans _ _ _ _ _ ih₁ ih₂ => exact ih₂.trans ih₁
+}
+
+
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 命題3.4.8
@@ -659,12 +727,12 @@ theorem myIsConnected_iff : MyIsConnected J ↔ IsConnected J := sorry
 
 #check StructuredArrow.createsLimitsOfShape
 
-theorem prop_3_4_8_limits (c : C) (K : J ⥤ Under c) :
+noncomputable def prop_3_4_8_limits (c : C) (K : J ⥤ Under c) :
     MyStrictlyCreatesLimit K (Under.forget c) := sorry
 
 #check Under.createsColimitsOfShapeForgetOfIsConnected
 
-theorem prop_3_4_8_colimits [MyIsConnected J] (c : C) (K : J ⥤ Under c) :
+noncomputable def prop_3_4_8_colimits [MyIsConnected J] (c : C) (K : J ⥤ Under c) :
     MyStrictlyCreatesColimit K (Under.forget c) := sorry
 
 #check Comma.hasLimitsOfShape
@@ -698,7 +766,7 @@ def myEv (A : Type v) [SmallCategory A] (C : Type u) [Category.{v} C] :
   obj G := myObIncl A ⋙ G
   map α := Functor.whiskerLeft (myObIncl A) α
 
-theorem prop_3_4_9 (A : Type v) [SmallCategory A] (K : J ⥤ (A ⥤ C)) :
+noncomputable def prop_3_4_9 (A : Type v) [SmallCategory A] (K : J ⥤ (A ⥤ C)) :
     MyStrictlyCreatesLimit K (myEv A C) := sorry
 
 #check functorCategoryHasLimitsOfShape
@@ -742,11 +810,11 @@ theorem ex_3_4_i_ii (K : J ⥤ C) (F : C ⥤ D) [HasColimit K] [HasColimit (K �
 厳密に創出し、(ii) C が持つすべての連結な余極限を厳密に創出する。
 -/
 
-theorem ex_3_4_ii_i (F : C ⥤ Type v) (K : J ⥤ F.Elements)
+noncomputable def ex_3_4_ii_i (F : C ⥤ Type v) (K : J ⥤ F.Elements)
     [HasLimit (K ⋙ Functor.Elements.π F)] [PreservesLimit (K ⋙ Functor.Elements.π F) F] :
     MyStrictlyCreatesLimit K (Functor.Elements.π F) := sorry
 
-theorem ex_3_4_ii_ii [MyIsConnected J] (F : C ⥤ Type v) (K : J ⥤ F.Elements) :
+noncomputable def ex_3_4_ii_ii [MyIsConnected J] (F : C ⥤ Type v) (K : J ⥤ F.Elements) :
     MyStrictlyCreatesColimit K (Functor.Elements.π F) := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
