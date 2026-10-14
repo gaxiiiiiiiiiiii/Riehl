@@ -65,7 +65,8 @@ statement の直前の `#check`・`#print` にある。
   命題3.4.8     c/C（演習1.1.iii）は Mathlib の `Under c`、忘却関手は `Under.forget c`。
                 `Under c` はコンマ圏 `Comma (Functor.fromPUnit c) (𝟭 C)` で、本の c/C に空の
                 `left` 成分が付いた形。既知の定義なので、使う直前に `#print` で包装を見せる。
-                strict な創出の 2 本と、「したがって c/C は極限・連結な余極限を持つ」の 2 本に
+                忘却関手は `myUnderForget` として組み直す演習を置くが、statement は
+                `Under.forget c` で書く。strict な創出の 2 本と、「したがって c/C は極限・連結な余極限を持つ」の 2 本に
                 割る
   命題3.4.9     ob A ↪ A を `myObIncl`（`Discrete A ⥤ A`）、忘却関手 ev を `myEv`（`myObIncl`
                 との前合成）として組む。どちらも義務が自動で閉じるので書き切って渡す。
@@ -138,9 +139,6 @@ variable {J : Type v} [SmallCategory J] {C : Type u} [Category.{v} C]
 関手 F : C → D は、図式 K 上の錐 λ : Δc ⇒ K を、whiskering によって FK 上の錐
 Fλ : ΔFc ⇒ FK に送る。Fλ の脚は Fλ_j である。FK の極限が存在するとき、Fλ を FK の極限錐
 から分解する comparison map κ : F lim K → lim FK がある。余極限についても双対的に余錐の像がある。
-
-構成: 錐の像を組み、それが錐の圏の間の関手をなすことを示し、余錐の像を組み、comparison map κ を
-      組む。
 -/
 
 #print Functor.mapCone
@@ -712,11 +710,9 @@ mpr H := {
 -- 命題3.4.8
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 /-
-任意の対象 c ∈ C について、忘却関手 Π : c/C → C は極限と連結な余極限を厳密に創出する。
-したがって c/C は、C が持つ任意の極限と連結な余極限を持つ。
-
-構成: Π が極限を厳密に創出することと、連結な余極限を厳密に創出することを示す。そこから c/C
-      が極限を持つことと、連結な余極限を持つことを示す。
+任意の対象 c ∈ C について、忘却関手 Π : c/C → C は、すべての極限を厳密に創出し、添字圏が
+連結な図式の余極限も厳密に創出する。したがって、C が持つ極限は c/C も持ち、C が持つ連結な
+図式の余極限は c/C も持つ。
 -/
 
 #print Under
@@ -724,6 +720,18 @@ mpr H := {
 #print Comma
 #print CommaMorphism
 #print Under.forget
+
+-- 忘却関手 Π : c/C → C を自分で組む。射 f : c → x をその終域 x に送る。
+def myUnderForget (c : C) : Under c ⥤ C where
+  obj f := f.right
+  map {x y} f := f.right
+  map_id x := by simp
+  map_comp {x y z} f g := by simp
+
+
+
+
+
 
 #check StructuredArrow.createsLimitsOfShape
 
@@ -791,7 +799,6 @@ theorem prop_3_4_9_ii (A : Type v) [SmallCategory A] [HasLimitsOfShape J C] (a :
 標準的な射 κ : colim FK → F colim K が定まり、F が K の余極限を保存するのはこの射が同型で
 あるとき、かつそのときに限る。
 
-構成: κ を組み、保存と κ が同型であることの同値を示す。
 -/
 
 noncomputable def ex_3_4_i_i (K : J ⥤ C) (F : C ⥤ D) [HasColimit K] [HasColimit (K ⋙ F)] :
@@ -848,8 +855,6 @@ theorem ex_3_4_iv_top :
 創出する。すなわち図式 F : J → ∏ C_i の各成分 π_k F が極限を持てば、それらが F の極限の
 成分を定める。したがって、各成分が空でないとき、積の圏が極限を持つのは各成分が持つとき、
 かつそのときに限る。
-
-構成: (i) を示す。(ii) の錐を組み、極限錐であることを示す。最後に同値を示す。
 -/
 
 section
@@ -877,9 +882,6 @@ end
 レトラクト B →s A →r B, rs = id_B が A 上の分裂冪等射 sr を定めるとき、(i) B →s A ⇉ A
 （id_A と sr）は等化子図式、A ⇉ A →r B は余等化子図式であり、(iii) これらの極限・余極限は
 任意の関手で保存される。
-
-構成: 等化子図式の条件式を示し、極限錐であることを示す。余等化子図式について同じことを示す。
-      最後に、任意の関手がこの等化子と余等化子を保存することを示す。
 -/
 
 section
