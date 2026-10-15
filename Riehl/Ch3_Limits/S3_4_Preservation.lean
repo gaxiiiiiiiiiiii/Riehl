@@ -54,7 +54,9 @@ statement の直前の `#check`・`#print` にある。
                 に対応物なし。形は Mathlib の `LiftsToLimit`・`CreatesLimit` に合わせ、
                 持ち上げの中身を `MyStrictLift`（`validLift` を `≅` から `=` に替え、
                 `unique` を足したもの）に束ね、`MyStrictlyCreatesLimit` はそれを返す
-                `lifts` 1 本とする。Mathlib と同じく Prop ではなくデータなので、これを
+                `lifts` 1 本とする。引数は本の熟語「F が K の極限を厳密に創出する」の順で
+                F を先に置き、Mathlib の `CreatesLimit K F` とは逆になる。Mathlib と同じく
+                Prop ではなくデータなので、これを
                 結論とする主張は `theorem` でなく `noncomputable def` になる。命題3.4.8
                 の余極限側のために双対 `MyStrictlyCreatesColimit` も置く
   連結な圏      本の定義（空でなく、任意の二対象が射の有限のジグザグで結ばれる）を
@@ -621,23 +623,23 @@ noncomputable instance lemma_3_4_6_creates (F : C ⥤ D) [F.IsEquivalence] (K : 
 
 #print LiftsToLimit
 
-structure MyStrictLift (K : J ⥤ C) (F : C ⥤ D) (d : Cone (K ⋙ F)) where
+structure MyStrictLift (F : C ⥤ D) (K : J ⥤ C) (d : Cone (K ⋙ F)) where
   liftedCone : Cone K
   validLift : F.mapCone liftedCone = d
   unique : ∀ c : Cone K, F.mapCone c = d → c = liftedCone
   makesLimit : IsLimit liftedCone
 
-class MyStrictlyCreatesLimit (K : J ⥤ C) (F : C ⥤ D) where
-  lifts : ∀ d : Cone (K ⋙ F), IsLimit d → MyStrictLift K F d
+class MyStrictlyCreatesLimit (F : C ⥤ D) (K : J ⥤ C) where
+  lifts : ∀ d : Cone (K ⋙ F), IsLimit d → MyStrictLift F K d
 
-structure MyStrictColift (K : J ⥤ C) (F : C ⥤ D) (d : Cocone (K ⋙ F)) where
+structure MyStrictColift (F : C ⥤ D) (K : J ⥤ C) (d : Cocone (K ⋙ F)) where
   liftedCocone : Cocone K
   validLift : F.mapCocone liftedCocone = d
   unique : ∀ c : Cocone K, F.mapCocone c = d → c = liftedCocone
   makesColimit : IsColimit liftedCocone
 
-class MyStrictlyCreatesColimit (K : J ⥤ C) (F : C ⥤ D) where
-  lifts : ∀ d : Cocone (K ⋙ F), IsColimit d → MyStrictColift K F d
+class MyStrictlyCreatesColimit (F : C ⥤ D) (K : J ⥤ C) where
+  lifts : ∀ d : Cocone (K ⋙ F), IsColimit d → MyStrictColift F K d
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 連結な圏（定義3.4.7 の後）
@@ -735,12 +737,12 @@ def myUnderForget (c : C) : Under c ⥤ C where
 #check StructuredArrow.createsLimitsOfShape
 
 noncomputable def prop_3_4_8_limits (c : C) (K : J ⥤ Under c) :
-    MyStrictlyCreatesLimit K (Under.forget c) := sorry
+    MyStrictlyCreatesLimit (Under.forget c) K := sorry
 
 #check Under.createsColimitsOfShapeForgetOfIsConnected
 
 noncomputable def prop_3_4_8_colimits [MyIsConnected J] (c : C) (K : J ⥤ Under c) :
-    MyStrictlyCreatesColimit K (Under.forget c) := sorry
+    MyStrictlyCreatesColimit (Under.forget c) K := sorry
 
 #check Comma.hasLimitsOfShape
 
@@ -774,7 +776,7 @@ def myEv (A : Type v) [SmallCategory A] (C : Type u) [Category.{v} C] :
   map α := Functor.whiskerLeft (myObIncl A) α
 
 noncomputable def prop_3_4_9 (A : Type v) [SmallCategory A] (K : J ⥤ (A ⥤ C)) :
-    MyStrictlyCreatesLimit K (myEv A C) := sorry
+    MyStrictlyCreatesLimit (myEv A C) K := sorry
 
 #check functorCategoryHasLimitsOfShape
 
@@ -818,10 +820,10 @@ theorem ex_3_4_i_ii (K : J ⥤ C) (F : C ⥤ D) [HasColimit K] [HasColimit (K �
 
 noncomputable def ex_3_4_ii_i (F : C ⥤ Type v) (K : J ⥤ F.Elements)
     [HasLimit (K ⋙ Functor.Elements.π F)] [PreservesLimit (K ⋙ Functor.Elements.π F) F] :
-    MyStrictlyCreatesLimit K (Functor.Elements.π F) := sorry
+    MyStrictlyCreatesLimit (Functor.Elements.π F) K := sorry
 
 noncomputable def ex_3_4_ii_ii [MyIsConnected J] (F : C ⥤ Type v) (K : J ⥤ F.Elements) :
-    MyStrictlyCreatesColimit K (Functor.Elements.π F) := sorry
+    MyStrictlyCreatesColimit (Functor.Elements.π F) K := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 演習3.4.iii
