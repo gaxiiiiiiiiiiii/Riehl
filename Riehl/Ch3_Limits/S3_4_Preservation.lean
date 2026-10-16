@@ -66,8 +66,10 @@ statement の直前の `#check`・`#print` にある。
                 `Under c` はコンマ圏 `Comma (Functor.fromPUnit c) (𝟭 C)` で、本の c/C に空の
                 `left` 成分が付いた形。既知の定義なので、使う直前に `#print` で包装を見せる。
                 忘却関手は `myUnderForget` として組み直す演習を置くが、statement は
-                `Under.forget c` で書く。strict な創出の 2 本と、「したがって c/C は極限・連結な余極限を持つ」の 2 本に
-                割る
+                `Under.forget c` で書く。証明で使う Π の上の錐 `Under.forgetCone` と錐の
+                引き戻し `Cone.whisker` も `myUnderForgetCone`・`myConeWhisker` として組む
+                演習を置く。strict な創出の 2 本と、「したがって c/C は極限・連結な余極限を
+                持つ」の 2 本に割る
   命題3.4.9     ob A ↪ A を `myObIncl`（`Discrete A ⥤ A`）、忘却関手 ev を `myEv`（`myObIncl`
                 との前合成）として組む。どちらも義務が自動で閉じるので書き切って渡す。
                 Mathlib に ev の名前の付いた対応物はない（`Functor.whiskeringLeft` の特殊化）
@@ -731,11 +733,124 @@ def myUnderForget (c : C) : Under c ⥤ C where
   map_id x := by simp
   map_comp {x y z} f g := by simp
 
+#check Under.forgetCone
+
+-- 頂点 c、脚が各対象 f : c → x の f 自身である、Π の上の錐。
+def myUnderForgetCone (c : C) : Cone (Under.forget c) where
+  pt := c
+  π := {
+    app i := i.hom
+    naturality {f g} F:= by simp
+  }
+
+#check Cone.whisker
+
+-- 錐 s : Cone K を関手 E : J' → J で引き戻した錐。
+def myConeWhisker {J' : Type v} [SmallCategory J'] {K : J ⥤ C} (E : J' ⥤ J) (s : Cone K) :
+    Cone (E ⋙ K) where
+  pt := s.pt
+  π := Functor.whiskerLeft E s.π
+
+
+
+
 
 #check StructuredArrow.createsLimitsOfShape
 
-noncomputable def prop_3_4_8_limits (c : C) (K : J ⥤ Under c) :
-    MyStrictlyCreatesLimit K (Under.forget c) := sorry
+noncomputable instance prop_3_4_8_limits (c : C) (K : J ⥤ Under c) :
+    MyStrictlyCreatesLimit K (Under.forget c) where
+  lifts d H := {
+    liftedCone := {
+      pt := {
+        left := ⟨PUnit.unit⟩
+        right := d.pt
+        hom := H.lift ((Under.forgetCone c).whisker K)
+      }
+      π := {
+        app i := {
+          left := 𝟙 _
+          right := d.π.app i
+          w := by
+            simp only [Functor.const_obj_obj, Functor.id_obj, Discrete.functor_map_id,
+              Category.id_comp]
+            erw [Functor.id_map, H.fac]; simp
+        }
+        naturality {i j} f:= by
+          ext; simp only [Functor.const_obj_obj, Functor.const_obj_map]
+          erw [Under.comp_right, Under.comp_right]; simp only [Under.id_right, Category.id_comp]
+          simp only [Under.Hom.right]
+          erw [<- d.π.naturality f]
+          simp only [Functor.const_obj_obj, Functor.comp_obj, Under.forget_obj,
+            Functor.const_obj_map]
+          erw [Category.id_comp]
+      }
+
+
+
+    }
+    validLift := by
+      simp only [Functor.const_obj_obj]
+      rw [Cone.mk.injEq]; constructor
+      simp only [Functor.mapCone_pt, Under.forget_obj]
+      apply heq_of_eq; ext j; simp only [Functor.mapCone_pt, Under.forget_obj,
+        Functor.const_obj_obj, Functor.comp_obj, Functor.mapCone_π_app]
+      erw [Under.forget_map]
+    unique s w := by
+      rcases s with ⟨f, σ⟩
+      simp only [Functor.const_obj_obj, Cone.mk.injEq]
+      have E : f = { left := { as := PUnit.unit }, right := d.pt, hom := H.lift (Cone.whisker K (Under.forgetCone c)) } := by {
+        subst d; simp only [Functor.mapCone_pt, Under.forget_obj]
+        erw [Comma.mk.injEq]; simp only [Under.under_left, Functor.const_obj_obj, Functor.id_obj,
+          true_and]
+        rw [<- H.uniq ((Cone.whisker K (Under.forgetCone c))) f.hom]
+        intro j; simp only [Cone.whisker_pt, Functor.comp_obj, Under.forget_obj, Functor.mapCone_pt,
+          Functor.mapCone_π_app, Under.forget_map, Cone.whisker_π, Functor.whiskerLeft_app,
+          Under.forgetCone_π_app]
+        exact  f.w (σ.app j)
+      }
+      use E
+      subst E; simp only [heq_eq_eq]
+      ext j; simp only [Functor.const_obj_obj]
+      simp only [Under.Hom.right]
+      have E := congr_arg_heq (fun d => d.π) w
+      simp only [Functor.mapCone, Cone.functoriality, Under.forget_obj, Under.forget_map,
+        heq_eq_eq] at E
+      rw [<- E]
+    makesLimit := {
+      lift s := {
+        left := 𝟙 _
+        right := H.lift ((Under.forget c).mapCone s)
+        w := by
+          simp only [Functor.const_obj_obj, Functor.id_obj, Discrete.functor_map_id]
+          erw [Category.id_comp, Functor.id_map]
+          apply H.hom_ext
+          intro j; simp only [Cone.whisker_pt, Functor.comp_obj, Under.forget_obj]
+          erw [Category.assoc, H.fac, H.fac]
+          simp only [Cone.whisker_pt, Cone.whisker_π, Functor.whiskerLeft_app,
+            Under.forgetCone_π_app, Functor.mapCone_pt, Under.forget_obj, Functor.mapCone_π_app,
+            Under.forget_map]
+          exact (s.pt.w (s.π.app j)).symm
+
+      }
+      fac s j := by
+        ext
+        erw [Under.comp_right]
+        simp only [Functor.const_obj_obj, Under.Hom.right]
+        erw [H.fac ((Under.forget c).mapCone s) j]
+        rfl
+      uniq s m w := by
+        simp only [Functor.const_obj_obj] at m w
+        ext; simp only [Under.Hom.right]
+        apply H.uniq ((Under.forget c).mapCone s)
+        intro j; simp only [Functor.mapCone_pt, Under.forget_obj, Functor.comp_obj,
+          Functor.mapCone_π_app, Under.forget_map]
+        erw [<- w j, Under.comp_right]
+
+
+
+
+    }
+  }
 
 #check Under.createsColimitsOfShapeForgetOfIsConnected
 
@@ -774,7 +889,17 @@ def myEv (A : Type v) [SmallCategory A] (C : Type u) [Category.{v} C] :
   map α := Functor.whiskerLeft (myObIncl A) α
 
 noncomputable def prop_3_4_9 (A : Type v) [SmallCategory A] (K : J ⥤ (A ⥤ C)) :
-    MyStrictlyCreatesLimit K (myEv A C) := sorry
+    MyStrictlyCreatesLimit K (myEv A C) where
+  lifts d Hd := {
+    liftedCone := by
+
+    validLift := _
+    unique := _
+    makesLimit := _
+  }
+
+
+
 
 #check functorCategoryHasLimitsOfShape
 
