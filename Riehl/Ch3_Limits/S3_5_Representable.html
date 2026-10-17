@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3.5 極限と余極限の表現可能性</title>
+<style>
+  :root {
+    --bg: #fdfcf9;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --accent: #8a4c14;
+    --line: #d8d3c8;
+    --box-bg: #f5f2ea;
+    --code-bg: #f0ede5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1e22;
+      --fg: #e4e1da;
+      --muted: #9aa2ab;
+      --accent: #e0a468;
+      --line: #3a3f46;
+      --box-bg: #24262b;
+      --code-bg: #2a2d33;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    line-height: 1.95;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.5rem; font-family: "Hiragino Sans", sans-serif; border-bottom: 2px solid var(--accent); padding-bottom: .4rem; }
+  h2 { font-size: 1.12rem; font-family: "Hiragino Sans", sans-serif; color: var(--accent); margin-top: 2.6rem; }
+  p { margin: .9rem 0; font-size: .97rem; }
+  li { font-size: .97rem; margin: .4rem 0; }
+  .note { color: var(--muted); font-size: .88em; }
+  .thm {
+    background: var(--box-bg);
+    border-left: 3px solid var(--accent);
+    padding: .7rem 1.1rem;
+    margin: 1.2rem 0;
+  }
+  .thm b { font-family: "Hiragino Sans", sans-serif; }
+  .proof-head { font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .qed { float: right; }
+  .fn { color: var(--muted); font-size: .88rem; border-top: 1px solid var(--line); padding-top: .5rem; }
+  .eq { text-align: center; margin: 1rem 0; }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
+  svg.cd path:not([fill]) { fill: none; stroke: currentColor; stroke-width: 1.1; }
+  svg.cd .dashed { stroke-dasharray: 5 4; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--box-bg); font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<h1>3.5 極限と余極限の表現可能性</h1>
+
+<p class="note">Emily Riehl, <i>Category Theory in Context</i> §3.5（pp.109–115）の内容を、個人学習のために日本語で書き直した解説。番号（定理3.5.2 など）は本と揃えてある。翻訳ではなく、同じ内容を自分の言葉で再構成したもの。</p>
+
+<h2>記号表</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>記号</th><th>型・意味</th></tr>
+  <tr><td>F : J → C</td><td>小圏 J で添字づけられた、局所小圏 C の図式</td></tr>
+  <tr><td>C(X, F−) : J → Set</td><td>合成関手 C(X, −) ∘ F。対象 j を hom 集合 C(X, Fj) に送る</td></tr>
+  <tr><td>C(F−, X) : J<sup>op</sup> → Set</td><td>合成関手 C(−, X) ∘ F<sup>op</sup>。対象 j を hom 集合 C(Fj, X) に送る</td></tr>
+  <tr><td>Cone(X, F)</td><td>頂点 X を持つ F 上の錐の集合</td></tr>
+  <tr><td>Cone(F, X)</td><td>頂点 X を持つ F 下の錐の集合</td></tr>
+  <tr><td>よ : C ↪ Set<sup>C<sup>op</sup></sup></td><td>共変米田埋め込み。X を C(−, X) に送る</td></tr>
+  <tr><td>よ : C<sup>op</sup> ↪ Set<sup>C</sup></td><td>反変米田埋め込み。X を C(X, −) に送る</td></tr>
+  <tr><td>A<sup>I</sup> = ∏<sub>I</sub> A</td><td>集合 I で添字づけられた対象 A の冪</td></tr>
+  <tr><td>I · A = ∐<sub>I</sub> A</td><td>集合 I で添字づけられた対象 A の余冪</td></tr>
+  <tr><td>ι<sub>j</sub> : Fj → ∐<sub>j∈ob J</sub> Fj</td><td>余積の入射</td></tr>
+  <tr><td>d, c</td><td>定理3.5.11 の余等化子図式をなす平行な射</td></tr>
+  <tr><td>a : X → A</td><td>対象 A の X 型の一般化された要素</td></tr>
+  <tr><td>∗</td><td>終対象</td></tr>
+  <tr><td>(f, g) : A → B × B</td><td>f, g : A → B が積の普遍性で誘導する射</td></tr>
+  <tr><td>(id<sub>B</sub>, id<sub>B</sub>) : B → B × B</td><td>対角射</td></tr>
+</table>
+</div>
+
+<h2>この節の問い</h2>
+
+<p>定理3.2.11 は、Set の図式の極限を積の間の等化子として表す公式である。この節では、任意の圏の図式の極限と余極限について同じ公式を証明する。証明は Set の極限の場合に帰着させる。帰着が可能なのは、局所小圏の極限と余極限が、Set の極限によって表現可能に定義されているからである。この節の目的は、まずこの標語の意味を説明し、次に応用として定理3.5.11 を導くことである。</p>
+
+<h2>錐の集合としての lim<sub>J</sub> C(X, F−)</h2>
+
+<p>局所小圏 C の小図式 F : J → C と対象 X ∈ C を固定し、合成関手 C(X, F−) := C(X, −) ∘ F : J → Set を考える。これは Set の J 型の図式である。定理3.2.4 により C(X, F−) の極限は存在し、定理3.2.11 がその構成を与える。集合 lim<sub>J</sub> C(X, F−) の要素は、積 ∏<sub>j∈J</sub> C(X, Fj) の要素、すなわち射の組 (λ<sub>j</sub> : X → Fj)<sub>j∈J</sub> であって、J の恒等射でない各射 f : j → k について次の図式が可換になるものである。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 300 150" width="300" role="img" aria-label="X を頂点とする三角形 X → Fj, X → Fk, Fj → Fk">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="150" y="40" text-anchor="middle">X</text>
+  <text x="60" y="135" text-anchor="middle">Fj</text>
+  <text x="240" y="135" text-anchor="middle">Fk</text>
+  <line x1="138" y1="50" x2="74" y2="117" marker-end="url(#a1)"/>
+  <text class="lbl" x="96" y="80" text-anchor="end">λ<tspan dy="3" font-size="10.5">j</tspan></text>
+  <line x1="162" y1="50" x2="226" y2="117" marker-end="url(#a1)"/>
+  <text class="lbl" x="204" y="80" text-anchor="start">λ<tspan dy="3" font-size="10.5">k</tspan></text>
+  <line x1="80" y1="130" x2="220" y2="130" marker-end="url(#a1)"/>
+  <text class="lbl" x="150" y="150" text-anchor="middle">Ff</text>
+</svg>
+</figure>
+
+<p>すなわち lim<sub>J</sub> C(X, F−) の要素とは、頂点 X を持つ F 上の錐にほかならない。よって次の同型がある。<sup>15</sup></p>
+
+<p class="eq">lim<sub>J</sub> C(X, F−) ≅ Cone(X, F)　　(3.5.1)</p>
+
+<p>この同型は X について自然である。これは演習3.5.i で確かめる。F の極限は関手 Cone(−, F) を表現する対象として定義されていたので、次の定理が従う。</p>
+
+<p class="fn"><sup>15</sup> この同型は、極限が存在する大きな図式にも拡張される。任意の図式 F : J → C について、lim<sub>J</sub> C(X, F−) の要素は頂点 X を持つ F 上の錐にほかならない。</p>
+
+<h2>定理3.5.2 — 共変表現可能関手は極限を保存する</h2>
+
+<div class="thm"><b>定理3.5.2.</b> 極限が存在する任意の図式 F : J → C について、極限錐が誘導する標準的な写像は、各 X ∈ C について自然な同型
+<p class="eq">C(X, lim<sub>J</sub> F) ≅ lim<sub>J</sub> C(X, F−)　　(3.5.3)</p>
+を定める。したがって共変表現可能関手 C(X, −) : C → Set は、局所小圏 C に存在する任意の極限を保存し、Set の極限に写す。</div>
+
+<p><span class="proof-head">証明.</span> §3.4 の冒頭で述べたとおり、C(X, −) : C → Set のような関手を極限錐に適用すると、C の極限の像から、Set における図式の像の極限へ向かう標準的な写像が得られる。これが写像 C(X, lim<sub>J</sub> F) → lim<sub>J</sub> C(X, F−) を X について自然に定める。</p>
+
+<p>残るのは、この写像が同型であることである。そのためには、この写像が次の可換図式に収まることを示せば十分である。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 580 210" width="580" role="img" aria-label="C(X, lim F) から lim C(X, F−) と Cone(X, F) への写像と、三者から積 ∏ C(X, Fj) への写像がなす可換図式">
+  <defs><marker id="a2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="290" y="40" text-anchor="middle">C(X, lim<tspan dy="3" font-size="10.5">J</tspan><tspan dy="-3"> F)</tspan></text>
+  <text x="90" y="118" text-anchor="middle">lim<tspan dy="3" font-size="10.5">J</tspan><tspan dy="-3"> C(X, F−)</tspan></text>
+  <text x="490" y="118" text-anchor="middle">Cone(X, F)</text>
+  <text x="290" y="195" text-anchor="middle">∏<tspan dy="3" font-size="10.5">j∈J</tspan><tspan dy="-3"> C(X, Fj)</tspan></text>
+  <line x1="238" y1="48" x2="150" y2="100" marker-end="url(#a2)"/>
+  <line x1="342" y1="48" x2="432" y2="100" marker-end="url(#a2)"/>
+  <text class="lbl" x="400" y="66" text-anchor="start">≅</text>
+  <line x1="172" y1="113" x2="412" y2="113" marker-end="url(#a2)"/>
+  <text class="lbl" x="292" y="104" text-anchor="middle">≅</text>
+  <line x1="290" y1="50" x2="290" y2="176" marker-end="url(#a2)"/>
+  <line x1="130" y1="126" x2="226" y2="182" marker-end="url(#a2)"/>
+  <line x1="450" y1="126" x2="354" y2="182" marker-end="url(#a2)"/>
+</svg>
+</figure>
+
+<p>左上の辺が示したい標準的な写像、右上の辺は極限錐の普遍性（定義3.1.5）を表す自然同型 C(X, lim<sub>J</sub> F) ≅ Cone(X, F)、中央の横の辺は先ほど示した自然同型 (3.5.1) である。</p>
+
+<p>上の三角形は Set<sup>C<sup>op</sup></sup> の関手の間の自然変換の図式である。その可換性は米田の補題で示せる。米田の補題により、表現対象 lim<sub>J</sub> F における恒等射の像を比べれば十分だからである。別の示し方もある。三つの写像はいずれも積 ∏<sub>j∈J</sub> C(X, Fj) への包含と可換であり、その包含はモノ射なので、上の三角形の可換性が従う。</p>
+
+<p>標準的な写像は、二つの同型を含む可換な三角形の一辺なので、同型である。最後に補題3.4.3 により、この写像が可逆であることは、X が表現する共変関手が F の極限を保存することを意味する。<span class="qed">□</span></p>
+
+<p>自然同型 (3.5.3) は<b>極限の表現可能な普遍性</b>（representable universal property of the limit）を表す。局所小圏 C の J 型の図式の極限は、Set に値を取る J 型の図式の極限として表現可能に定義される。</p>
+
+<h2>例3.5.4 — 冪</h2>
+
+<p>対象 A ∈ C の反復した積を<b>冪</b>（power）または <b>cotensor</b> という。集合 I について、I で添字づけられた A の冪を ∏<sub>I</sub> A または A<sup>I</sup> と書く。表現可能な普遍性は次の自然同型で表される。</p>
+
+<p class="eq">C(X, A<sup>I</sup>) ≅ C(X, A)<sup>I</sup></p>
+
+<p>すなわち、射 h : X → A<sup>I</sup> は、各射影 ev<sub>i</sub> : A<sup>I</sup> → A と合成して得られる I で添字づけられた射の族 h<sub>i</sub> : X → A によって決まる。Set では、この記法は以前に導入した指数記法と整合する。冪 A<sup>I</sup> は I から A への関数の集合と同型で、射影 ev<sub>i</sub> : A<sup>I</sup> → A は各関数を i ∈ I で評価する。</p>
+
+<h2>定理3.5.5 — 米田埋め込みは極限を保存し反映する</h2>
+
+<p>定理3.5.2 には、明示する価値のある別の読み方がある。F : J → C の極限が表現する反変関手 C(−, lim F) を圏 Set<sup>C<sup>op</sup></sup> の対象と見ると、それは合成図式 よ ∘ F : J → C → Set<sup>C<sup>op</sup></sup> の極限である。この図式の対象は表現可能関手 C(−, Fj) である。これは命題3.4.9 から従う。命題3.4.9 により Set<sup>C<sup>op</sup></sup> の極限は Set で各点ごとに定義されるので、lim<sub>j∈J</sub> C(−, Fj) は X ∈ C での値が lim<sub>j∈J</sub> C(X, Fj) である関手だからである。</p>
+
+<p>簡潔に言えば、米田埋め込み よ : C ↪ Set<sup>C<sup>op</sup></sup> は C に存在するすべての極限を保存する。さらに米田の補題により米田埋め込みは充満忠実なので、補題3.4.5 により よ はすべての極限を反映もする。まとめると次が示された。</p>
+
+<div class="thm"><b>定理3.5.5.</b> C を任意の局所小圏とする。
+<ol type="i">
+  <li>共変表現可能関手 C(X, −) は、C に存在するすべての極限を保存する。</li>
+  <li>共変米田埋め込み よ : C ↪ Set<sup>C<sup>op</sup></sup> は極限を保存し、かつ反映する。すなわち、C の図式上の錐が極限錐であることと、その像が Set<sup>C<sup>op</sup></sup> の極限錐であることは同値である。</li>
+</ol></div>
+
+<p>共変米田埋め込みは極限を創出はしない。演習3.5.ii を参照。</p>
+
+<h2>定理3.5.6 — 反変表現可能関手は余極限を極限に写す</h2>
+
+<p>余極限の表現可能な特徴づけは、ここまでの議論を双対化して得られる。F : J → C と X ∈ C を固定し、合成関手 C(F−, X) := C(−, X) ∘ F<sup>op</sup> : J<sup>op</sup> → Set を考える。定理3.2.4 により極限が存在し、定理3.2.11 がその構成を与える。集合 lim<sub>J<sup>op</sup></sub> C(F−, X) の要素は、積 ∏<sub>j∈J</sub> C(Fj, X) の要素、すなわち射の組 (λ<sub>j</sub> : Fj → X)<sub>j∈J</sub> であって、J の恒等射でない各射 f : j → k について次の図式が可換になるものである。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 300 150" width="300" role="img" aria-label="X を頂点とする三角形 Fj → Fk, Fj → X, Fk → X">
+  <defs><marker id="a3" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="40" text-anchor="middle">Fj</text>
+  <text x="240" y="40" text-anchor="middle">Fk</text>
+  <text x="150" y="135" text-anchor="middle">X</text>
+  <line x1="80" y1="35" x2="220" y2="35" marker-end="url(#a3)"/>
+  <text class="lbl" x="150" y="25" text-anchor="middle">Ff</text>
+  <line x1="74" y1="50" x2="138" y2="117" marker-end="url(#a3)"/>
+  <text class="lbl" x="96" y="92" text-anchor="end">λ<tspan dy="3" font-size="10.5">j</tspan></text>
+  <line x1="226" y1="50" x2="162" y2="117" marker-end="url(#a3)"/>
+  <text class="lbl" x="204" y="92" text-anchor="start">λ<tspan dy="3" font-size="10.5">k</tspan></text>
+</svg>
+</figure>
+
+<p>すなわち lim<sub>J<sup>op</sup></sub> C(F−, X) の要素とは、頂点 X を持つ F 下の錐にほかならない。同型</p>
+
+<p class="eq">lim<sub>J<sup>op</sup></sub> C(F−, X) ≅ Cone(F, X)</p>
+
+<p>はやはり X について自然であり、次が従う。</p>
+
+<div class="thm"><b>定理3.5.6.</b> 余極限が存在する任意の図式 F : J → C について、余極限錐が誘導する標準的な写像は、各 X ∈ C について自然な同型
+<p class="eq">C(colim<sub>J</sub> F, X) ≅ lim<sub>J<sup>op</sup></sub> C(F−, X)</p>
+を定める。したがって反変表現可能関手 C(−, X) : C<sup>op</sup> → Set は、局所小圏 C に存在する任意の余極限を Set の極限に写す。</div>
+
+<p>定理3.5.6 は<b>余極限の表現可能な普遍性</b>（representable universal property of the colimit）を表す。圏 C の J 型の図式の余極限は、Set に値を取る J<sup>op</sup> 型の図式の極限として表現可能に定義される。</p>
+
+<h2>例3.5.7 — 余積</h2>
+
+<p>局所小圏 C の任意の三つの対象 X, Y, Z について、余積の表現可能な普遍性は次の自然同型の形を取る。</p>
+
+<p class="eq">C(X ⊔ Y, Z) ≅ C(X, Z) × C(Y, Z)</p>
+
+<p>余積からの射の集合が、hom 集合の対の積として表されている。これは演習2.4.x で出した問いへの答えである。</p>
+
+<h2>例3.5.8 — 余冪</h2>
+
+<p>対象 A ∈ C の反復した余積を<b>余冪</b>（copower）または<b>テンソル</b>（tensor）という。集合 I について、I で添字づけられた A の余冪を ∐<sub>I</sub> A または I · A と書く。表現可能な普遍性は次の自然同型で表される。</p>
+
+<p class="eq">C(∐<sub>I</sub> A, X) ≅ C(A, X)<sup>I</sup></p>
+
+<p>すなわち、射 h : ∐<sub>I</sub> A → X は、各入射 ι<sub>i</sub> : A → ∐<sub>I</sub> A と合成して得られる I で添字づけられた射の族 h<sub>i</sub> : A → X によって決まる。Set では、余冪 ∐<sub>I</sub> A は定数族の依存和 Σ<sub>i∈I</sub> A と同型であり、それは積 I × A と同型である。</p>
+
+<h2>例3.5.9 — 押し出し</h2>
+
+<p>押し出しの四角形</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 280 170" width="280" role="img" aria-label="押し出しの四角形 U, V, W, P">
+  <defs><marker id="a4" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="40" text-anchor="middle">U</text>
+  <text x="210" y="40" text-anchor="middle">V</text>
+  <text x="70" y="145" text-anchor="middle">W</text>
+  <text x="210" y="145" text-anchor="middle">P</text>
+  <line x1="86" y1="35" x2="194" y2="35" marker-end="url(#a4)"/>
+  <text class="lbl" x="140" y="25" text-anchor="middle">f</text>
+  <line x1="70" y1="50" x2="70" y2="127" marker-end="url(#a4)"/>
+  <text class="lbl" x="60" y="92" text-anchor="end">g</text>
+  <line x1="210" y1="50" x2="210" y2="127" marker-end="url(#a4)"/>
+  <text class="lbl" x="220" y="92" text-anchor="start">h</text>
+  <line x1="86" y1="140" x2="192" y2="140" marker-end="url(#a4)"/>
+  <text class="lbl" x="140" y="163" text-anchor="middle">k</text>
+  <path d="M186,118 L186,108 L196,108" fill="none" stroke="currentColor" stroke-width="1"/>
+</svg>
+</figure>
+
+<p>の表現可能な普遍性は、任意の X ∈ C について hom 集合 C(P, X) が次の引き戻しで定義されることを主張する。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 400 170" width="400" role="img" aria-label="hom 集合がなす引き戻しの四角形 C(P, X), C(V, X), C(W, X), C(U, X)">
+  <defs><marker id="a5" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="90" y="40" text-anchor="middle">C(P, X)</text>
+  <text x="310" y="40" text-anchor="middle">C(V, X)</text>
+  <text x="90" y="145" text-anchor="middle">C(W, X)</text>
+  <text x="310" y="145" text-anchor="middle">C(U, X)</text>
+  <line x1="138" y1="35" x2="262" y2="35" marker-end="url(#a5)"/>
+  <text class="lbl" x="200" y="25" text-anchor="middle">C(h, X)</text>
+  <line x1="90" y1="50" x2="90" y2="127" marker-end="url(#a5)"/>
+  <text class="lbl" x="80" y="92" text-anchor="end">C(k, X)</text>
+  <line x1="310" y1="50" x2="310" y2="127" marker-end="url(#a5)"/>
+  <text class="lbl" x="320" y="92" text-anchor="start">C(f, X)</text>
+  <line x1="138" y1="140" x2="262" y2="140" marker-end="url(#a5)"/>
+  <text class="lbl" x="200" y="163" text-anchor="middle">C(g, X)</text>
+  <path d="M104,62 L114,62 L114,52" fill="none" stroke="currentColor" stroke-width="1"/>
+</svg>
+</figure>
+
+<h2>定理3.5.10 — 反変米田埋め込みは余極限を保存し反映する</h2>
+
+<p>定理3.5.5 を双対化すると次を得る。</p>
+
+<div class="thm"><b>定理3.5.10.</b> C を任意の局所小圏とする。
+<ol type="i">
+  <li>反変表現可能関手 C(−, X) は、C の余極限を Set の極限に写す。</li>
+  <li>反変米田埋め込み よ : C<sup>op</sup> ↪ Set<sup>C</sup> は C<sup>op</sup> の極限を保存し、かつ反映する。すなわち、C の図式下の錐が余極限錐であることと、その像が Set<sup>C</sup> の極限錐であることは同値である。</li>
+</ol></div>
+
+<h2>定理3.5.11 — 余極限は余積の間の余等化子である</h2>
+
+<p>定理3.5.5 と定理3.5.10 を使って、定理3.2.11 を一般化する。定理3.2.11 は Set の極限を積の間の写像の対の等化子として構成した。これを任意の圏に拡張し、双対性の原理により余極限にも拡張する。</p>
+
+<div class="thm"><b>定理3.5.11.</b> 任意の小図式 F : J → C の余極限は、余積の間の射の対の余等化子として表せる。ただし、これらの余極限が存在するとする。
+<figure class="cd">
+<svg class="cd" viewBox="0 0 620 80" width="620" role="img" aria-label="余積 ∐ F(dom f) から余積 ∐ Fj への平行な射 d, c と、余等化子 colim F">
+  <defs><marker id="a6" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="e6" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker></defs>
+  <text x="105" y="47" text-anchor="middle">∐<tspan dy="3" font-size="10.5">f∈mor J</tspan><tspan dy="-3"> F(dom f)</tspan></text>
+  <text x="340" y="47" text-anchor="middle">∐<tspan dy="3" font-size="10.5">j∈ob J</tspan><tspan dy="-3"> Fj</tspan></text>
+  <text x="540" y="47" text-anchor="middle">colim<tspan dy="3" font-size="10.5">J</tspan><tspan dy="-3"> F</tspan></text>
+  <line x1="200" y1="36" x2="282" y2="36" marker-end="url(#a6)"/>
+  <text class="lbl" x="241" y="25" text-anchor="middle">d</text>
+  <line x1="200" y1="48" x2="282" y2="48" marker-end="url(#a6)"/>
+  <text class="lbl" x="241" y="70" text-anchor="middle">c</text>
+  <line x1="398" y1="42" x2="486" y2="42" marker-end="url(#e6)"/>
+</svg>
+</figure>
+特に、小さな余積と余等化子を持つ任意の圏は余完備である。双対に、任意の小図式の極限は、積の間の射の対の等化子 (3.2.12) として表せる。ただし、これらの極限が存在するとする。したがって、小さな積と等化子を持つ任意の圏は完備である。</div>
+
+<p>証明では C が局所小であることを暗に仮定する。より大きな集合論的宇宙に移れば、より大きな圏にも議論を拡張できる。</p>
+
+<p><span class="proof-head">証明.</span> 図式 F : J → C を取り、C が余等化子と小さな余積を持つとする。注意3.2.13 の構成を双対化して、J の射で添字づけられた余積と J の対象で添字づけられた余積の間に、射 d と c を次のように定める。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 560 230" width="560" role="img" aria-label="余等化子図式 (3.5.12)。F(dom f) から余積 ∐ Fj への入射 ι_{dom f} が d の f 成分、Ff と入射 ι_{cod f} の合成が c の f 成分">
+  <defs><marker id="a7" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="e7" viewBox="-7 0 17 10" refX="8.5" refY="5" markerWidth="11" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z M-7,0 L3,5 L-7,10 z" fill="currentColor"/></marker></defs>
+  <text x="40" y="120" text-anchor="middle">C</text>
+  <text x="210" y="120" text-anchor="middle">∐<tspan dy="3" font-size="10.5">j∈ob J</tspan><tspan dy="-3"> Fj</tspan></text>
+  <text x="450" y="120" text-anchor="middle">∐<tspan dy="3" font-size="10.5">f∈mor J</tspan><tspan dy="-3"> F(dom f)</tspan></text>
+  <text x="450" y="35" text-anchor="middle">F(dom f)</text>
+  <text x="210" y="205" text-anchor="middle">F(cod f)</text>
+  <text x="450" y="205" text-anchor="middle">F(dom f)</text>
+  <line x1="152" y1="115" x2="62" y2="115" marker-end="url(#e7)"/>
+  <line x1="350" y1="109" x2="272" y2="109" marker-end="url(#a7)"/>
+  <text class="lbl" x="311" y="98" text-anchor="middle">d</text>
+  <line x1="350" y1="121" x2="272" y2="121" marker-end="url(#a7)"/>
+  <text class="lbl" x="311" y="143" text-anchor="middle">c</text>
+  <line x1="410" y1="42" x2="252" y2="103" marker-end="url(#a7)"/>
+  <text class="lbl" x="318" y="60" text-anchor="middle">ι<tspan dy="3" font-size="10.5">dom f</tspan></text>
+  <line x1="450" y1="45" x2="450" y2="100" marker-end="url(#a7)"/>
+  <text class="lbl" x="460" y="78" text-anchor="start">ι<tspan dy="3" font-size="10.5">f</tspan></text>
+  <line x1="408" y1="200" x2="256" y2="200" marker-end="url(#a7)"/>
+  <text class="lbl" x="332" y="222" text-anchor="middle">Ff</text>
+  <line x1="210" y1="188" x2="210" y2="135" marker-end="url(#a7)"/>
+  <text class="lbl" x="200" y="166" text-anchor="end">ι<tspan dy="3" font-size="10.5">cod f</tspan></text>
+  <line x1="450" y1="188" x2="450" y2="135" marker-end="url(#a7)"/>
+  <text class="lbl" x="460" y="166" text-anchor="start">ι<tspan dy="3" font-size="10.5">f</tspan></text>
+</svg>
+<figcaption>(3.5.12)</figcaption>
+</figure>
+
+<p>f ∈ mor J における d の成分は余積の入射 ι<sub>dom f</sub> であり、f における c の成分は Ff と余積の入射 ι<sub>cod f</sub> の合成である。仮定により、d と c の余等化子 C が C に存在する。この C が F の余極限であることを示す。</p>
+
+<p>定理3.5.10(ii) により、米田埋め込み よ : C<sup>op</sup> → Set<sup>C</sup> は余等化子図式 (3.5.12) を Set<sup>C</sup> の等化子図式に写す。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 660 230" width="660" role="img" aria-label="(3.5.12) に C(−, X) を適用した等化子図式">
+  <defs><marker id="a8" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="m8" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="120" text-anchor="middle">C(C, X)</text>
+  <text x="260" y="120" text-anchor="middle">C(∐<tspan dy="3" font-size="10.5">j</tspan><tspan dy="-3"> Fj, X)</tspan></text>
+  <text x="520" y="120" text-anchor="middle">C(∐<tspan dy="3" font-size="10.5">f</tspan><tspan dy="-3"> F(dom f), X)</tspan></text>
+  <text x="520" y="35" text-anchor="middle">C(F(dom f), X)</text>
+  <text x="260" y="205" text-anchor="middle">C(F(cod f), X)</text>
+  <text x="520" y="205" text-anchor="middle">C(F(dom f), X)</text>
+  <line x1="112" y1="115" x2="198" y2="115" marker-start="url(#m8)" marker-end="url(#a8)"/>
+  <line x1="326" y1="109" x2="432" y2="109" marker-end="url(#a8)"/>
+  <text class="lbl" x="379" y="98" text-anchor="middle">C(d, X)</text>
+  <line x1="326" y1="121" x2="432" y2="121" marker-end="url(#a8)"/>
+  <text class="lbl" x="379" y="143" text-anchor="middle">C(c, X)</text>
+  <line x1="292" y1="103" x2="462" y2="44" marker-end="url(#a8)"/>
+  <text class="lbl" x="362" y="58" text-anchor="middle">C(ι<tspan dy="3" font-size="10.5">dom f</tspan><tspan dy="-3">, X)</tspan></text>
+  <line x1="520" y1="100" x2="520" y2="45" marker-end="url(#a8)"/>
+  <text class="lbl" x="530" y="78" text-anchor="start">C(ι<tspan dy="3" font-size="10.5">f</tspan><tspan dy="-3">, X)</tspan></text>
+  <line x1="260" y1="135" x2="260" y2="188" marker-end="url(#a8)"/>
+  <text class="lbl" x="250" y="166" text-anchor="end">C(ι<tspan dy="3" font-size="10.5">cod f</tspan><tspan dy="-3">, X)</tspan></text>
+  <line x1="332" y1="200" x2="450" y2="200" marker-end="url(#a8)"/>
+  <text class="lbl" x="391" y="222" text-anchor="middle">C(Ff, X)</text>
+  <line x1="520" y1="135" x2="520" y2="188" marker-end="url(#a8)"/>
+  <text class="lbl" x="530" y="166" text-anchor="start">C(ι<tspan dy="3" font-size="10.5">f</tspan><tspan dy="-3">, X)</tspan></text>
+</svg>
+</figure>
+
+<p>これは、X を変数とする関手と自然変換の図式である。この等化子図式の各対象に定理3.5.10(i) を適用すると、Set<sup>C</sup> において同型な次の図式を得る。C(−, X) は余積の入射を積の射影に写す。f を J<sup>op</sup> の射と見ると域と余域が入れ替わるので、以下では J の射 f : j → k について dom f = k、cod f = j と読み、写像 C(d, X) を c、写像 C(c, X) を d と書く。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 660 230" width="660" role="img" aria-label="等化子図式 (3.5.13)。C(C, X) から積 ∏ C(Fj, X) への単射と、積 ∏ C(F(cod f), X) への平行な写像 c, d">
+  <defs><marker id="a9" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="m9" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="120" text-anchor="middle">C(C, X)</text>
+  <text x="260" y="120" text-anchor="middle">∏<tspan dy="3" font-size="10.5">j∈ob J<tspan dy="-4" font-size="8">op</tspan><tspan dy="4"></tspan></tspan><tspan dy="-3"> C(Fj, X)</tspan></text>
+  <text x="520" y="120" text-anchor="middle">∏<tspan dy="3" font-size="10.5">f∈mor J<tspan dy="-4" font-size="8">op</tspan><tspan dy="4"></tspan></tspan><tspan dy="-3"> C(F(cod f), X)</tspan></text>
+  <text x="520" y="35" text-anchor="middle">C(F(cod f), X)</text>
+  <text x="260" y="205" text-anchor="middle">C(F(dom f), X)</text>
+  <text x="520" y="205" text-anchor="middle">C(F(cod f), X)</text>
+  <line x1="112" y1="115" x2="188" y2="115" marker-start="url(#m9)" marker-end="url(#a9)"/>
+  <line x1="340" y1="109" x2="420" y2="109" marker-end="url(#a9)"/>
+  <text class="lbl" x="380" y="98" text-anchor="middle">c</text>
+  <line x1="340" y1="121" x2="420" y2="121" marker-end="url(#a9)"/>
+  <text class="lbl" x="380" y="143" text-anchor="middle">d</text>
+  <line x1="300" y1="103" x2="462" y2="44" marker-end="url(#a9)"/>
+  <text class="lbl" x="360" y="58" text-anchor="middle">π<tspan dy="3" font-size="10.5">cod f</tspan></text>
+  <line x1="520" y1="100" x2="520" y2="45" marker-end="url(#a9)"/>
+  <text class="lbl" x="530" y="78" text-anchor="start">π<tspan dy="3" font-size="10.5">f</tspan></text>
+  <line x1="260" y1="135" x2="260" y2="188" marker-end="url(#a9)"/>
+  <text class="lbl" x="250" y="166" text-anchor="end">π<tspan dy="3" font-size="10.5">dom f</tspan></text>
+  <line x1="332" y1="200" x2="450" y2="200" marker-end="url(#a9)"/>
+  <text class="lbl" x="391" y="222" text-anchor="middle">C(Ff, X)</text>
+  <line x1="520" y1="135" x2="520" y2="188" marker-end="url(#a9)"/>
+  <text class="lbl" x="530" y="166" text-anchor="start">π<tspan dy="3" font-size="10.5">f</tspan></text>
+</svg>
+<figcaption>(3.5.13)</figcaption>
+</figure>
+
+<p>X を固定すると、命題3.4.9 により (3.5.13) は Set の等化子図式である。定理3.2.11 を関手 C(F−, X) : J<sup>op</sup> → Set に適用すると、(3.5.13) はその等化子が極限 lim<sub>J<sup>op</sup></sub> C(F−, X) を定める図式にほかならない。よって各 X ∈ C について次の同型を得る。</p>
+
+<p class="eq">lim<sub>J<sup>op</sup></sub> C(F−, X) ≅ C(C, X)</p>
+
+<p>各 X ∈ C について定まるこれらの同型は、Set<sup>ob C</sup> の同型をなす。そこで命題3.4.9 を忘却関手 ev : Set<sup>C</sup> → Set<sup>ob C</sup> に適用して、C(C, −) が共変関手 C(Fj, −) からなる J<sup>op</sup> 型の図式の極限であると結論する。定理3.5.6 により、余等化子 C は F : J → C の余極限である。<span class="qed">□</span></p>
+
+<h2>注意3.5.14 — 一般化された要素</h2>
+
+<p>定理3.5.11 は直接にも証明できる。C の中で図式 (3.5.12) を構成し、c と d の余等化子が colim<sub>J</sub> F を定義する普遍性を持つことを確かめればよい。この直接の証明は、極限を特徴づける双対の設定で見ると、上で取った戦略、すなわち結果をまず Set で確かめてから表現可能性を適用する戦略と、ある意味でよく似ている。その意味を与えるのが<b>一般化された要素の哲学</b>（philosophy of generalized elements）である。これを最初に明確に述べたのは Lawvere [Law05] である。</p>
+
+<p>集合 A の要素は、Set の射 a : ∗ → A と一対一に対応する。Set の写像 f : A → B は合成によって要素に作用する。合成 fa が要素 f(a) を表す。<sup>16</sup> 任意の圏 C において、対象 A の X 型の<b>一般化された要素</b>（generalized element）とは、余域が A である射 a : X → A のことである。C の射 f : A → B は合成によって X 型の要素に作用する。合成 fa は B の X 型の一般化された要素である。この用語で言えば、反変表現関手 C(−, A) : C<sup>op</sup> → Set は、対象 X を A の X 型の一般化された要素の集合に送る。米田埋め込み よ : C ↪ Set<sup>C<sup>op</sup></sup> は充満忠実なので、A の代わりに、あらゆる型 X にわたる A の一般化された要素の関手 C(−, A) を考えても、A についての情報は失われない。</p>
+
+<p class="fn"><sup>16</sup> 関数の標準的な記法が、通常の合成の順序の由来である。</p>
+
+<p>特に、平行な射の対 f, g : A ⇉ B が等しいことを示すには、f と g が一般化された要素に同じ関数を誘導することを示せば十分である。また、頂点 A を持つ錐が極限錐であることを示すには、あらゆる型の一般化された要素について、誘導される関数が Set の極限錐を定めることを示せば十分である。この議論が極限の表現可能な普遍性を確立する。この「図式なしで済ませる」原理をより高度な文脈に応用した例が [Lei08] にある。</p>
+
+<p>この節の残りでは、一般化された要素の哲学の非形式的な例示として、有限積と等化子が終対象 ∗ と引き戻しの反復から構成できることを示す。</p>
+
+<h2>補題3.5.15 — 引き戻しからの積</h2>
+
+<div class="thm"><b>補題3.5.15.</b> 終対象 ∗ を持つ任意の圏において、引き戻しの図式
+<figure class="cd">
+<svg class="cd" viewBox="0 0 280 170" width="280" role="img" aria-label="A × B, B, A, ∗ がなす引き戻しの四角形">
+  <defs><marker id="a10" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="40" text-anchor="middle">A × B</text>
+  <text x="210" y="40" text-anchor="middle">B</text>
+  <text x="70" y="145" text-anchor="middle">A</text>
+  <text x="210" y="145" text-anchor="middle">∗</text>
+  <line x1="106" y1="35" x2="196" y2="35" marker-end="url(#a10)"/>
+  <text class="lbl" x="150" y="25" text-anchor="middle">π<tspan dy="3" font-size="10.5">B</tspan></text>
+  <line x1="70" y1="50" x2="70" y2="127" marker-end="url(#a10)"/>
+  <text class="lbl" x="60" y="92" text-anchor="end">π<tspan dy="3" font-size="10.5">A</tspan></text>
+  <line x1="210" y1="50" x2="210" y2="127" marker-end="url(#a10)"/>
+  <text class="lbl" x="220" y="92" text-anchor="start">!</text>
+  <line x1="86" y1="140" x2="196" y2="140" marker-end="url(#a10)"/>
+  <text class="lbl" x="140" y="163" text-anchor="middle">!</text>
+  <path d="M84,62 L94,62 L94,52" fill="none" stroke="currentColor" stroke-width="1"/>
+</svg>
+</figure>
+は A と B の積 A × B を定める。より一般に、I で添字づけられた対象の族 (A<sub>i</sub>)<sub>i∈I</sub> の積は、射の族 (! : A<sub>i</sub> → ∗)<sub>i∈I</sub> が定める図式の<b>広い引き戻し</b>（wide pullback）として構成できる。</div>
+
+<p><span class="proof-head">証明.</span> 射の族 (! : A<sub>i</sub> → ∗)<sub>i∈I</sub> からなる図式の上の、頂点 X を持つ錐は、I で添字づけられた射の族 (λ<sub>i</sub> : X → A<sub>i</sub>)<sub>i∈I</sub> というデータで与えられる。図式のすべての射の余域が終対象なので、可換性の条件はない。同じデータが、対象の族 (A<sub>i</sub>)<sub>i∈I</sub> の上の頂点 X を持つ錐を定める。よって二つの極限は同型である。<span class="qed">□</span></p>
+
+<p>したがって、引き戻しと終対象を持つ任意の圏は、すべての二項積を持ち、反復によってすべての有限積を持つ。</p>
+
+<h2>補題3.5.16 — 引き戻しからの等化子</h2>
+
+<div class="thm"><b>補題3.5.16.</b> 二項積を持つ任意の圏において、引き戻しの図式
+<figure class="cd">
+<svg class="cd" viewBox="0 0 620 175" width="620" role="img" aria-label="E, A, B, B × B がなす引き戻しの四角形と、それが定める等化子図式 E → A ⇉ B">
+  <defs><marker id="a11" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="m11" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="40" text-anchor="middle">E</text>
+  <text x="200" y="40" text-anchor="middle">A</text>
+  <text x="60" y="145" text-anchor="middle">B</text>
+  <text x="200" y="145" text-anchor="middle">B × B</text>
+  <line x1="76" y1="35" x2="184" y2="35" marker-end="url(#a11)"/>
+  <text class="lbl" x="130" y="25" text-anchor="middle">e</text>
+  <line x1="60" y1="50" x2="60" y2="127" marker-end="url(#a11)"/>
+  <text class="lbl" x="50" y="92" text-anchor="end">ℓ</text>
+  <line x1="200" y1="50" x2="200" y2="127" marker-end="url(#a11)"/>
+  <text class="lbl" x="210" y="92" text-anchor="start">(f, g)</text>
+  <line x1="76" y1="140" x2="164" y2="140" marker-end="url(#a11)"/>
+  <text class="lbl" x="120" y="163" text-anchor="middle">(id<tspan dy="3" font-size="10.5">B</tspan><tspan dy="-3">, id</tspan><tspan dy="3" font-size="10.5">B</tspan><tspan dy="-3">)</tspan></text>
+  <path d="M74,62 L84,62 L84,52" fill="none" stroke="currentColor" stroke-width="1"/>
+  <text x="300" y="95" text-anchor="middle">⇝</text>
+  <text x="380" y="95" text-anchor="middle">E</text>
+  <text x="480" y="95" text-anchor="middle">A</text>
+  <text x="580" y="95" text-anchor="middle">B</text>
+  <line x1="394" y1="90" x2="464" y2="90" marker-start="url(#m11)" marker-end="url(#a11)"/>
+  <text class="lbl" x="429" y="80" text-anchor="middle">e</text>
+  <line x1="496" y1="84" x2="564" y2="84" marker-end="url(#a11)"/>
+  <text class="lbl" x="530" y="73" text-anchor="middle">f</text>
+  <line x1="496" y1="96" x2="564" y2="96" marker-end="url(#a11)"/>
+  <text class="lbl" x="530" y="118" text-anchor="middle">g</text>
+</svg>
+</figure>
+は平行な対 f, g : A ⇉ B の等化子を定める。</div>
+
+<p><span class="proof-head">証明.</span> 積の表現可能な普遍性</p>
+
+<p class="eq">Hom(X, B × B) ≅ Hom(X, B) × Hom(X, B)</p>
+
+<p>と、定理3.5.5(i) の形で述べた引き戻しの表現可能な普遍性により、次の引き戻しの図式が得られる。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 520 175" width="520" role="img" aria-label="Hom(X, E), Hom(X, A), Hom(X, B), Hom(X, B) × Hom(X, B) がなす引き戻しの四角形">
+  <defs><marker id="a12" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="90" y="40" text-anchor="middle">Hom(X, E)</text>
+  <text x="340" y="40" text-anchor="middle">Hom(X, A)</text>
+  <text x="90" y="145" text-anchor="middle">Hom(X, B)</text>
+  <text x="340" y="145" text-anchor="middle">Hom(X, B) × Hom(X, B)</text>
+  <line x1="150" y1="35" x2="282" y2="35" marker-end="url(#a12)"/>
+  <text class="lbl" x="216" y="25" text-anchor="middle">e<tspan dy="3" font-size="10.5">∗</tspan></text>
+  <line x1="90" y1="50" x2="90" y2="127" marker-end="url(#a12)"/>
+  <text class="lbl" x="80" y="92" text-anchor="end">ℓ<tspan dy="3" font-size="10.5">∗</tspan></text>
+  <line x1="340" y1="50" x2="340" y2="127" marker-end="url(#a12)"/>
+  <text class="lbl" x="350" y="92" text-anchor="start">(f<tspan dy="3" font-size="10.5">∗</tspan><tspan dy="-3">, g</tspan><tspan dy="3" font-size="10.5">∗</tspan><tspan dy="-3">)</tspan></text>
+  <line x1="150" y1="140" x2="230" y2="140" marker-end="url(#a12)"/>
+  <text class="lbl" x="190" y="163" text-anchor="middle">(id<tspan dy="3" font-size="10.5">∗</tspan><tspan dy="-3">, id</tspan><tspan dy="3" font-size="10.5">∗</tspan><tspan dy="-3">)</tspan></text>
+  <path d="M104,62 L114,62 L114,52" fill="none" stroke="currentColor" stroke-width="1"/>
+</svg>
+</figure>
+
+<p>例3.2.9 で与えた Set の引き戻しの記述により、e と ℓ との合成は、E の X 型の一般化された要素と、fa = b = ga を満たす一般化された要素の対 (a : X → A, b : X → B) との間の全単射を定める。よって e との合成は、Hom(X, E) と、fa = ga を満たす一般化された要素 a からなる Hom(X, A) の部分集合との同型を定める。例3.2.7 により、これは次が等化子図式であることを意味する。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 500 80" width="500" role="img" aria-label="Hom(X, E) から Hom(X, A) への単射と、Hom(X, B) への平行な写像 f_∗, g_∗">
+  <defs><marker id="a13" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="m13" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="47" text-anchor="middle">Hom(X, E)</text>
+  <text x="250" y="47" text-anchor="middle">Hom(X, A)</text>
+  <text x="430" y="47" text-anchor="middle">Hom(X, B)</text>
+  <line x1="132" y1="42" x2="190" y2="42" marker-start="url(#m13)" marker-end="url(#a13)"/>
+  <text class="lbl" x="161" y="32" text-anchor="middle">e<tspan dy="3" font-size="10.5">∗</tspan></text>
+  <line x1="312" y1="36" x2="370" y2="36" marker-end="url(#a13)"/>
+  <text class="lbl" x="341" y="25" text-anchor="middle">f<tspan dy="3" font-size="10.5">∗</tspan></text>
+  <line x1="312" y1="48" x2="370" y2="48" marker-end="url(#a13)"/>
+  <text class="lbl" x="341" y="70" text-anchor="middle">g<tspan dy="3" font-size="10.5">∗</tspan></text>
+</svg>
+</figure>
+
+<p>定理3.5.5(ii) により結論が従う。<span class="qed">□</span></p>
+
+<h2>定理3.5.17 — 有限極限</h2>
+
+<p>図式が<b>有限</b>（finite）であるとは、その添字圏の射が有限個であることをいう。補題3.5.15 と補題3.5.16 から次が従う。</p>
+
+<div class="thm"><b>定理3.5.17.</b> 引き戻しと終対象を持つ任意の圏は、すべての有限極限を持つ。双対に、押し出しと始対象を持つ任意の圏は、すべての有限余極限を持つ。</div>
+
+<h2>節末問題</h2>
+
+<p class="note">原文は英語。以下は和訳・言い換え。</p>
+
+<ul>
+  <li><b>3.5.i</b> — 同型 (3.5.1) が X について自然であることを示せ。</li>
+  <li><b>3.5.ii</b> — 米田埋め込み よ : C ↪ Set<sup>C<sup>op</sup></sup> が極限を保存し反映するが創出はしない理由を、自分の言葉で説明せよ。明示的な反例を見つけられるか。</li>
+  <li><b>3.5.iii</b> — 任意の圏 C のモノ射とエピ射がどちらも Set のモノ射によって表現可能に定義できることを説明せよ。</li>
+</ul>
+
+</body>
+</html>
