@@ -14,7 +14,7 @@ import Mathlib.Topology.Category.TopCat.Basic
 # 3.4 極限と余極限の保存・反映・創出
 
 節の数学的な内容は同名の HTML にある。このファイルは本の主張を出現順に並べたもので、主張と
-定理群の構成は各セクションの冒頭に、形式化の判断は下の表に、Mathlib の対応物と包装は各
+定理群の構成は各セクションの冒頭に、形式化の判断は下の表に、Mathlib の対応物は各
 statement の直前の `#check`・`#print` にある。
 
 形式化の判断:
@@ -24,7 +24,7 @@ statement の直前の `#check`・`#print` にある。
   錐の像と      錐の像 Fλ と comparison map κ は本節の本文が記述するので自前で組む。Fλ は
   comparison    data を書き、脚の自然性を演習にする。κ は「F で写した極限錐を FK の極限錐から
   map           分解する射」を作ること自体が中身なので丸ごと演習。どちらも Mathlib の
-                `Functor.mapCone`・`limit.post` と持ち方が同じなので、以降の statement は
+                `Functor.mapCone`・`limit.post` と定義が一致するので、以降の statement は
                 Mathlib の名前で書く。余極限側の錐の像 `myMapCocone` も、演習3.4.i と
                 演習3.4.vi の statement が `Functor.mapCocone` を使うので組む。錐の像が錐の
                 射も写して関手 Cone K ⥤ Cone (K ⋙ F) をなすことは本にないが、錐の同型を F で
@@ -32,12 +32,12 @@ statement の直前の `#check`・`#print` にある。
                 `Cone.functoriality`）。対象の部分は `Functor.mapCone`、射の頂点成分は F で
                 写した射として書いて渡し、錐の射の条件と関手則を演習にする
   定義3.4.1    保存・反映は Mathlib の `PreservesLimit`・`ReflectsLimit` とフィールド単位
-                で同じなので、写しを書いて渡し、statement は Mathlib で書く。創出は持ち方が
-                違う。本は「FK が極限を持てば K も持ち、そのとき錐が極限錐であることと像が
+                で同じなので、写しを書いて渡し、statement は Mathlib で書く。創出は Mathlib
+                の定義と形が違う。本は「FK が極限を持てば K も持ち、そのとき錐が極限錐であることと像が
                 極限錐であることが同値」という命題で、Mathlib の `CreatesLimit` は極限錐の
                 持ち上げと同型 `LiftableCone` を data として持つ。本の形を `MyCreatesLimit`
-                として置き、`Nonempty (CreatesLimit K F)` との同値を橋渡しの演習にする。
-                橋渡しでは同型を介して極限錐を移すので、本にない補題「極限錐と同型な錐は
+                として置き、`Nonempty (CreatesLimit K F)` との同値を演習にする。
+                同値の証明では同型を介して極限錐を移すので、本にない補題「極限錐と同型な錐は
                 極限錐」を `myIsLimitOfIso` として直前に置く（Mathlib の
                 `IsLimit.ofIsoLimit`）。創出の statement は Mathlib の `CreatesLimit` を返す `def` で書く。余極限の
                 保存 `MyPreservesColimit` は演習3.4.i と演習3.4.vi で使うので写しを置く。
@@ -59,12 +59,12 @@ statement の直前の `#check`・`#print` にある。
                 の余極限側のために双対 `MyStrictlyCreatesColimit` も置く
   連結な圏      本の定義（空でなく、任意の二対象が射の有限のジグザグで結ばれる）を
                 `MyIsConnected` として置く。ジグザグは一歩の関係 `myZag` の反射推移閉包
-                `Relation.ReflTransGen` で書く。Mathlib の `IsConnected` は「射で不変な関数
-                は定数」の形で持つので持ち方が違い、同値を橋渡しの演習にする。命題3.4.8 と
-                演習3.4.ii の statement は `MyIsConnected` で書く
+                `Relation.ReflTransGen` で書く。Mathlib の `IsConnected` は「任意の離散圏への
+                関手が定関手と同型」の形で定義されているので、同値 `myIsConnected_iff` を演習
+                に置き、statement は `IsConnected` で書く
   命題3.4.8     c/C（演習1.1.iii）は Mathlib の `Under c`、忘却関手は `Under.forget c`。
                 `Under c` はコンマ圏 `Comma (Functor.fromPUnit c) (𝟭 C)` で、本の c/C に空の
-                `left` 成分が付いた形。既知の定義なので、使う直前に `#print` で包装を見せる。
+                `left` 成分が付いた形。本の c/C とは形が違うので、使う直前に `#print` で定義を見せる。
                 忘却関手は `myUnderForget` として組み直す演習を置くが、statement は
                 `Under.forget c` で書く。証明で使う Π の上の錐 `Under.forgetCone` と錐の
                 引き戻し `Cone.whisker` も `myUnderForgetCone`・`myConeWhisker` として組む
@@ -753,8 +753,6 @@ def myConeWhisker {J' : Type v} [SmallCategory J'] {K : J ⥤ C} (E : J' ⥤ J) 
 
 
 
-
-
 #check StructuredArrow.createsLimitsOfShape
 
 noncomputable instance prop_3_4_8_limits (c : C) (K : J ⥤ Under c) :
@@ -845,16 +843,12 @@ noncomputable instance prop_3_4_8_limits (c : C) (K : J ⥤ Under c) :
         intro j; simp only [Functor.mapCone_pt, Under.forget_obj, Functor.comp_obj,
           Functor.mapCone_π_app, Under.forget_map]
         erw [<- w j, Under.comp_right]
-
-
-
-
     }
   }
 
 #check Under.createsColimitsOfShapeForgetOfIsConnected
 
-noncomputable def prop_3_4_8_colimits [MyIsConnected J] (c : C) (K : J ⥤ Under c) :
+noncomputable def prop_3_4_8_colimits [IsConnected J] (c : C) (K : J ⥤ Under c) :
     MyStrictlyCreatesColimit K (Under.forget c) := sorry
 
 #check Comma.hasLimitsOfShape
@@ -864,7 +858,7 @@ theorem prop_3_4_8_hasLimits (c : C) [HasLimitsOfShape J C] : HasLimitsOfShape J
 
 #check Under.hasColimitsOfShape_of_isConnected
 
-theorem prop_3_4_8_hasColimits [MyIsConnected J] (c : C) [HasColimitsOfShape J C] :
+theorem prop_3_4_8_hasColimits [IsConnected J] (c : C) [HasColimitsOfShape J C] :
     HasColimitsOfShape J (Under c) := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -945,7 +939,7 @@ noncomputable def ex_3_4_ii_i (F : C ⥤ Type v) (K : J ⥤ F.Elements)
     [HasLimit (K ⋙ Functor.Elements.π F)] [PreservesLimit (K ⋙ Functor.Elements.π F) F] :
     MyStrictlyCreatesLimit K (Functor.Elements.π F) := sorry
 
-noncomputable def ex_3_4_ii_ii [MyIsConnected J] (F : C ⥤ Type v) (K : J ⥤ F.Elements) :
+noncomputable def ex_3_4_ii_ii [IsConnected J] (F : C ⥤ Type v) (K : J ⥤ F.Elements) :
     MyStrictlyCreatesColimit K (Functor.Elements.π F) := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

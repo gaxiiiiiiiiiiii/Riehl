@@ -30,6 +30,8 @@ Lean のコードには触れないでください。`by ...` 以降を完成さ
 
 toolchain と Mathlib の rev は `lean-toolchain` と `lakefile.toml` にあります。別プロジェクト `~/workspace/Lean/Closure` は古い Mathlib なので、そちらで確認した定義名をここで使う前に再確認してください。
 
+リンタの警告はファイルの書き方で解決します。`set_option` や `lakefile.toml` で無効化しません。例外は `linter.style.header` だけで、Mathlib の copyright ヘッダ要求は個人プロジェクトに合わないので lakefile で無効化してあります。
+
 ## 説明の言語
 
 説明は日本語で行い、`Lean`、`Mathlib`、`lake build`、定義名、定理名、tactic 名などは英語のまま使ってください。
