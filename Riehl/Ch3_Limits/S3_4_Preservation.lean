@@ -70,7 +70,8 @@ statement の直前の `#check`・`#print` にある。
                 引き戻し `Cone.whisker` も `underForgetCone`・`coneWhisker` として組む
                 演習を置く。strict な創出の 2 本と、「したがって c/C は極限・連結な余極限を
                 持つ」の 2 本に割る
-  命題3.4.9     ob A ↪ A を `obIncl`（`Discrete A ⥤ A`）、忘却関手 ev を `ev`（`obIncl`
+  命題3.4.9     ob A ↪ A を `obIncl`（`Discrete A ⥤ A`。Mathlib の `Discrete.functor id` と
+                `rfl` で一致）、忘却関手 ev を `ev`（`obIncl`
                 との前合成）として組む。どちらも義務が自動で閉じるので書き切って渡す。
                 Mathlib に ev の名前の付いた対応物はない（`Functor.whiskeringLeft` の特殊化）
                 ので、statement は `ev` を参照する。主張は strict な創出と (i)・(ii) の
@@ -988,9 +989,12 @@ theorem under_hasColimitsOfShape_of_isConnected [IsConnected J] (c : C)
       厳密に創出することを示し、そこから (i) と (ii) を示す。
 -/
 
+#check Discrete.functor
+
 def obIncl (A : Type v) [SmallCategory A] : Discrete A ⥤ A where
   obj a := a.as
   map f := eqToHom (Discrete.eq_of_hom f)
+
 
 def ev (A : Type v) [SmallCategory A] (C : Type u) [Category.{v} C] :
     (A ⥤ C) ⥤ (Discrete A ⥤ C) where
