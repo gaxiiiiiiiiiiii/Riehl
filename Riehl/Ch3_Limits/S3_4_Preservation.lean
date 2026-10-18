@@ -71,7 +71,7 @@ statement の直前の `#check`・`#print` にある。
                 演習を置く。strict な創出の 2 本と、「したがって c/C は極限・連結な余極限を
                 持つ」の 2 本に割る
   命題3.4.9     ob A ↪ A を `obIncl`（`Discrete A ⥤ A`。Mathlib の `Discrete.functor id` と
-                `rfl` で一致）、忘却関手 ev を `ev`（`obIncl`
+                `rfl` で一致）、忘却関手 ev を `ev`（`Discrete.functor id`
                 との前合成）として組む。どちらも義務が自動で閉じるので書き切って渡す。
                 Mathlib に ev の名前の付いた対応物はない（`Functor.whiskeringLeft` の特殊化）
                 ので、statement は `ev` を参照する。主張は strict な創出と (i)・(ii) の
@@ -998,8 +998,8 @@ def obIncl (A : Type v) [SmallCategory A] : Discrete A ⥤ A where
 
 def ev (A : Type v) [SmallCategory A] (C : Type u) [Category.{v} C] :
     (A ⥤ C) ⥤ (Discrete A ⥤ C) where
-  obj G := obIncl A ⋙ G
-  map α := Functor.whiskerLeft (obIncl A) α
+  obj G := Discrete.functor id ⋙ G
+  map α := Functor.whiskerLeft (Discrete.functor id) α
 
 noncomputable def evStrictlyCreatesLimit (A : Type v) [SmallCategory A] (K : J ⥤ (A ⥤ C)) :
     StrictlyCreatesLimit K (ev A C) where
