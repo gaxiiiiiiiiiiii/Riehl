@@ -53,13 +53,13 @@ C(X, −) : C → Set は、C に存在する任意の極限を保存する。
 
 #check coyoneda_preservesLimit
 
-theorem thm_3_5_2_iso (F : J ⥤ C) [HasLimit F] (X : Cᵒᵖ) :
+theorem isIso_limit_post_coyoneda (F : J ⥤ C) [HasLimit F] (X : Cᵒᵖ) :
     IsIso (limit.post F (coyoneda.obj X)) := sorry
 
-noncomputable def thm_3_5_2_natIso (F : J ⥤ C) [HasLimit F] :
+noncomputable def yonedaObjLimitIso (F : J ⥤ C) [HasLimit F] :
     yoneda.obj (limit F) ≅ coyoneda ⋙ (Functor.whiskeringLeft J C (Type v)).obj F ⋙ lim := sorry
 
-theorem thm_3_5_2_preserves (F : J ⥤ C) (X : Cᵒᵖ) :
+theorem coyonedaObj_preservesLimit (F : J ⥤ C) (X : Cᵒᵖ) :
     PreservesLimit F (coyoneda.obj X) := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -72,15 +72,18 @@ C を任意の局所小圏とする。(i) 共変表現可能関手 C(X, −) は
 
 #check coyoneda_preservesLimits
 
-theorem thm_3_5_5_i (X : Cᵒᵖ) : PreservesLimitsOfSize.{v, v} (coyoneda.obj X) := sorry
+theorem coyonedaObj_preservesLimits (X : Cᵒᵖ) :
+    PreservesLimitsOfSize.{v, v} (coyoneda.obj X) := sorry
 
 #check yonedaFunctor_preservesLimits
 
-theorem thm_3_5_5_ii_preserves : PreservesLimitsOfSize.{v, v} (yoneda : C ⥤ Cᵒᵖ ⥤ Type v) := sorry
+theorem yonedaEmbedding_preservesLimits :
+    PreservesLimitsOfSize.{v, v} (yoneda : C ⥤ Cᵒᵖ ⥤ Type v) := sorry
 
 #check yonedaFunctor_reflectsLimits
 
-theorem thm_3_5_5_ii_reflects : ReflectsLimitsOfSize.{v, v} (yoneda : C ⥤ Cᵒᵖ ⥤ Type v) := sorry
+theorem yonedaEmbedding_reflectsLimits :
+    ReflectsLimitsOfSize.{v, v} (yoneda : C ⥤ Cᵒᵖ ⥤ Type v) := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 定理3.5.6
@@ -96,10 +99,10 @@ theorem thm_3_5_5_ii_reflects : ReflectsLimitsOfSize.{v, v} (yoneda : C ⥤ Cᵒ
 #check limitOpIsoOpColimit
 #check yoneda_preservesLimit
 
-theorem thm_3_5_6_iso (F : J ⥤ C) [HasColimit F] (X : C) :
+theorem isIso_limit_post_yoneda (F : J ⥤ C) [HasColimit F] (X : C) :
     IsIso (limit.post F.op (yoneda.obj X)) := sorry
 
-theorem thm_3_5_6_preserves (F : J ⥤ C) (X : C) :
+theorem yonedaObj_preservesLimit (F : J ⥤ C) (X : C) :
     PreservesLimit F.op (yoneda.obj X) := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -112,16 +115,16 @@ C を任意の局所小圏とする。(i) 反変表現可能関手 C(−, X) は
 
 #check yoneda_preservesLimits
 
-theorem thm_3_5_10_i (X : C) : PreservesLimitsOfSize.{v, v} (yoneda.obj X) := sorry
+theorem yonedaObj_preservesLimits (X : C) : PreservesLimitsOfSize.{v, v} (yoneda.obj X) := sorry
 
 #check coyonedaFunctor_preservesLimits
 
-theorem thm_3_5_10_ii_preserves :
+theorem coyonedaEmbedding_preservesLimits :
     PreservesLimitsOfSize.{v, v} (coyoneda : Cᵒᵖ ⥤ C ⥤ Type v) := sorry
 
 #check coyonedaFunctor_reflectsLimits
 
-theorem thm_3_5_10_ii_reflects :
+theorem coyonedaEmbedding_reflectsLimits :
     ReflectsLimitsOfSize.{v, v} (coyoneda : Cᵒᵖ ⥤ C ⥤ Type v) := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -147,7 +150,7 @@ noncomputable def myCoproductC (F : J ⥤ C) [HasCoproducts.{v} C] :
 
 #check HasColimitOfHasCoproductsOfHasCoequalizers.buildColimit
 
-noncomputable def thm_3_5_11_cocone (F : J ⥤ C) [HasCoproducts.{v} C] [HasCoequalizers C] :
+noncomputable def coproductCoequalizerCocone (F : J ⥤ C) [HasCoproducts.{v} C] [HasCoequalizers C] :
     Cocone F where
   pt := coequalizer (myCoproductD F) (myCoproductC F)
   ι := {
@@ -157,12 +160,12 @@ noncomputable def thm_3_5_11_cocone (F : J ⥤ C) [HasCoproducts.{v} C] [HasCoeq
 
 #check HasColimitOfHasCoproductsOfHasCoequalizers.buildIsColimit
 
-noncomputable def thm_3_5_11_isColimit (F : J ⥤ C) [HasCoproducts.{v} C] [HasCoequalizers C] :
-    IsColimit (thm_3_5_11_cocone F) := sorry
+noncomputable def isColimitCoproductCoequalizerCocone (F : J ⥤ C) [HasCoproducts.{v} C]
+    [HasCoequalizers C] : IsColimit (coproductCoequalizerCocone F) := sorry
 
 #check has_colimits_of_hasCoequalizers_and_coproducts
 
-theorem thm_3_5_11_cocomplete [HasCoproducts.{v} C] [HasCoequalizers C] :
+theorem hasColimits_of_hasCoproducts_of_hasCoequalizers [HasCoproducts.{v} C] [HasCoequalizers C] :
     HasColimitsOfSize.{v, v} C := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -176,21 +179,21 @@ I で添字づけられた対象の族 (A_i) の積は、射の族 (! : A_i → 
 
 #check isProductOfIsTerminalIsPullback
 
-def lemma_3_5_15 {P A B T : C} (hT : IsTerminal T) (f : P ⟶ A) (g : P ⟶ B)
+def isLimitBinaryFanOfPullbackTerminal {P A B T : C} (hT : IsTerminal T) (f : P ⟶ A) (g : P ⟶ B)
     (h : IsLimit (PullbackCone.mk f g (hT.hom_ext (f ≫ hT.from A) (g ≫ hT.from B)))) :
     IsLimit (BinaryFan.mk f g) := sorry
 
 #print WidePullbackShape
 #check WidePullbackShape.wideCospan
 
-def lemma_3_5_15_wide {I : Type v} (A : I → C) {T : C} (hT : IsTerminal T)
+def isLimitFanOfWidePullbackTerminal {I : Type v} (A : I → C) {T : C} (hT : IsTerminal T)
     (c : Cone (WidePullbackShape.wideCospan T A fun i ↦ hT.from (A i))) (hc : IsLimit c) :
     IsLimit (Fan.mk c.pt fun i ↦ c.π.app (some i)) := sorry
 
 #check hasBinaryProducts_of_hasTerminal_and_pullbacks
 #check hasFiniteProducts_of_has_binary_and_terminal
 
-theorem lemma_3_5_15_finiteProducts [HasTerminal C] [HasPullbacks C] :
+theorem hasFiniteProducts_of_hasTerminal_of_hasPullbacks [HasTerminal C] [HasPullbacks C] :
     HasFiniteProducts C := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -200,24 +203,24 @@ theorem lemma_3_5_15_finiteProducts [HasTerminal C] [HasPullbacks C] :
 二項積を持つ任意の圏において、(f, g) : A → B × B と対角射 (id_B, id_B) : B → B × B の引き戻し
 E → A は、平行な対 f, g : A ⇉ B の等化子である。
 
-構成: `Fork.ofι` が条件 e ≫ f = e ≫ g を要求するので、条件を `lemma_3_5_16_condition` として
-先に立て、等化子であること `lemma_3_5_16` はそれを参照する。
+構成: `Fork.ofι` が条件 e ≫ f = e ≫ g を要求するので、条件を `fork_condition_of_pullback_diag` として
+先に立て、等化子であること `isLimitForkOfPullbackDiag` はそれを参照する。
 -/
 
 #check HasEqualizersOfHasPullbacksAndBinaryProducts.equalizerConeIsLimit
 
-theorem lemma_3_5_16_condition {A B E : C} [HasBinaryProduct B B] {f g : A ⟶ B}
+theorem fork_condition_of_pullback_diag {A B E : C} [HasBinaryProduct B B] {f g : A ⟶ B}
     {e : E ⟶ A} {l : E ⟶ B} (w : e ≫ prod.lift f g = l ≫ prod.lift (𝟙 B) (𝟙 B)) :
     e ≫ f = e ≫ g := sorry
 
-def lemma_3_5_16 {A B E : C} [HasBinaryProduct B B] {f g : A ⟶ B}
+def isLimitForkOfPullbackDiag {A B E : C} [HasBinaryProduct B B] {f g : A ⟶ B}
     {e : E ⟶ A} {l : E ⟶ B} (w : e ≫ prod.lift f g = l ≫ prod.lift (𝟙 B) (𝟙 B))
     (h : IsLimit (PullbackCone.mk e l w)) :
-    IsLimit (Fork.ofι e (lemma_3_5_16_condition w)) := sorry
+    IsLimit (Fork.ofι e (fork_condition_of_pullback_diag w)) := sorry
 
 #check hasEqualizers_of_hasPullbacks_and_binary_products
 
-theorem lemma_3_5_16_equalizers [HasBinaryProducts C] [HasPullbacks C] :
+theorem hasEqualizers_of_hasBinaryProducts_of_hasPullbacks [HasBinaryProducts C] [HasPullbacks C] :
     HasEqualizers C := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -239,7 +242,8 @@ theorem myFiniteCategory_iff (J : Type v) [SmallCategory J] :
 #print HasFiniteLimits
 #check hasFiniteLimits_of_hasTerminal_and_pullbacks
 
-theorem thm_3_5_17 [HasTerminal C] [HasPullbacks C] : HasFiniteLimits C := sorry
+theorem hasFiniteLimits_of_hasTerminal_of_hasPullbacks [HasTerminal C] [HasPullbacks C] :
+    HasFiniteLimits C := sorry
 
 -- ╔═════════════════════════════════════════════════════════════════════════
 -- ║  節末問題
@@ -252,7 +256,7 @@ theorem thm_3_5_17 [HasTerminal C] [HasPullbacks C] : HasFiniteLimits C := sorry
 
 #check NatIso.ofComponents
 
-noncomputable def ex_3_5_i (F : J ⥤ C) :
+noncomputable def limCoyonedaIsoCones (F : J ⥤ C) :
     coyoneda ⋙ (Functor.whiskeringLeft J C (Type v)).obj F ⋙ lim ≅ F.cones :=
   NatIso.ofComponents (fun X ↦ (myLimitHomEquivCone F X).toIso) sorry
 

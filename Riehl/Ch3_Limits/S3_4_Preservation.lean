@@ -241,7 +241,7 @@ def myIsLimitOfIso {K : J ⥤ C} {c d : Cone K} (Hc : IsLimit c) (σ : c ≅ d) 
 #print CreatesLimit
 #print LiftableCone
 
-theorem def_3_4_1_creates (K : J ⥤ C) (F : C ⥤ D) :
+theorem myCreatesLimit_iff_createsLimit (K : J ⥤ C) (F : C ⥤ D) :
     MyCreatesLimit K F ↔ Nonempty (CreatesLimit K F) where
   mp H := ⟨{
     reflects {c} HFc := ⟨(((H.creates ⟨_, HFc⟩).2 c).mpr ⟨HFc⟩).some⟩
@@ -326,8 +326,8 @@ class MyReflectsIsomorphisms (F : C ⥤ D) : Prop where
 #check preservesLimit_of_isIso_post
 #print HasLimitsOfShape
 
-theorem lemma_3_4_3 [HasLimitsOfShape J C] [HasLimitsOfShape J D] (F : C ⥤ D) (K : J ⥤ C) :
-    PreservesLimit K F ↔ IsIso (limit.post K F) where
+theorem preservesLimit_iff_isIso_post [HasLimitsOfShape J C] [HasLimitsOfShape J D] (F : C ⥤ D)
+    (K : J ⥤ C) : PreservesLimit K F ↔ IsIso (limit.post K F) where
   mp H := by
     have Hs := limit.isLimit K
     have Ht := (H.preserves Hs).some
@@ -386,7 +386,7 @@ theorem lemma_3_4_3 [HasLimitsOfShape J C] [HasLimitsOfShape J D] (F : C ⥤ D) 
 
 #check fullyFaithful_reflectsLimits
 
-theorem lemma_3_4_5 (F : C ⥤ D) [F.Full] [F.Faithful] (K : J ⥤ C) :
+theorem reflectsLimit_of_fullyFaithful (F : C ⥤ D) [F.Full] [F.Faithful] (K : J ⥤ C) :
     ReflectsLimit K F where
   reflects {c} Hc := ⟨{
     lift s := F.preimage (Hc.lift (F.mapCone s))
@@ -567,7 +567,7 @@ noncomputable def coneEquivalence (F : C ⥤ D) [F.IsEquivalence] (K : J ⥤ C) 
 #check Adjunction.isEquivalencePreservesLimits
 
 -- Functor.mapConeInv
-theorem lemma_3_4_6_preserves (F : C ⥤ D) [F.IsEquivalence] (K : J ⥤ C) :
+theorem preservesLimit_of_isEquivalence (F : C ⥤ D) [F.IsEquivalence] (K : J ⥤ C) :
     PreservesLimit K F where
   preserves {c} Hc := ⟨{
     lift μ := by
@@ -598,12 +598,12 @@ theorem lemma_3_4_6_preserves (F : C ⥤ D) [F.IsEquivalence] (K : J ⥤ C) :
 
 #check Functor.reflectsLimits_of_isEquivalence
 
-theorem lemma_3_4_6_reflects (F : C ⥤ D) [F.IsEquivalence] (K : J ⥤ C) :
+theorem reflectsLimit_of_isEquivalence (F : C ⥤ D) [F.IsEquivalence] (K : J ⥤ C) :
   ReflectsLimit K F := (fullyFaithful_reflectsLimits F).reflectsLimitsOfShape.reflectsLimit
 
 #check Functor.createsLimitsOfIsEquivalence
 #print CreatesLimit
-noncomputable instance lemma_3_4_6_creates (F : C ⥤ D) [F.IsEquivalence] (K : J ⥤ C) :
+noncomputable instance createsLimitOfIsEquivalence (F : C ⥤ D) [F.IsEquivalence] (K : J ⥤ C) :
     CreatesLimit K F where
   lifts c _ := {
     liftedCone := F.mapConeInv c
@@ -755,7 +755,7 @@ def myConeWhisker {J' : Type v} [SmallCategory J'] {K : J ⥤ C} (E : J' ⥤ J) 
 
 #check StructuredArrow.createsLimitsOfShape
 
-noncomputable instance prop_3_4_8_limits (c : C) (K : J ⥤ Under c) :
+noncomputable instance underForgetStrictlyCreatesLimit (c : C) (K : J ⥤ Under c) :
     MyStrictlyCreatesLimit K (Under.forget c) where
   lifts d H := {
     liftedCone := {
@@ -849,15 +849,15 @@ noncomputable instance prop_3_4_8_limits (c : C) (K : J ⥤ Under c) :
 #check Comma.hasLimitsOfShape
 
 #print HasLimitsOfShape
-theorem prop_3_4_8_hasLimits (c : C) [HasLimitsOfShape J C] : HasLimitsOfShape J (Under c) where
+theorem under_hasLimitsOfShape (c : C) [HasLimitsOfShape J C] : HasLimitsOfShape J (Under c) where
   has_limit F := by
-    have H := (prop_3_4_8_limits c F).lifts
+    have H := (underForgetStrictlyCreatesLimit c F).lifts
     have HF := H (limit.cone (F ⋙ Under.forget c)) (limit.isLimit (F ⋙ Under.forget c))
     exact ⟨HF.liftedCone, HF.makesLimit⟩
 
 #check Under.createsColimitsOfShapeForgetOfIsConnected
 
-noncomputable instance prop_3_4_8_colimits [IsConnected J] (c : C) (K : J ⥤ Under c) :
+noncomputable instance underForgetStrictlyCreatesColimit [IsConnected J] (c : C) (K : J ⥤ Under c) :
     MyStrictlyCreatesColimit K (Under.forget c) where
   lifts d Hd := {
     liftedCocone := {
@@ -967,10 +967,10 @@ noncomputable instance prop_3_4_8_colimits [IsConnected J] (c : C) (K : J ⥤ Un
 
 #check Under.hasColimitsOfShape_of_isConnected
 
-theorem prop_3_4_8_hasColimits [IsConnected J] (c : C) [HasColimitsOfShape J C] :
-    HasColimitsOfShape J (Under c) where
+theorem under_hasColimitsOfShape_of_isConnected [IsConnected J] (c : C)
+    [HasColimitsOfShape J C] : HasColimitsOfShape J (Under c) where
   has_colimit F := by
-    have H := prop_3_4_8_colimits c F
+    have H := underForgetStrictlyCreatesColimit c F
     have HF := H.lifts (colimit.cocone (F ⋙ Under.forget c)) (colimit.isColimit (F ⋙ Under.forget c))
     exact ⟨HF.liftedCocone, HF.makesColimit⟩
 
@@ -995,7 +995,7 @@ def myEv (A : Type v) [SmallCategory A] (C : Type u) [Category.{v} C] :
   obj G := myObIncl A ⋙ G
   map α := Functor.whiskerLeft (myObIncl A) α
 
-noncomputable def prop_3_4_9 (A : Type v) [SmallCategory A] (K : J ⥤ (A ⥤ C)) :
+noncomputable def myEvStrictlyCreatesLimit (A : Type v) [SmallCategory A] (K : J ⥤ (A ⥤ C)) :
     MyStrictlyCreatesLimit K (myEv A C) where
   lifts d Hd := {
     liftedCone := _
@@ -1009,13 +1009,13 @@ noncomputable def prop_3_4_9 (A : Type v) [SmallCategory A] (K : J ⥤ (A ⥤ C)
 
 #check functorCategoryHasLimitsOfShape
 
-theorem prop_3_4_9_i (A : Type v) [SmallCategory A] [HasLimitsOfShape J C] :
+theorem functorCategory_hasLimitsOfShape (A : Type v) [SmallCategory A] [HasLimitsOfShape J C] :
     HasLimitsOfShape J (A ⥤ C) := sorry
 
 #check evaluation_preservesLimitsOfShape
 
-theorem prop_3_4_9_ii (A : Type v) [SmallCategory A] [HasLimitsOfShape J C] (a : A) :
-    PreservesLimitsOfShape J ((evaluation A C).obj a) := sorry
+theorem evaluationObj_preservesLimitsOfShape (A : Type v) [SmallCategory A]
+    [HasLimitsOfShape J C] (a : A) : PreservesLimitsOfShape J ((evaluation A C).obj a) := sorry
 
 -- ╔═════════════════════════════════════════════════════════════════════════
 -- ║  節末問題
@@ -1030,13 +1030,13 @@ theorem prop_3_4_9_ii (A : Type v) [SmallCategory A] [HasLimitsOfShape J C] (a :
 この射が同型であるとき、かつそのときに限る。
 -/
 
-noncomputable def ex_3_4_i_i (K : J ⥤ C) (F : C ⥤ D) [HasColimit K] [HasColimit (K ⋙ F)] :
+noncomputable def colimitComparison (K : J ⥤ C) (F : C ⥤ D) [HasColimit K] [HasColimit (K ⋙ F)] :
     colimit (K ⋙ F) ⟶ F.obj (colimit K) := sorry
 
 #check preservesColimit_of_isIso_post
 
-theorem ex_3_4_i_ii (K : J ⥤ C) (F : C ⥤ D) [HasColimit K] [HasColimit (K ⋙ F)] :
-    PreservesColimit K F ↔ IsIso (ex_3_4_i_i K F) := sorry
+theorem preservesColimit_iff_isIso_colimitComparison (K : J ⥤ C) (F : C ⥤ D) [HasColimit K]
+    [HasColimit (K ⋙ F)] : PreservesColimit K F ↔ IsIso (colimitComparison K F) := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 演習3.4.ii
@@ -1047,12 +1047,12 @@ theorem ex_3_4_i_ii (K : J ⥤ C) (F : C ⥤ D) [HasColimit K] [HasColimit (K �
 ΠK の余極限が C に存在するような任意の図式 K : J → ∫F に対して K の余極限を厳密に創出する。
 -/
 
-noncomputable def ex_3_4_ii_i (F : C ⥤ Type v) (K : J ⥤ F.Elements)
+noncomputable def elementsPiStrictlyCreatesLimit (F : C ⥤ Type v) (K : J ⥤ F.Elements)
     [HasLimit (K ⋙ Functor.Elements.π F)] [PreservesLimit (K ⋙ Functor.Elements.π F) F] :
     MyStrictlyCreatesLimit K (Functor.Elements.π F) := sorry
 
-noncomputable def ex_3_4_ii_ii [IsConnected J] (F : C ⥤ Type v) (K : J ⥤ F.Elements) :
-    MyStrictlyCreatesColimit K (Functor.Elements.π F) := sorry
+noncomputable def elementsPiStrictlyCreatesColimit [IsConnected J] (F : C ⥤ Type v)
+    (K : J ⥤ F.Elements) : MyStrictlyCreatesColimit K (Functor.Elements.π F) := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 演習3.4.iii
@@ -1062,8 +1062,8 @@ noncomputable def ex_3_4_ii_ii [IsConnected J] (F : C ⥤ Type v) (K : J ⥤ F.E
 
 #check createsLimitOfReflectsIso
 
-noncomputable def ex_3_4_iii (K : J ⥤ C) (F : C ⥤ D) [HasLimit K] [PreservesLimit K F]
-    [F.ReflectsIsomorphisms] : CreatesLimit K F := sorry
+noncomputable def createsLimitOfPreservesOfReflectsIso (K : J ⥤ C) (F : C ⥤ D) [HasLimit K]
+    [PreservesLimit K F] [F.ReflectsIsomorphisms] : CreatesLimit K F := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 演習3.4.iv
@@ -1071,11 +1071,11 @@ noncomputable def ex_3_4_iii (K : J ⥤ C) (F : C ⥤ D) [HasLimit K] [Preserves
 -- 忘却関手 U : Set∗ → Set と U : Top∗ → Top は余積を保存しない。これは命題3.4.8 の連結性の
 -- 仮定が落とせないことを示す。
 
-theorem ex_3_4_iv_set :
+theorem pointedSet_forget_not_preservesBinaryCoproducts :
     ¬ PreservesColimitsOfShape (Discrete WalkingPair) (Under.forget (PUnit.{v + 1} : Type v)) :=
   sorry
 
-theorem ex_3_4_iv_top :
+theorem pointedTop_forget_not_preservesBinaryCoproducts :
     ¬ PreservesColimitsOfShape (Discrete WalkingPair) (Under.forget (TopCat.of PUnit.{v + 1})) :=
   sorry
 
@@ -1093,16 +1093,16 @@ section
 
 variable {I : Type w} (Cs : I → Type u) [∀ i, Category.{v} (Cs i)]
 
-theorem ex_3_4_v_i (k : I) : PreservesLimitsOfShape J (Pi.eval Cs k) := sorry
+theorem piEval_preservesLimitsOfShape (k : I) : PreservesLimitsOfShape J (Pi.eval Cs k) := sorry
 
-def ex_3_4_v_ii (F : J ⥤ ∀ i, Cs i) (c : ∀ k, LimitCone (F ⋙ Pi.eval Cs k)) : Cone F where
+def piConeOfComponents (F : J ⥤ ∀ i, Cs i) (c : ∀ k, LimitCone (F ⋙ Pi.eval Cs k)) : Cone F where
   pt := fun k => (c k).cone.pt
   π := sorry
 
-def ex_3_4_v_ii_isLimit (F : J ⥤ ∀ i, Cs i) (c : ∀ k, LimitCone (F ⋙ Pi.eval Cs k)) :
-    IsLimit (ex_3_4_v_ii Cs F c) := sorry
+def isLimitPiConeOfComponents (F : J ⥤ ∀ i, Cs i) (c : ∀ k, LimitCone (F ⋙ Pi.eval Cs k)) :
+    IsLimit (piConeOfComponents Cs F c) := sorry
 
-theorem ex_3_4_v_hasLimits [∀ i, Nonempty (Cs i)] :
+theorem pi_hasLimitsOfShape_iff [∀ i, Nonempty (Cs i)] :
     HasLimitsOfShape J (∀ i, Cs i) ↔ ∀ i, HasLimitsOfShape J (Cs i) := sorry
 
 end
@@ -1120,20 +1120,20 @@ section
 
 variable {A B : C} (s : B ⟶ A) (r : A ⟶ B)
 
-theorem ex_3_4_vi_i_fork_condition (h : s ≫ r = 𝟙 B) : s ≫ 𝟙 A = s ≫ r ≫ s := sorry
+theorem splitIdempotent_fork_condition (h : s ≫ r = 𝟙 B) : s ≫ 𝟙 A = s ≫ r ≫ s := sorry
 
-def ex_3_4_vi_i_equalizer (h : s ≫ r = 𝟙 B) :
-    IsLimit (Fork.ofι s (ex_3_4_vi_i_fork_condition s r h)) := sorry
+def isLimitSplitIdempotentFork (h : s ≫ r = 𝟙 B) :
+    IsLimit (Fork.ofι s (splitIdempotent_fork_condition s r h)) := sorry
 
-theorem ex_3_4_vi_i_cofork_condition (h : s ≫ r = 𝟙 B) : 𝟙 A ≫ r = (r ≫ s) ≫ r := sorry
+theorem splitIdempotent_cofork_condition (h : s ≫ r = 𝟙 B) : 𝟙 A ≫ r = (r ≫ s) ≫ r := sorry
 
-def ex_3_4_vi_i_coequalizer (h : s ≫ r = 𝟙 B) :
-    IsColimit (Cofork.ofπ r (ex_3_4_vi_i_cofork_condition s r h)) := sorry
+def isColimitSplitIdempotentCofork (h : s ≫ r = 𝟙 B) :
+    IsColimit (Cofork.ofπ r (splitIdempotent_cofork_condition s r h)) := sorry
 
-theorem ex_3_4_vi_iii_equalizer (h : s ≫ r = 𝟙 B) (G : C ⥤ D) :
+theorem preservesLimit_splitIdempotent (h : s ≫ r = 𝟙 B) (G : C ⥤ D) :
     PreservesLimit (parallelPair (𝟙 A) (r ≫ s)) G := sorry
 
-theorem ex_3_4_vi_iii_coequalizer (h : s ≫ r = 𝟙 B) (G : C ⥤ D) :
+theorem preservesColimit_splitIdempotent (h : s ≫ r = 𝟙 B) (G : C ⥤ D) :
     PreservesColimit (parallelPair (𝟙 A) (r ≫ s)) G := sorry
 
 end
