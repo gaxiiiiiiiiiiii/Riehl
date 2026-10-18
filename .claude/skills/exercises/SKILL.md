@@ -65,7 +65,7 @@ end Riehl
 
 ### 5.1 名前
 
-宣言の名前は statement の内容から付け、Mathlib の命名規則（定義・構成は lowerCamelCase、定理は snake_case）に揃える。自前実装は本の用語で名付け、Mathlib に同名の宣言があるときだけ `'` を付ける。`example` は使わず、ファイル内の通し番号は振らない。
+宣言の名前は statement の内容から付け、Mathlib の命名規則（定義・構成は lowerCamelCase、定理は snake_case）に揃える。自前実装は本の用語で名付け、Mathlib に同名の宣言があるときだけ末尾に `'` を付ける。`example` は使わず、ファイル内の通し番号は振らない。
 
 ### 5.2 自前実装と Mathlib
 
