@@ -846,20 +846,133 @@ noncomputable instance prop_3_4_8_limits (c : C) (K : J ⥤ Under c) :
     }
   }
 
-#check Under.createsColimitsOfShapeForgetOfIsConnected
-
-noncomputable def prop_3_4_8_colimits [IsConnected J] (c : C) (K : J ⥤ Under c) :
-    MyStrictlyCreatesColimit K (Under.forget c) := sorry
-
 #check Comma.hasLimitsOfShape
 
-theorem prop_3_4_8_hasLimits (c : C) [HasLimitsOfShape J C] : HasLimitsOfShape J (Under c) :=
-  sorry
+#print HasLimitsOfShape
+theorem prop_3_4_8_hasLimits (c : C) [HasLimitsOfShape J C] : HasLimitsOfShape J (Under c) where
+  has_limit F := by
+    have H := (prop_3_4_8_limits c F).lifts
+    have HF := H (limit.cone (F ⋙ Under.forget c)) (limit.isLimit (F ⋙ Under.forget c))
+    exact ⟨HF.liftedCone, HF.makesLimit⟩
+
+#check Under.createsColimitsOfShapeForgetOfIsConnected
+
+noncomputable instance prop_3_4_8_colimits [IsConnected J] (c : C) (K : J ⥤ Under c) :
+    MyStrictlyCreatesColimit K (Under.forget c) where
+  lifts d Hd := {
+    liftedCocone := {
+      pt := {
+        left := ⟨PUnit.unit⟩
+        right := d.pt
+        hom := (K.obj (Classical.arbitrary J)).hom ≫ (d.ι.app ( Classical.arbitrary J))
+      }
+      ι := {
+        app j := {
+          left := 𝟙 _
+          right := d.ι.app j
+          w := by
+            simp only [Functor.const_obj_obj, Functor.id_obj, Discrete.functor_map_id,
+              Category.id_comp]
+            change _ =  (K.obj j).hom ≫ d.ι.app j
+            set i := (Classical.arbitrary J)
+            have H := isPreconnected_zigzag i j
+            induction H with
+            | refl => rfl
+            | @tail k l H Hkl IH =>
+              rcases Hkl with ⟨⟨f⟩⟩ | ⟨⟨f⟩⟩
+              · erw [<- (K.map f).w, Category.assoc, IH]
+                have E := d.ι.naturality f
+                simp only [Functor.comp_obj, Under.forget_obj, Functor.const_obj_obj,
+                  Functor.comp_map, Under.forget_map, Functor.const_obj_map] at E
+                erw [E, Category.comp_id]
+              · erw [IH, <- (K.map f).w]
+                have E := d.ι.naturality f
+                simp only [Functor.comp_obj, Under.forget_obj, Functor.const_obj_obj,
+                  Functor.comp_map, Under.forget_map, Functor.const_obj_map] at E
+                erw [Category.assoc, E, Category.comp_id]
+        }
+        naturality {i j} f := by
+          simp only [Functor.const_obj_obj, Functor.id_obj, Functor.const_obj_map]
+          ext
+          erw [Under.comp_right, Under.comp_right]
+          simp only [Under.Hom.right, Under.id_right]
+          erw [Category.comp_id]
+          have E := d.ι.naturality f
+          simp only [Functor.comp_obj, Under.forget_obj, Functor.const_obj_obj, Functor.comp_map,
+            Under.forget_map, Functor.const_obj_map] at E
+          erw [E, Category.comp_id]
+      }
+
+    }
+    validLift := by
+      simp only [Functor.const_obj_obj, Functor.id_obj]
+      rw [Cocone.mk.injEq]; constructor
+      · simp
+      · apply heq_of_eq; ext j
+        simp only [Functor.comp_obj, Under.forget_obj, Functor.mapCocone_pt, Functor.const_obj_obj,
+          Functor.mapCocone_ι_app]
+        erw [Under.forget_map]
+    unique s E := by
+      rcases s with ⟨f, σ⟩
+      have hf : f = {
+          left := ⟨PUnit.unit⟩
+          right := d.pt
+          hom := (K.obj (Classical.arbitrary J)).hom ≫ d.ι.app (Classical.arbitrary J) } := by
+        subst E
+        have w := Under.w (σ.app (Classical.arbitrary J))
+        dsimp at w ⊢
+        rw [w]
+        rfl
+      simp only [Cocone.mk.injEq]
+      subst hf
+      simp only [heq_eq_eq, true_and]
+      ext j
+      simp only [Functor.const_obj_obj, Under.Hom.right]
+      have E' := congr_arg_heq (fun d => d.ι) E
+      simp only [Functor.mapCocone, Cocone.functoriality, Under.forget_obj, Under.forget_map,
+        heq_eq_eq] at E'
+      exact NatTrans.congr_app E' j
+    makesColimit := {
+      desc s := {
+        left := 𝟙 _
+        right := Hd.desc ((Under.forget c).mapCocone s)
+        w := by
+          simp only [Functor.const_obj_obj, Functor.id_obj, Discrete.functor_map_id,
+            Category.id_comp]
+          erw [Functor.id_map, Category.assoc, Hd.fac]
+          dsimp only [Functor.mapCocone_pt, Under.forget_obj, Functor.mapCocone_ι_app,
+            Under.forget_map]
+          rw [(s.ι.app (Classical.arbitrary J)).w]
+          simp
+      }
+      fac s i := by
+        simp only [Functor.const_obj_obj, Functor.id_obj]
+        ext; erw [Under.comp_right]
+        simp only [Under.Hom.right]
+        erw [Hd.fac]; simp
+      uniq s m w := by
+        simp only [Functor.const_obj_obj, Functor.id_obj] at m w ⊢
+        ext; simp only [Under.Hom.right]
+        rw [<- (Hd.uniq ((Under.forget c).mapCocone s) m.right)]
+        simp only [Functor.comp_obj, Under.forget_obj, Functor.mapCocone_pt,
+          Functor.mapCocone_ι_app, Under.forget_map]
+        intro j
+        have E := congr_arg Under.Hom.right (w j)
+        erw [Under.comp_right] at E
+        simp only [Under.Hom.right] at E
+        rw [E]
+    }
+  }
+
 
 #check Under.hasColimitsOfShape_of_isConnected
 
 theorem prop_3_4_8_hasColimits [IsConnected J] (c : C) [HasColimitsOfShape J C] :
-    HasColimitsOfShape J (Under c) := sorry
+    HasColimitsOfShape J (Under c) where
+  has_colimit F := by
+    have H := prop_3_4_8_colimits c F
+    have HF := H.lifts (colimit.cocone (F ⋙ Under.forget c)) (colimit.isColimit (F ⋙ Under.forget c))
+    exact ⟨HF.liftedCocone, HF.makesColimit⟩
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 命題3.4.9
@@ -885,8 +998,7 @@ def myEv (A : Type v) [SmallCategory A] (C : Type u) [Category.{v} C] :
 noncomputable def prop_3_4_9 (A : Type v) [SmallCategory A] (K : J ⥤ (A ⥤ C)) :
     MyStrictlyCreatesLimit K (myEv A C) where
   lifts d Hd := {
-    liftedCone := by
-
+    liftedCone := _
     validLift := _
     unique := _
     makesLimit := _
