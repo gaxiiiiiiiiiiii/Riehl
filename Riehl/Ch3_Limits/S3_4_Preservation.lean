@@ -9,6 +9,7 @@ import Mathlib.CategoryTheory.IsConnected
 import Mathlib.CategoryTheory.Elements
 import Mathlib.CategoryTheory.Pi.Basic
 import Mathlib.Topology.Category.TopCat.Basic
+import Riehl.Topics.Embedding
 
 /-!
 # 3.4 極限と余極限の保存・反映・創出
@@ -995,6 +996,9 @@ def obIncl (A : Type v) [SmallCategory A] : Discrete A ⥤ A where
   obj a := a.as
   map f := eqToHom (Discrete.eq_of_hom f)
 
+-- ob A ↪ A と書けるのは、この包含が埋め込み（忠実で対象に単射）だから（`Riehl.Topics.Embedding`）。
+theorem discreteFunctorId_embedding (A : Type v) [SmallCategory A] :
+    Embedding (Discrete.functor (id : A → A)) := sorry
 
 def ev (A : Type v) [SmallCategory A] (C : Type u) [Category.{v} C] :
     (A ⥤ C) ⥤ (Discrete A ⥤ C) where

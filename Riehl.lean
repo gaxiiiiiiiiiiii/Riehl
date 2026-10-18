@@ -9,3 +9,4 @@ import Riehl.Ch3_Limits.S3_2_LimitsInSet
 import Riehl.Ch3_Limits.S3_3_Functoriality
 import Riehl.Ch3_Limits.S3_4_Preservation
 import Riehl.Ch3_Limits.S3_5_Representable
+import Riehl.Topics.Embedding
