@@ -100,7 +100,6 @@ variable {C : Type u} [Category.{v} C]
 
 #check MorphismProperty
 
-
 def MorphismProperty' (C : Type u) [Category.{v} C] := ∀ ⦃X Y : C⦄ (_ : X ⟶ Y), Prop
 
 -- 射の述語が恒等射を含み合成で閉じること。Mathlib は `ContainsIdentities` と
@@ -108,7 +107,7 @@ def MorphismProperty' (C : Type u) [Category.{v} C] := ∀ ⦃X Y : C⦄ (_ : X 
 
 #check MorphismProperty.IsMultiplicative
 
-class MorphismProperty'.IsMultiplicative (P : MorphismProperty' C) : Prop where
+class IsMultiplicative (P : MorphismProperty C) : Prop where
   id_mem (X : C) : P (𝟙 X)
   comp_mem {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z) : P f → P g → P (f ≫ g)
 
@@ -116,10 +115,10 @@ class MorphismProperty'.IsMultiplicative (P : MorphismProperty' C) : Prop where
 
 #check WideSubcategory
 
-structure WideSubcategory' (P : MorphismProperty' C) [P.IsMultiplicative] where
+structure WideSubcategory' (P : MorphismProperty C) [P.IsMultiplicative] where
   obj : C
 
-instance WideSubcategory'.category (P : MorphismProperty' C) [P.IsMultiplicative] :
+instance WideSubcategory'.category (P : MorphismProperty C) [P.IsMultiplicative] :
     Category.{v} (WideSubcategory' P) where
   Hom X Y := { f : X.obj ⟶ Y.obj // P f }
   id X := ⟨𝟙 X.obj, sorry⟩
@@ -127,7 +126,7 @@ instance WideSubcategory'.category (P : MorphismProperty' C) [P.IsMultiplicative
 
 #check wideSubcategoryInclusion
 
-def wideSubcategoryInclusion' (P : MorphismProperty' C) [P.IsMultiplicative] :
+def wideSubcategoryInclusion' (P : MorphismProperty C) [P.IsMultiplicative] :
     WideSubcategory' P ⥤ C where
   obj X := X.obj
   map f := f.1
