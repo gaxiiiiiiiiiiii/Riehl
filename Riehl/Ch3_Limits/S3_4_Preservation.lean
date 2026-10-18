@@ -318,7 +318,7 @@ class PreservesColimitsOfShape' (J : Type v) [SmallCategory J] (F : C ⥤ D) : P
 
 #print Functor.ReflectsIsomorphisms
 
-class ReflectsIsomorphisms (F : C ⥤ D) : Prop where
+class ReflectsIsomorphisms' (F : C ⥤ D) : Prop where
   reflects : ∀ {X Y : C} (f : X ⟶ Y) [IsIso (F.map f)], IsIso f
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
