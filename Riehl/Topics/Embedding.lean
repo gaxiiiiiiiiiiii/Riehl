@@ -53,8 +53,9 @@ instance : CoeSort (Subcategory A) (Type u) := ⟨fun S ↦ { x : A // x ∈ S.o
 
 instance Subcategory.category (S : Subcategory A) : Category.{v} S where
   Hom x y := { f : x.1 ⟶ y.1 // f ∈ S.homs }
-  id x := ⟨𝟙 x.1, sorry⟩
-  comp f g := ⟨f.1 ≫ g.1, sorry⟩
+
+  id x := ⟨𝟙 x.1, S.id_mem x.prop⟩
+  comp f g := ⟨f.1 ≫ g.1, S.comp_mem f.prop g.prop⟩
 
 -- 部分圏から A への包含関手。対象と射をそのまま送る。包含関手は忠実で、対象に単射である。
 
@@ -62,9 +63,18 @@ def Subcategory.ι (S : Subcategory A) : S ⥤ A where
   obj x := x.1
   map f := f.1
 
-instance Subcategory.ι_faithful (S : Subcategory A) : S.ι.Faithful := sorry
 
-theorem Subcategory.ι_obj_injective (S : Subcategory A) : Function.Injective S.ι.obj := sorry
+instance Subcategory.ι_faithful (S : Subcategory A) : S.ι.Faithful where
+  map_injective := by
+    intro ⟨x, Hx⟩ ⟨y, Hy⟩ ⟨(f : x ⟶ y), Hf⟩ ⟨(g : x ⟶ y), Hg⟩ E
+    simp only [ι] at E
+    apply Subtype.ext E
+
+
+
+theorem Subcategory.ι_obj_injective (S : Subcategory A) : Function.Injective S.ι.obj := by
+  intro ⟨x, Hx⟩ ⟨y, Hy⟩ (E : x = y)
+  apply Subtype.ext E
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- Mathlib の部分圏との対応
@@ -75,19 +85,62 @@ Mathlib は部分圏を 2 段で表す。対象の述語 `P : ObjectProperty A` 
 射を絞って `WideSubcategory Q` を作る。`Q.IsMultiplicative` が、恒等射を含み合成で閉じる
 という条件にあたる。本の `Subcategory` とこの 2 段の表現は互いに移り合い、圏として同型である。
 
-構成: 本の部分圏 S から述語 P, Q を取り出す向きと、P, Q から本の部分圏を作る向きを別に置き、
+構成: 射の述語とそれによる部分圏は Mathlib と同じ形で自前に書く(`MorphismProperty'`、
+`IsMultiplicative`、`WideSubcategory'`、`wideSubcategoryInclusion'`)。以後は Mathlib のものを
+使う。本の部分圏 S から述語 P, Q を取り出す向きと、P, Q から本の部分圏を作る向きを別に置き、
 圏の同型 `Cat.of S ≅ Cat.of (WideSubcategory Q)` で一致を述べる。圏の同型は圏の圏 `Cat` の
 同型として書く。圏同値 `≌` とは別物で、`Cat.equivOfIso` で同型から同値が得られる。
 -/
 
-#print ObjectProperty
-#print ObjectProperty.FullSubcategory
+section WideSubcategory
+
+variable {C : Type u} [Category.{v} C]
+
+-- 射の述語。各対象の対 X, Y と射 f : X ⟶ Y に命題を割り当てる。
+
+#check MorphismProperty
+
+
+def MorphismProperty' (C : Type u) [Category.{v} C] := ∀ ⦃X Y : C⦄ (_ : X ⟶ Y), Prop
+
+-- 射の述語が恒等射を含み合成で閉じること。Mathlib は `ContainsIdentities` と
+-- `IsStableUnderComposition` の 2 つのクラスに分けて `IsMultiplicative` で束ねる。
+
+#check MorphismProperty.IsMultiplicative
+
+class MorphismProperty'.IsMultiplicative (P : MorphismProperty' C) : Prop where
+  id_mem (X : C) : P (𝟙 X)
+  comp_mem {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z) : P f → P g → P (f ≫ g)
+
+-- 射の述語 P による wide 部分圏。対象は C の対象すべて、射は P を満たす射。
+
+#check WideSubcategory
+
+structure WideSubcategory' (P : MorphismProperty' C) [P.IsMultiplicative] where
+  obj : C
+
+instance WideSubcategory'.category (P : MorphismProperty' C) [P.IsMultiplicative] :
+    Category.{v} (WideSubcategory' P) where
+  Hom X Y := { f : X.obj ⟶ Y.obj // P f }
+  id X := ⟨𝟙 X.obj, sorry⟩
+  comp f g := ⟨f.1 ≫ g.1, sorry⟩
+
+#check wideSubcategoryInclusion
+
+def wideSubcategoryInclusion' (P : MorphismProperty' C) [P.IsMultiplicative] :
+    WideSubcategory' P ⥤ C where
+  obj X := X.obj
+  map f := f.1
+
+end WideSubcategory
+
+-- 本の部分圏と 2 段の表現との往復。
+
+#check ObjectProperty
+#check ObjectProperty.FullSubcategory
 #check ObjectProperty.ι
 
 def Subcategory.objectProperty (S : Subcategory A) : ObjectProperty A := sorry
-
-#print MorphismProperty
-#print MorphismProperty.IsMultiplicative
 
 def Subcategory.morphismProperty (S : Subcategory A) :
     MorphismProperty S.objectProperty.FullSubcategory := sorry
@@ -95,21 +148,18 @@ def Subcategory.morphismProperty (S : Subcategory A) :
 instance Subcategory.morphismProperty_isMultiplicative (S : Subcategory A) :
     S.morphismProperty.IsMultiplicative := sorry
 
-#print WideSubcategory
-#check wideSubcategoryInclusion
-
-def Subcategory.ofMathlib (P : ObjectProperty A) (Q : MorphismProperty P.FullSubcategory)
+def Subcategory.ofProperties (P : ObjectProperty A) (Q : MorphismProperty P.FullSubcategory)
     [Q.IsMultiplicative] : Subcategory A := sorry
 
-#print Cat
+#check Cat
 #check Cat.of
 #check Cat.equivOfIso
 
-def Subcategory.isoMathlib (S : Subcategory A) :
+def Subcategory.isoWideSubcategory (S : Subcategory A) :
     Cat.of S ≅ Cat.of (WideSubcategory S.morphismProperty) := sorry
 
-theorem Subcategory.isoMathlib_hom_comp_inclusion (S : Subcategory A) :
-    S.isoMathlib.hom.toFunctor ⋙ wideSubcategoryInclusion S.morphismProperty ⋙
+theorem Subcategory.isoWideSubcategory_hom_comp_inclusion (S : Subcategory A) :
+    S.isoWideSubcategory.hom.toFunctor ⋙ wideSubcategoryInclusion S.morphismProperty ⋙
       S.objectProperty.ι = S.ι := sorry
 
 -- 充満部分圏は、射の述語を省いた `P.FullSubcategory` と同型である。
@@ -134,8 +184,8 @@ def Subcategory.isoFullSubcategory (S : Subcategory A) (h : S.IsFull) :
 
 variable {S : Type u} [Category.{v} S]
 
-#print Functor.Faithful
-#print Functor.Full
+#check Functor.Faithful
+#check Functor.Full
 
 class Embedding (F : S ⥤ A) : Prop extends F.Faithful where
   obj_injective : Function.Injective F.obj
