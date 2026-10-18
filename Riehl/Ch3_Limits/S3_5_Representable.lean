@@ -19,6 +19,8 @@ import Mathlib.CategoryTheory.FinCategory.Basic
 
 open CategoryTheory Limits Opposite
 
+namespace Riehl
+
 universe v u
 
 variable {J : Type v} [SmallCategory J] {C : Type u} [Category.{v} C]
@@ -39,7 +41,7 @@ F 上の錐にほかならず、lim_J C(X, F−) ≅ Cone(X, F) である。
 #check Limits.coneOfSectionCompCoyoneda
 #print Functor.cones
 
-noncomputable def myLimitHomEquivCone (F : J ⥤ C) (X : Cᵒᵖ) :
+noncomputable def limitHomEquivCone (F : J ⥤ C) (X : Cᵒᵖ) :
     limit (F ⋙ coyoneda.obj X) ≃ F.cones.obj X := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -140,11 +142,11 @@ theorem coyonedaEmbedding_reflectsLimits :
 #check Sigma.ι
 #check Sigma.desc
 
-noncomputable def myCoproductD (F : J ⥤ C) [HasCoproducts.{v} C] :
+noncomputable def coproductDom (F : J ⥤ C) [HasCoproducts.{v} C] :
     ∐ (fun f : Σ p : J × J, p.1 ⟶ p.2 ↦ F.obj f.1.1) ⟶ ∐ F.obj :=
   Sigma.desc fun f ↦ Sigma.ι F.obj f.1.1
 
-noncomputable def myCoproductC (F : J ⥤ C) [HasCoproducts.{v} C] :
+noncomputable def coproductCod (F : J ⥤ C) [HasCoproducts.{v} C] :
     ∐ (fun f : Σ p : J × J, p.1 ⟶ p.2 ↦ F.obj f.1.1) ⟶ ∐ F.obj :=
   Sigma.desc fun f ↦ F.map f.2 ≫ Sigma.ι F.obj f.1.2
 
@@ -152,9 +154,9 @@ noncomputable def myCoproductC (F : J ⥤ C) [HasCoproducts.{v} C] :
 
 noncomputable def coproductCoequalizerCocone (F : J ⥤ C) [HasCoproducts.{v} C] [HasCoequalizers C] :
     Cocone F where
-  pt := coequalizer (myCoproductD F) (myCoproductC F)
+  pt := coequalizer (coproductDom F) (coproductCod F)
   ι := {
-    app j := Sigma.ι F.obj j ≫ coequalizer.π (myCoproductD F) (myCoproductC F)
+    app j := Sigma.ι F.obj j ≫ coequalizer.π (coproductDom F) (coproductCod F)
     naturality := sorry
   }
 
@@ -233,11 +235,11 @@ theorem hasEqualizers_of_hasBinaryProducts_of_hasPullbacks [HasBinaryProducts C]
 
 #print FinCategory
 
-class MyFiniteCategory (J : Type v) [SmallCategory J] : Prop where
+class FinCategory' (J : Type v) [SmallCategory J] : Prop where
   finite_mor : Finite (Σ p : J × J, p.1 ⟶ p.2)
 
-theorem myFiniteCategory_iff (J : Type v) [SmallCategory J] :
-    MyFiniteCategory J ↔ Nonempty (FinCategory J) := sorry
+theorem finCategory'_iff (J : Type v) [SmallCategory J] :
+    FinCategory' J ↔ Nonempty (FinCategory J) := sorry
 
 #print HasFiniteLimits
 #check hasFiniteLimits_of_hasTerminal_and_pullbacks
@@ -258,7 +260,7 @@ theorem hasFiniteLimits_of_hasTerminal_of_hasPullbacks [HasTerminal C] [HasPullb
 
 noncomputable def limCoyonedaIsoCones (F : J ⥤ C) :
     coyoneda ⋙ (Functor.whiskeringLeft J C (Type v)).obj F ⋙ lim ≅ F.cones :=
-  NatIso.ofComponents (fun X ↦ (myLimitHomEquivCone F X).toIso) sorry
+  NatIso.ofComponents (fun X ↦ (limitHomEquivCone F X).toIso) sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 演習 3.5.ii
@@ -269,3 +271,5 @@ noncomputable def limCoyonedaIsoCones (F : J ⥤ C) :
 -- 演習 3.5.iii
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- statement を置かない。モノ射・エピ射の表現可能な定義を書くこと自体が解答になる。
+
+end Riehl

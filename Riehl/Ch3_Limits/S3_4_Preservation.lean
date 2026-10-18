@@ -25,22 +25,22 @@ statement の直前の `#check`・`#print` にある。
   comparison    data を書き、脚の自然性を演習にする。κ は「F で写した極限錐を FK の極限錐から
   map           分解する射」を作ること自体が中身なので丸ごと演習。どちらも Mathlib の
                 `Functor.mapCone`・`limit.post` と定義が一致するので、以降の statement は
-                Mathlib の名前で書く。余極限側の錐の像 `myMapCocone` も、演習3.4.i と
+                Mathlib の名前で書く。余極限側の錐の像 `mapCocone` も、演習3.4.i と
                 演習3.4.vi の statement が `Functor.mapCocone` を使うので組む。錐の像が錐の
                 射も写して関手 Cone K ⥤ Cone (K ⋙ F) をなすことは本にないが、錐の同型を F で
-                写すのに要るので `myConeFunctoriality` として組む（Mathlib の
+                写すのに要るので `coneFunctoriality` として組む（Mathlib の
                 `Cone.functoriality`）。対象の部分は `Functor.mapCone`、射の頂点成分は F で
                 写した射として書いて渡し、錐の射の条件と関手則を演習にする
   定義3.4.1    保存・反映は Mathlib の `PreservesLimit`・`ReflectsLimit` とフィールド単位
                 で同じなので、写しを書いて渡し、statement は Mathlib で書く。創出は Mathlib
                 の定義と形が違う。本は「FK が極限を持てば K も持ち、そのとき錐が極限錐であることと像が
                 極限錐であることが同値」という命題で、Mathlib の `CreatesLimit` は極限錐の
-                持ち上げと同型 `LiftableCone` を data として持つ。本の形を `MyCreatesLimit`
+                持ち上げと同型 `LiftableCone` を data として持つ。本の形を `CreatesLimit'`
                 として置き、`Nonempty (CreatesLimit K F)` との同値を演習にする。
                 同値の証明では同型を介して極限錐を移すので、本にない補題「極限錐と同型な錐は
-                極限錐」を `myIsLimitOfIso` として直前に置く（Mathlib の
+                極限錐」を `isLimitOfIso` として直前に置く（Mathlib の
                 `IsLimit.ofIsoLimit`）。創出の statement は Mathlib の `CreatesLimit` を返す `def` で書く。余極限の
-                保存 `MyPreservesColimit` は演習3.4.i と演習3.4.vi で使うので写しを置く。
+                保存 `PreservesColimit'` は演習3.4.i と演習3.4.vi で使うので写しを置く。
                 定義の直後の段落が述べる
                 「ある形の図式すべてについて保存する」と「同型を反映する」も、Mathlib の
                 `PreservesLimitsOfShape`・`PreservesColimitsOfShape`・
@@ -52,28 +52,28 @@ statement の直前の `#check`・`#print` にある。
   定義3.4.7     厳密な創出は、錐の等式 `F.mapCone c = d` で「持ち上げ」を述べる。本の
                 「邪悪な」厳密化は、同型ではなく等式で持ち上げを述べることにあたる。Mathlib
                 に対応物なし。形は Mathlib の `LiftsToLimit`・`CreatesLimit` に合わせ、
-                持ち上げの中身を `MyStrictLift`（`validLift` を `≅` から `=` に替え、
-                `unique` を足したもの）に束ね、`MyStrictlyCreatesLimit` はそれを返す
+                持ち上げの中身を `StrictLift`（`validLift` を `≅` から `=` に替え、
+                `unique` を足したもの）に束ね、`StrictlyCreatesLimit` はそれを返す
                 `lifts` 1 本とする。Mathlib と同じく Prop ではなくデータなので、これを
                 結論とする主張は `theorem` でなく `noncomputable def` になる。命題3.4.8
-                の余極限側のために双対 `MyStrictlyCreatesColimit` も置く
+                の余極限側のために双対 `StrictlyCreatesColimit` も置く
   連結な圏      本の定義（空でなく、任意の二対象が射の有限のジグザグで結ばれる）を
-                `MyIsConnected` として置く。ジグザグは一歩の関係 `myZag` の反射推移閉包
+                `IsConnected'` として置く。ジグザグは一歩の関係 `Zag'` の反射推移閉包
                 `Relation.ReflTransGen` で書く。Mathlib の `IsConnected` は「任意の離散圏への
-                関手が定関手と同型」の形で定義されているので、同値 `myIsConnected_iff` を演習
+                関手が定関手と同型」の形で定義されているので、同値 `isConnected'_iff` を演習
                 に置き、statement は `IsConnected` で書く
   命題3.4.8     c/C（演習1.1.iii）は Mathlib の `Under c`、忘却関手は `Under.forget c`。
                 `Under c` はコンマ圏 `Comma (Functor.fromPUnit c) (𝟭 C)` で、本の c/C に空の
                 `left` 成分が付いた形。本の c/C とは形が違うので、使う直前に `#print` で定義を見せる。
-                忘却関手は `myUnderForget` として組み直す演習を置くが、statement は
+                忘却関手は `underForget` として組み直す演習を置くが、statement は
                 `Under.forget c` で書く。証明で使う Π の上の錐 `Under.forgetCone` と錐の
-                引き戻し `Cone.whisker` も `myUnderForgetCone`・`myConeWhisker` として組む
+                引き戻し `Cone.whisker` も `underForgetCone`・`coneWhisker` として組む
                 演習を置く。strict な創出の 2 本と、「したがって c/C は極限・連結な余極限を
                 持つ」の 2 本に割る
-  命題3.4.9     ob A ↪ A を `myObIncl`（`Discrete A ⥤ A`）、忘却関手 ev を `myEv`（`myObIncl`
+  命題3.4.9     ob A ↪ A を `obIncl`（`Discrete A ⥤ A`）、忘却関手 ev を `ev`（`obIncl`
                 との前合成）として組む。どちらも義務が自動で閉じるので書き切って渡す。
                 Mathlib に ev の名前の付いた対応物はない（`Functor.whiskeringLeft` の特殊化）
-                ので、statement は `myEv` を参照する。主張は strict な創出と (i)・(ii) の
+                ので、statement は `ev` を参照する。主張は strict な創出と (i)・(ii) の
                 3 本に割る
   演習3.4.i     (i) の κ の型は本が与えるので書く。(ii) は (i) で組んだ κ について述べる
   演習3.4.ii    要素の圏 ∫F（定義2.4.1）とその射影は既知の定義として Mathlib の
@@ -125,6 +125,8 @@ statement を置かない節末問題:
 
 open CategoryTheory Limits
 
+namespace Riehl
+
 universe w v u u'
 
 variable {J : Type v} [SmallCategory J] {C : Type u} [Category.{v} C]
@@ -145,7 +147,7 @@ variable {J : Type v} [SmallCategory J] {C : Type u} [Category.{v} C]
 -/
 
 #print Functor.mapCone
-def myMapCone (F : C ⥤ D) {K : J ⥤ C} (c : Cone K) : Cone (K ⋙ F) where
+def mapCone (F : C ⥤ D) {K : J ⥤ C} (c : Cone K) : Cone (K ⋙ F) where
   pt := F.obj c.pt
   π := {
     app j := (Functor.whiskerRight c.π F).app j
@@ -160,7 +162,7 @@ def myMapCone (F : C ⥤ D) {K : J ⥤ C} (c : Cone K) : Cone (K ⋙ F) where
 
 #check Cone.functoriality
 
-def myConeFunctoriality (K : J ⥤ C) (F : C ⥤ D) : Cone K ⥤ Cone (K ⋙ F) where
+def coneFunctoriality (K : J ⥤ C) (F : C ⥤ D) : Cone K ⥤ Cone (K ⋙ F) where
   obj c := F.mapCone c
   map {X Y} f := {
     hom := F.map f.hom
@@ -171,7 +173,7 @@ def myConeFunctoriality (K : J ⥤ C) (F : C ⥤ D) : Cone K ⥤ Cone (K ⋙ F) 
 
 #check Functor.mapCocone
 
-def myMapCocone (F : C ⥤ D) {K : J ⥤ C} (c : Cocone K) : Cocone (K ⋙ F) where
+def mapCocone (F : C ⥤ D) {K : J ⥤ C} (c : Cocone K) : Cocone (K ⋙ F) where
   pt := F.obj c.pt
   ι := {
     app j := F.map (c.ι.app j)
@@ -180,7 +182,7 @@ def myMapCocone (F : C ⥤ D) {K : J ⥤ C} (c : Cocone K) : Cocone (K ⋙ F) wh
 
 #check limit.post
 
-noncomputable def myLimitPost (K : J ⥤ C) (F : C ⥤ D) [HasLimit K] [HasLimit (K ⋙ F)] :
+noncomputable def limitPost (K : J ⥤ C) (F : C ⥤ D) [HasLimit K] [HasLimit (K ⋙ F)] :
     F.obj (limit K) ⟶ limit (K ⋙ F) := limit.lift _ (F.mapCone (limit.cone K))
 
 
@@ -207,15 +209,15 @@ FK 上の極限錐になること。反映するとは、像が FK の極限錐�
 #print PreservesLimit
 
 -- FはKの極限を保存する
-class MyPreservesLimit (K : J ⥤ C) (F : C ⥤ D) : Prop where
+class PreservesLimit' (K : J ⥤ C) (F : C ⥤ D) : Prop where
   preserves : ∀ {c : Cone K}, IsLimit c → Nonempty (IsLimit (F.mapCone c))
 
 #print ReflectsLimit
 
-class MyReflectsLimit (K : J ⥤ C) (F : C ⥤ D) : Prop where
+class ReflectsLimit' (K : J ⥤ C) (F : C ⥤ D) : Prop where
   reflects : ∀ {c : Cone K}, IsLimit (F.mapCone c) → Nonempty (IsLimit c)
 
-class MyCreatesLimit (K : J ⥤ C) (F : C ⥤ D) : Prop where
+class CreatesLimit' (K : J ⥤ C) (F : C ⥤ D) : Prop where
   creates : HasLimit (K ⋙ F) →
     HasLimit K ∧ ∀ c : Cone K, Nonempty (IsLimit c) ↔ Nonempty (IsLimit (F.mapCone c))
 
@@ -223,7 +225,7 @@ class MyCreatesLimit (K : J ⥤ C) (F : C ⥤ D) : Prop where
 
 #check IsLimit.ofIsoLimit
 
-def myIsLimitOfIso {K : J ⥤ C} {c d : Cone K} (Hc : IsLimit c) (σ : c ≅ d) : IsLimit d where
+def isLimitOfIso {K : J ⥤ C} {c d : Cone K} (Hc : IsLimit c) (σ : c ≅ d) : IsLimit d where
   lift s := Hc.lift s ≫ σ.hom.hom
   fac s j := by
     rw [Category.assoc, σ.hom.w, Hc.fac]
@@ -241,8 +243,8 @@ def myIsLimitOfIso {K : J ⥤ C} {c d : Cone K} (Hc : IsLimit c) (σ : c ≅ d) 
 #print CreatesLimit
 #print LiftableCone
 
-theorem myCreatesLimit_iff_createsLimit (K : J ⥤ C) (F : C ⥤ D) :
-    MyCreatesLimit K F ↔ Nonempty (CreatesLimit K F) where
+theorem createsLimit'_iff (K : J ⥤ C) (F : C ⥤ D) :
+    CreatesLimit' K F ↔ Nonempty (CreatesLimit K F) where
   mp H := ⟨{
     reflects {c} HFc := ⟨(((H.creates ⟨_, HFc⟩).2 c).mpr ⟨HFc⟩).some⟩
     lifts c Hc := {
@@ -299,22 +301,22 @@ theorem myCreatesLimit_iff_createsLimit (K : J ⥤ C) (F : C ⥤ D) :
 
 #print PreservesColimit
 
-class MyPreservesColimit (K : J ⥤ C) (F : C ⥤ D) : Prop where
+class PreservesColimit' (K : J ⥤ C) (F : C ⥤ D) : Prop where
   preserves : ∀ {c : Cocone K}, IsColimit c → Nonempty (IsColimit (F.mapCocone c))
 
 #print PreservesLimitsOfShape
 
-class MyPreservesLimitsOfShape (J : Type v) [SmallCategory J] (F : C ⥤ D) : Prop where
+class PreservesLimitsOfShape' (J : Type v) [SmallCategory J] (F : C ⥤ D) : Prop where
   preservesLimit : ∀ {K : J ⥤ C}, PreservesLimit K F
 
 #print PreservesColimitsOfShape
 
-class MyPreservesColimitsOfShape (J : Type v) [SmallCategory J] (F : C ⥤ D) : Prop where
+class PreservesColimitsOfShape' (J : Type v) [SmallCategory J] (F : C ⥤ D) : Prop where
   preservesColimit : ∀ {K : J ⥤ C}, PreservesColimit K F
 
 #print Functor.ReflectsIsomorphisms
 
-class MyReflectsIsomorphisms (F : C ⥤ D) : Prop where
+class ReflectsIsomorphisms (F : C ⥤ D) : Prop where
   reflects : ∀ {X Y : C} (f : X ⟶ Y) [IsIso (F.map f)], IsIso f
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -623,23 +625,23 @@ noncomputable instance createsLimitOfIsEquivalence (F : C ⥤ D) [F.IsEquivalenc
 
 #print LiftsToLimit
 
-structure MyStrictLift (K : J ⥤ C) (F : C ⥤ D) (d : Cone (K ⋙ F)) where
+structure StrictLift (K : J ⥤ C) (F : C ⥤ D) (d : Cone (K ⋙ F)) where
   liftedCone : Cone K
   validLift : F.mapCone liftedCone = d
   unique : ∀ c : Cone K, F.mapCone c = d → c = liftedCone
   makesLimit : IsLimit liftedCone
 
-class MyStrictlyCreatesLimit (K : J ⥤ C) (F : C ⥤ D) where
-  lifts : ∀ d : Cone (K ⋙ F), IsLimit d → MyStrictLift K F d
+class StrictlyCreatesLimit (K : J ⥤ C) (F : C ⥤ D) where
+  lifts : ∀ d : Cone (K ⋙ F), IsLimit d → StrictLift K F d
 
-structure MyStrictColift (K : J ⥤ C) (F : C ⥤ D) (d : Cocone (K ⋙ F)) where
+structure StrictColift (K : J ⥤ C) (F : C ⥤ D) (d : Cocone (K ⋙ F)) where
   liftedCocone : Cocone K
   validLift : F.mapCocone liftedCocone = d
   unique : ∀ c : Cocone K, F.mapCocone c = d → c = liftedCocone
   makesColimit : IsColimit liftedCocone
 
-class MyStrictlyCreatesColimit (K : J ⥤ C) (F : C ⥤ D) where
-  lifts : ∀ d : Cocone (K ⋙ F), IsColimit d → MyStrictColift K F d
+class StrictlyCreatesColimit (K : J ⥤ C) (F : C ⥤ D) where
+  lifts : ∀ d : Cocone (K ⋙ F), IsColimit d → StrictColift K F d
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 連結な圏（定義3.4.7 の後）
@@ -649,15 +651,15 @@ class MyStrictlyCreatesColimit (K : J ⥤ C) (F : C ⥤ D) where
 
 #print Relation.ReflTransGen
 
-def myZag (j k : J) : Prop := Nonempty (j ⟶ k) ∨ Nonempty (k ⟶ j)
-class MyIsConnected (J : Type v) [SmallCategory J] : Prop where
+def Zag' (j k : J) : Prop := Nonempty (j ⟶ k) ∨ Nonempty (k ⟶ j)
+class IsConnected' (J : Type v) [SmallCategory J] : Prop where
   nonempty : Nonempty J
-  zigzag : ∀ j k : J, Relation.ReflTransGen myZag j k
+  zigzag : ∀ j k : J, Relation.ReflTransGen Zag' j k
 
 #print IsConnected
 #print IsPreconnected
 
-theorem myIsConnected_iff : MyIsConnected J ↔ IsConnected J where
+theorem isConnected'_iff : IsConnected' J ↔ IsConnected J where
 mp H := by
   rcases H with ⟨HJ, H⟩
   refine {
@@ -684,8 +686,8 @@ mp H := by
 mpr H := {
   nonempty := H.is_nonempty
   zigzag := by
-    let F : J ⥤ Discrete  (Quot (Relation.ReflTransGen myZag)) := {
-      obj j := ⟨Quot.mk (Relation.ReflTransGen myZag) j⟩
+    let F : J ⥤ Discrete  (Quot (Relation.ReflTransGen Zag')) := {
+      obj j := ⟨Quot.mk (Relation.ReflTransGen Zag') j⟩
       map {i j} f := {
         eq := by
           simp only
@@ -700,8 +702,8 @@ mpr H := {
     simp only [Functor.const_obj_obj, F] at σ
     rcases σ with ⟨E⟩; simp only at E
     rw [Quot.eq] at E
-    have hz : Std.Symm (@myZag J _) := ⟨fun _ _ h => h.symm⟩
-    have hs : Std.Symm (Relation.ReflTransGen (@myZag J _)) := Relation.ReflTransGen.stdSymm
+    have hz : Std.Symm (@Zag' J _) := ⟨fun _ _ h => h.symm⟩
+    have hs : Std.Symm (Relation.ReflTransGen (@Zag' J _)) := Relation.ReflTransGen.stdSymm
     induction E with
     | rel _ _ h => exact hs.symm _ _ h
     | refl _ => exact Relation.ReflTransGen.refl
@@ -727,7 +729,7 @@ mpr H := {
 #print Under.forget
 
 -- 忘却関手 Π : c/C → C を自分で組む。射 f : c → x をその終域 x に送る。
-def myUnderForget (c : C) : Under c ⥤ C where
+def underForget (c : C) : Under c ⥤ C where
   obj f := f.right
   map {x y} f := f.right
   map_id x := by simp
@@ -736,7 +738,7 @@ def myUnderForget (c : C) : Under c ⥤ C where
 #check Under.forgetCone
 
 -- 頂点 c、脚が各対象 f : c → x の f 自身である、Π の上の錐。
-def myUnderForgetCone (c : C) : Cone (Under.forget c) where
+def underForgetCone (c : C) : Cone (Under.forget c) where
   pt := c
   π := {
     app i := i.hom
@@ -746,7 +748,7 @@ def myUnderForgetCone (c : C) : Cone (Under.forget c) where
 #check Cone.whisker
 
 -- 錐 s : Cone K を関手 E : J' → J で引き戻した錐。
-def myConeWhisker {J' : Type v} [SmallCategory J'] {K : J ⥤ C} (E : J' ⥤ J) (s : Cone K) :
+def coneWhisker {J' : Type v} [SmallCategory J'] {K : J ⥤ C} (E : J' ⥤ J) (s : Cone K) :
     Cone (E ⋙ K) where
   pt := s.pt
   π := Functor.whiskerLeft E s.π
@@ -756,7 +758,7 @@ def myConeWhisker {J' : Type v} [SmallCategory J'] {K : J ⥤ C} (E : J' ⥤ J) 
 #check StructuredArrow.createsLimitsOfShape
 
 noncomputable instance underForgetStrictlyCreatesLimit (c : C) (K : J ⥤ Under c) :
-    MyStrictlyCreatesLimit K (Under.forget c) where
+    StrictlyCreatesLimit K (Under.forget c) where
   lifts d H := {
     liftedCone := {
       pt := {
@@ -858,7 +860,7 @@ theorem under_hasLimitsOfShape (c : C) [HasLimitsOfShape J C] : HasLimitsOfShape
 #check Under.createsColimitsOfShapeForgetOfIsConnected
 
 noncomputable instance underForgetStrictlyCreatesColimit [IsConnected J] (c : C) (K : J ⥤ Under c) :
-    MyStrictlyCreatesColimit K (Under.forget c) where
+    StrictlyCreatesColimit K (Under.forget c) where
   lifts d Hd := {
     liftedCocone := {
       pt := {
@@ -986,17 +988,17 @@ theorem under_hasColimitsOfShape_of_isConnected [IsConnected J] (c : C)
       厳密に創出することを示し、そこから (i) と (ii) を示す。
 -/
 
-def myObIncl (A : Type v) [SmallCategory A] : Discrete A ⥤ A where
+def obIncl (A : Type v) [SmallCategory A] : Discrete A ⥤ A where
   obj a := a.as
   map f := eqToHom (Discrete.eq_of_hom f)
 
-def myEv (A : Type v) [SmallCategory A] (C : Type u) [Category.{v} C] :
+def ev (A : Type v) [SmallCategory A] (C : Type u) [Category.{v} C] :
     (A ⥤ C) ⥤ (Discrete A ⥤ C) where
-  obj G := myObIncl A ⋙ G
-  map α := Functor.whiskerLeft (myObIncl A) α
+  obj G := obIncl A ⋙ G
+  map α := Functor.whiskerLeft (obIncl A) α
 
-noncomputable def myEvStrictlyCreatesLimit (A : Type v) [SmallCategory A] (K : J ⥤ (A ⥤ C)) :
-    MyStrictlyCreatesLimit K (myEv A C) where
+noncomputable def evStrictlyCreatesLimit (A : Type v) [SmallCategory A] (K : J ⥤ (A ⥤ C)) :
+    StrictlyCreatesLimit K (ev A C) where
   lifts d Hd := {
     liftedCone := _
     validLift := _
@@ -1049,10 +1051,10 @@ theorem preservesColimit_iff_isIso_colimitComparison (K : J ⥤ C) (F : C ⥤ D)
 
 noncomputable def elementsPiStrictlyCreatesLimit (F : C ⥤ Type v) (K : J ⥤ F.Elements)
     [HasLimit (K ⋙ Functor.Elements.π F)] [PreservesLimit (K ⋙ Functor.Elements.π F) F] :
-    MyStrictlyCreatesLimit K (Functor.Elements.π F) := sorry
+    StrictlyCreatesLimit K (Functor.Elements.π F) := sorry
 
 noncomputable def elementsPiStrictlyCreatesColimit [IsConnected J] (F : C ⥤ Type v)
-    (K : J ⥤ F.Elements) : MyStrictlyCreatesColimit K (Functor.Elements.π F) := sorry
+    (K : J ⥤ F.Elements) : StrictlyCreatesColimit K (Functor.Elements.π F) := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 演習3.4.iii
@@ -1137,3 +1139,5 @@ theorem preservesColimit_splitIdempotent (h : s ≫ r = 𝟙 B) (G : C ⥤ D) :
     PreservesColimit (parallelPair (𝟙 A) (r ≫ s)) G := sorry
 
 end
+
+end Riehl
