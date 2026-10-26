@@ -1758,8 +1758,79 @@ noncomputable def elementsPiCreatesLimit (F : C ⥤ Type v) (K : J ⥤ F.Element
 
 #check CreatesColimit
 
-noncomputable def elementsPiCreatesColimit [IsConnected J] (F : C ⥤ Type v)
-    (K : J ⥤ F.Elements) : CreatesColimit K (Functor.Elements.π F) := sorry
+noncomputable instance elementsPiCreatesColimit [IsConnected J] (F : C ⥤ Type v) (K : J ⥤ F.Elements) :
+    CreatesColimit K (Functor.Elements.π F) where
+  reflects {c} Hc := ⟨{
+    desc s := {
+      hom := Hc.desc ((Functor.Elements.π F).mapCocone s)
+      map_val := by
+        let j : J :=  IsConnected.is_nonempty.some
+        have E := (c.ι.app j).map_val
+        dsimp at E
+        rw [<- E, <- comp_apply, <- F.map_comp]; clear E
+        have E := Hc.fac ((Functor.Elements.π F).mapCocone s) j
+        dsimp at E; rw [E]; clear E
+        have E := (s.ι.app j).map_val; dsimp at E
+        exact E
+    }
+    fac s j := by
+      ext; simp only [Functor.Elements.comp_hom]
+      have E := Hc.fac ((Functor.Elements.π F).mapCocone s) j
+      dsimp at E; exact E
+    uniq s m w := by
+      have E := Hc.uniq ((Functor.Elements.π F).mapCocone s) m.hom
+      ext; rw [E]
+      intro j; simp only [Functor.comp_obj, Functor.Elements.π_obj, Functor.mapCocone_pt,
+        Functor.mapCocone_ι_app, Functor.Elements.π_map]
+      rw [<- w j]; simp
+  }⟩
+  lifts c Hc := {
+    liftedCocone := {
+      pt := {
+        obj := c.pt
+        val := by
+          let j : J := IsConnected.is_nonempty.some
+          exact (F.map (c.ι.app j)).hom (K.obj j).val
+      }
+      ι := {
+        app j := {
+          hom := c.ι.app j
+          map_val := by
+            simp only [Functor.comp_obj, Functor.Elements.π_obj, Functor.const_obj_obj,
+              Lean.Elab.WF.paramLet]
+            set j' : J := IsConnected.is_nonempty.some
+            let G := fun j => (ConcreteCategory.hom (F.map (c.ι.app j))) (K.obj j).val
+            change G j = G j'
+            apply constant_of_preserves_morphisms
+            intro i i' f; simp only [G]
+            rw [<- (K.map f).map_val, <- comp_apply, <- F.map_comp]
+            have E := c.ι.naturality f; dsimp at E
+            rw [E]; simp
+        }
+        naturality {j j'} f:= by
+          ext; simp only [Functor.comp_obj, Functor.Elements.π_obj, Functor.const_obj_obj,
+            Lean.Elab.WF.paramLet, Functor.Elements.comp_hom, Functor.const_obj_map,
+            Category.comp_id]
+          have := c.ι.naturality f; dsimp at this
+          rw [this]; simp
+      }
+    }
+    validLift := {
+      hom := {
+        hom := 𝟙 c.pt
+        w := by simp
+      }
+
+      inv := {
+        hom := 𝟙 c.pt
+        w := by simp
+      }
+      hom_inv_id := by
+        ext; simp
+      inv_hom_id := by
+        ext; simp
+    }
+  }
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 演習3.4.iii
@@ -1769,8 +1840,52 @@ noncomputable def elementsPiCreatesColimit [IsConnected J] (F : C ⥤ Type v)
 
 #check createsLimitOfReflectsIso
 
-noncomputable def createsLimitOfPreservesOfReflectsIso (K : J ⥤ C) (F : C ⥤ D) [HasLimit K]
-    [PreservesLimit K F] [F.ReflectsIsomorphisms] : CreatesLimit K F := sorry
+-- F で写した錐が極限錐なら、その錐から lim K への標準の射は同型。
+theorem isIso_limitLift_of_isLimit_mapCone (K : J ⥤ C) (F : C ⥤ D) [HasLimit K]
+    [PreservesLimit K F] [F.ReflectsIsomorphisms] {c : Cone K} (Hc : IsLimit (F.mapCone c)) :
+    IsIso (limit.lift K c) := by
+  have HFK := (PreservesLimit.preserves (F := F) (limit.isLimit K)).some
+  let σ := Hc.conePointUniqueUpToIso HFK
+  have E : F.map (limit.lift K c) = σ.hom := by
+    apply HFK.hom_ext; intro j
+    rw [IsLimit.conePointUniqueUpToIso_hom_comp]
+    simp only [Functor.comp_obj, Functor.mapCone_pt, limit.cone_x, Functor.mapCone_π_app,
+      limit.cone_π]
+    rw [← F.map_comp, limit.lift_π]
+  have Hf : IsIso (F.map (limit.lift K c)) := by
+    rw [E]; exact σ.isIso_hom
+  exact Functor.ReflectsIsomorphisms.reflects F (limit.lift K c)
+
+noncomputable instance createsLimitOfPreservesOfReflectsIso (K : J ⥤ C) (F : C ⥤ D)
+    [HasLimit K] [PreservesLimit K F] [F.ReflectsIsomorphisms] :
+    CreatesLimit K F where
+  reflects {c} Hc := ⟨{
+    lift s := by
+      have := isIso_limitLift_of_isLimit_mapCone K F Hc
+      exact limit.lift K s ≫ inv (limit.lift K c)
+    fac s j := by
+      simp only [Category.assoc]
+      let Hf := isIso_limitLift_of_isLimit_mapCone K F Hc
+      rw [<- limit.lift_π s]
+      rw [<- Category.id_comp (limit.π K j), <- Hf.inv_hom_id]
+      rw [Category.assoc, limit.lift_π]
+
+    uniq s m w := by
+      dsimp
+      let Hf := isIso_limitLift_of_isLimit_mapCone K F Hc
+      rw [<- Category.comp_id m, <- Hf.hom_inv_id, <- Category.assoc]
+      congr
+      apply limit.hom_ext; intro j
+      rw [Category.assoc, limit.lift_π, w j, limit.lift_π]
+  }⟩
+  lifts c Hc := {
+    liftedCone := limit.cone K
+    validLift := by
+      have HFK := (PreservesLimit.preserves (F := F) (limit.isLimit K)).some
+      exact HFK.uniqueUpToIso Hc
+  }
+
+
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 演習3.4.iv
@@ -1799,22 +1914,82 @@ theorem pointedTop_forget_not_preservesBinaryCoproducts :
 
 section
 
-variable {A B : C} (s : B ⟶ A) (r : A ⟶ B)
+variable {A B : C} (s : B ⟶ A) (r : A ⟶ B) (h : s ≫ r = 𝟙 B)
+include h
 
-theorem splitIdempotent_fork_condition (h : s ≫ r = 𝟙 B) : s ≫ 𝟙 A = s ≫ r ≫ s := sorry
+theorem splitIdempotent_fork_condition :
+    s ≫ 𝟙 A = s ≫ r ≫ s := by
+  rw [<- Category.assoc, h]; simp
 
-def isLimitSplitIdempotentFork (h : s ≫ r = 𝟙 B) :
-    IsLimit (Fork.ofι s (splitIdempotent_fork_condition s r h)) := sorry
+def isLimitSplitIdempotentFork :
+    IsLimit (Fork.ofι s (splitIdempotent_fork_condition s r h)) where
+  lift (c : Fork (𝟙 A) (r ≫ s)) := c.ι ≫ r
+  fac (c : Fork _ _ ) i := by
+    rcases i
+    · simp only [parallelPair_obj_zero, Fork.ofι_pt, Fork.ofι_π_app, Category.assoc,
+      Fork.app_zero_eq_ι]
+      rw [<- c.condition]; simp
+    · simp only [parallelPair_obj_one, Fork.ofι_pt, Fork.ofι_π_app, Functor.const_obj_obj,
+      Category.comp_id, Category.assoc, Fork.app_one_eq_ι_comp_left]
+      rw [<- c.condition]; simp
+  uniq (c : Fork _ _ ) m w := by
+    have H0 := w WalkingParallelPair.zero
+    simp only [parallelPair_obj_zero, Fork.ofι_pt, Fork.ofι_π_app, Fork.app_zero_eq_ι] at H0
+    rw [<- H0, Category.assoc, h]; simp
 
-theorem splitIdempotent_cofork_condition (h : s ≫ r = 𝟙 B) : 𝟙 A ≫ r = (r ≫ s) ≫ r := sorry
 
-def isColimitSplitIdempotentCofork (h : s ≫ r = 𝟙 B) :
+
+
+theorem splitIdempotent_cofork_condition : 𝟙 A ≫ r = (r ≫ s) ≫ r := sorry
+
+def isColimitSplitIdempotentCofork :
     IsColimit (Cofork.ofπ r (splitIdempotent_cofork_condition s r h)) := sorry
 
-theorem preservesLimit_splitIdempotent (h : s ≫ r = 𝟙 B) (G : C ⥤ D) :
-    PreservesLimit (parallelPair (𝟙 A) (r ≫ s)) G := sorry
+theorem preservesLimit_splitIdempotent (G : C ⥤ D) :
+    PreservesLimit (parallelPair (𝟙 A) (r ≫ s)) G where
+  preserves {c : Fork _ _} Hc := ⟨{
+    lift t :=
+      t.π.app WalkingParallelPair.zero ≫ G.map (r ≫ Hc.lift ((Fork.ofι s (splitIdempotent_fork_condition s r h))))
+    fac t i := by
+      simp only [Functor.comp_obj, Functor.mapCone_pt, parallelPair_obj_zero, Functor.map_comp,
+        Functor.mapCone_π_app, Category.assoc]
+      rcases i
+      · simp only [parallelPair_obj_zero, Fork.app_zero_eq_ι]
+        rw [<- G.map_comp, Fork.IsLimit.lift_ι, Fork.ι_ofι]
+        have Er := t.π.naturality WalkingParallelPairHom.right
+        have El := t.π.naturality WalkingParallelPairHom.left
+        simp only [Functor.const_obj_obj, Functor.comp_obj, parallelPair_obj_one,
+          Functor.const_obj_map, Category.id_comp, parallelPair_obj_zero, Functor.comp_map,
+          parallelPair_map_right, Functor.map_comp, parallelPair_map_left,
+          CategoryTheory.Functor.map_id, Category.comp_id] at Er El
+        exact Er.symm.trans El
+      · simp only [parallelPair_obj_one, Fork.app_one_eq_ι_comp_left, Category.comp_id]
+        rw [<- G.map_comp, Fork.IsLimit.lift_ι, Fork.ι_ofι]
+        have Er := t.π.naturality WalkingParallelPairHom.right
+        simp at Er
+        exact Er.symm
+    uniq t m w := by
+      simp only [Functor.mapCone_pt, Functor.comp_obj, parallelPair_obj_zero, Functor.map_comp]
+      have w0 := w WalkingParallelPair.zero
+      simp only [Functor.comp_obj, parallelPair_obj_zero, Functor.mapCone_pt, Functor.mapCone_π_app,
+        Fork.app_zero_eq_ι] at w0
+      rw [<- w0]; simp only [Category.assoc]
+      nth_rw 1 [<- Category.comp_id m]
+      congr 1; simp only [Functor.mapCone_pt]
+      rw [<- G.map_id, <- G.map_comp, <- G.map_comp]
+      congr
+      apply Hc.hom_ext
+      intro i; rcases i
+      · simp only [parallelPair_obj_zero, Fork.app_zero_eq_ι, Category.id_comp, Category.assoc,
+        Fork.IsLimit.lift_ι, Fork.ι_ofι]
+        rw [<- c.condition]; simp
+      · simp only [parallelPair_obj_one, Fork.app_one_eq_ι_comp_left, Category.comp_id,
+          Category.id_comp, Category.assoc, Fork.IsLimit.lift_ι, Fork.ι_ofι]
+        rw [<- c.condition]; simp
 
-theorem preservesColimit_splitIdempotent (h : s ≫ r = 𝟙 B) (G : C ⥤ D) :
+  }⟩
+
+theorem preservesColimit_splitIdempotent (G : C ⥤ D) :
     PreservesColimit (parallelPair (𝟙 A) (r ≫ s)) G := sorry
 
 end
