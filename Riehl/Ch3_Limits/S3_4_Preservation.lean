@@ -8,6 +8,7 @@ import Mathlib.CategoryTheory.Adjunction.Limits
 import Mathlib.CategoryTheory.IsConnected
 import Mathlib.CategoryTheory.Elements
 import Mathlib.CategoryTheory.Pi.Basic
+import Mathlib.CategoryTheory.Limits.Pi
 import Mathlib.Topology.Category.TopCat.Basic
 import Riehl.Topics.Embedding
 
@@ -75,24 +76,42 @@ statement の直前の `#check`・`#print` にある。
                 `rfl` で一致）、忘却関手 ev を `ev`（`Discrete.functor id`
                 との前合成）として組む。どちらも義務が自動で閉じるので書き切って渡す。
                 Mathlib に ev の名前の付いた対応物はない（`Functor.whiskeringLeft` の特殊化）
-                ので、statement は `ev` を参照する。主張は strict な創出と (i)・(ii) の
-                3 本に割る
+                ので、statement は `ev` を参照する。創出は本の「厳密に創出する」でなく
+                定義3.4.1 の創出（Mathlib の `CreatesLimit`）で述べる。落ちるのは持ち上げの
+                等式での一意性で、本文の後の使用箇所（3.5.2 の注意、定理3.5.11、系4.5.15、
+                系4.7.13）はどれも使わない。各点の極限錐は本と同じく演習3.4.v から取る。
+                本が C^{ob A} ≅ ∏_{ob A} C で済ませている同一視は Mathlib の圏同値
+                `piEquivalenceFunctorDiscrete` と、評価関手と `Pi.eval` の整合
+                `piEquivalenceFunctorDiscreteCompEvaluationIso` で、どちらもこれまでの
+                演習ファイルに出ていないので、同じ形で自前に組む演習を置く。同一視に沿って
+                演習3.4.v を運ぶ補題 `discreteEvaluation_preservesLimitsOfShape` を置き、
+                創出の証明はそれを使う。主張は創出と (i)・(ii) の 3 本に割る。
+                Mathlib は同じ命題を ev なしで各点の評価関手 `(evaluation A C).obj a` の族に
+                ついて述べる（`evaluationJointlyReflectsLimits`・`combineCones`・
+                `evaluateCombinedCones`・`combinedIsLimit`）。本文の後の使用箇所はこの形で
+                当たるので、別セクション「命題3.4.9（Mathlib の形）」として同じ形で自前に
+                組む演習を置く
   演習3.4.i     (i) の κ の型は本が与えるので書く。(ii) は (i) で組んだ κ について述べる
   演習3.4.ii    要素の圏 ∫F（定義2.4.1）とその射影は既知の定義として Mathlib の
-                `Functor.Elements`・`Functor.Elements.π` を使う
+                `Functor.Elements`・`Functor.Elements.π` を使う。厳密な創出の 2 本に加えて、
+                定義3.4.1 の創出 `CreatesLimit`・`CreatesColimit` で述べた 2 本も置く
+                （`validLift` が錐の等式から同型になり、`Cone.ext` で示せる）
   演習3.4.iv    Set∗ を ∗/Set、すなわち `Under (PUnit : Type v)`、Top∗ を
                 `Under (TopCat.of PUnit)` で取る。余積を保存しないことを、二項余積の形
                 `Discrete WalkingPair` の余極限を保存しないこととして述べる
   演習3.4.v     「積の圏が極限を持つのは各成分が持つとき、かつそのときに限る」は、成分の圏が
                 一つでも空だと成り立たない（積の圏が空になり、左辺が空虚に真になる）。
                 各成分が空でないことを仮定に加える。(ii) の錐は頂点を書いて渡し、脚と
-                極限錐であることを演習にする。圏の積 ∏ C_i とその射影は既知の定義として
-                Mathlib の `∀ i, Cs i`・`Pi.eval` を使う
+                極限錐であることを演習にする。(i) の証明が (ii) の錐の組み立てを使うので、
+                (ii) の構成を (i) の前に置く。圏の積 ∏ C_i とその射影は既知の定義として
+                Mathlib の `∀ i, Cs i`・`Pi.eval` を使う。添字の型は Mathlib の
+                `Limits.Pi` の宇宙に合わせて `Type v` に限る（命題3.4.9 で使う添字は
+                `A : Type v` なので足りる）
   演習3.4.vi    レトラクトの条件 rs = id_B は `s ≫ r = 𝟙 B`、冪等射 sr は `r ≫ s`。
                 等化子図式・余等化子図式の条件式を別の宣言に割る
   本にない      次は本に対応する概念がなく、Mathlib の道具として statement に使う。
-  Mathlib の    `LimitCone`（錐と極限錐である証拠の組。演習3.4.v）、`Relation.ReflTransGen`
-  道具          （関係の反射推移閉包。連結な圏）、`TopCat.of`（演習3.4.iv）
+  Mathlib の    `Relation.ReflTransGen`（関係の反射推移閉包。連結な圏）、
+  道具          `TopCat.of`（演習3.4.iv）
 
 statement を置かない節末問題:
   3.4.iv   後半（連結性の仮定が必要な理由を説明する）は説明問題。前半のみ置く
@@ -129,7 +148,7 @@ open CategoryTheory Limits
 
 namespace Riehl
 
-universe w v u u'
+universe v u u'
 
 variable {J : Type v} [SmallCategory J] {C : Type u} [Category.{v} C]
   {D : Type u'} [Category.{v} D]
@@ -979,6 +998,186 @@ theorem under_hasColimitsOfShape_of_isConnected [IsConnected J] (c : C)
     exact ⟨HF.liftedCocone, HF.makesColimit⟩
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 演習3.4.v
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+/-
+圏の積 ∏_{i∈I} C_i について、(i) 各射影関手 π_k : ∏ C_i → C_k は任意の図式に対して極限を
+保存し、(ii) 射影関手は共同で極限を創出する。すなわち任意の図式 F : J → ∏ C_i について、
+各成分 π_k F が極限を持てば、それらが F の極限の成分を定める。したがって、任意の添字圏 J に
+ついて、積の圏が J 型の極限を持つのは各成分が持つとき、かつそのときに限る。
+
+構成: (i) の証明は (ii) の錐の組み立てを使うので、(ii) の構成を先に置く。錐の組み立ては
+      `piConeOfComponents` を自前で書き、以後は Mathlib の `pi.coneOfConeCompEval` を参照する。
+      (i) では、積の極限錐 c の k 成分だけを錐 s に差し替えた錐の族 `coneUpdate` から積の錐を
+      組み、`IsLimit.lift` の k 成分を lift にする。差し替えた成分が s に等しいことは命題的な
+      等式なので、錐の等式から脚の等式を出す `Cone.π_app_of_eq` を添える。
+-/
+
+section
+
+variable {I : Type v} {Cs : I → Type u} [∀ i, Category.{v} (Cs i)]
+#check Pi.π
+#check Pi.eval
+
+#check pi.coneOfConeCompEval
+
+def piConeOfComponents (F : J ⥤ ∀ i, Cs i) (c : ∀ k, Cone (F ⋙ Pi.eval Cs k)) : Cone F where
+  pt k := (c k).pt
+  π := {
+    app j i := (c i).π.app j
+    naturality {j j'} f := by
+      ext i; simp only [Functor.const_obj_obj, Functor.const_obj_map]
+      erw [Category.id_comp]
+      change _ = (((c i).π.app j)) ≫ F.map f i
+      have E := (c i).π.naturality f;
+      simp only [Functor.const_obj_obj, Functor.comp_obj, Functor.const_obj_map, Category.id_comp,
+        Functor.comp_map, Pi.eval_map] at E
+      rw [E]; rfl
+  }
+
+#check pi.coneOfConeEvalIsLimit
+
+def isLimitPiConeOfComponents (F : J ⥤ ∀ i, Cs i) (c : ∀ k, Cone (F ⋙ Pi.eval Cs k))
+    (h : ∀ k, IsLimit (c k)) : IsLimit (pi.coneOfConeCompEval c) where
+  lift s i := (h i).lift ((Pi.eval Cs i).mapCone s)
+  fac s j := by
+    ext i; erw [Pi.comp_apply]
+    erw [(h i).fac]
+    rfl
+  uniq s m w := by
+    ext i
+    rw [(h i).uniq ((Pi.eval Cs i).mapCone s) (m i)]
+    intro j
+    have E := congr_fun (w j) i
+    simp only [pi.coneOfConeCompEval] at E
+    erw [Pi.comp_apply] at E
+    erw [E]; rfl
+
+
+
+
+-- 積の錐 c の k 成分だけを s に差し替えた錐の族。
+open Classical in
+noncomputable def coneUpdate {K : J ⥤ ∀ i, Cs i} (c : Cone K) (k : I)
+    (s : Cone (K ⋙ Pi.eval Cs k)) (i : I) : Cone (K ⋙ Pi.eval Cs i) :=
+  if E : i = k then E ▸ s else (Pi.eval Cs i).mapCone c
+
+theorem coneUpdate_self {K : J ⥤ ∀ i, Cs i} (c : Cone K) (k : I) (s : Cone (K ⋙ Pi.eval Cs k)) :
+    coneUpdate c k s k = s := by simp [coneUpdate]
+
+theorem coneUpdate_of_ne {K : J ⥤ ∀ i, Cs i} (c : Cone K) (k : I) (s : Cone (K ⋙ Pi.eval Cs k))
+    {i : I} (E : i ≠ k) : coneUpdate c k s i = (Pi.eval Cs i).mapCone c := by
+  simp only [coneUpdate, dite_eq_right_iff]; aesop
+
+
+-- 錐の等式から脚の等式。
+theorem Cone.π_app_of_eq {D : Type*} [Category D] {G : J ⥤ D} {c₁ c₂ : Cone G} (h : c₁ = c₂)
+    (j : J) : c₁.π.app j = eqToHom (congrArg Cone.pt h) ≫ c₂.π.app j := by
+  apply eq_of_heq
+  rw [heq_eqToHom_comp_iff, h]
+
+
+open Classical in
+theorem piEval_preservesLimitsOfShape (k : I) : PreservesLimitsOfShape J (Pi.eval Cs k) where
+  preservesLimit {K} := {
+    preserves {c} Hc := ⟨{
+      lift s :=
+        eqToHom (show s.pt = (pi.coneOfConeCompEval (coneUpdate c k s)).pt k from
+          (congrArg Cone.pt (coneUpdate_self c k s)).symm) ≫
+        Hc.lift (pi.coneOfConeCompEval (coneUpdate c k s)) k
+      fac s j := by
+        simp only [Functor.comp_obj, Functor.mapCone_pt, Functor.mapCone_π_app, Pi.eval_map]
+        erw [Category.assoc]
+        have E := Hc.fac (pi.coneOfConeCompEval (coneUpdate c k s)) j
+        have := congr_fun E k
+        simp only [Pi.comp_apply] at this
+        erw [this]; simp only [pi.coneOfConeCompEval]
+        rw [<- Cone.π_app_of_eq]
+        rw [coneUpdate_self]
+      uniq s m w := by
+        -- simp at m
+        let l : (pi.coneOfConeCompEval (coneUpdate c k s)).pt ⟶ c.pt := fun i =>
+          if E : i = k then
+            by subst E; exact eqToHom (congrArg Cone.pt (coneUpdate_self c i s)) ≫ m
+          else
+            eqToHom (congrArg Cone.pt (coneUpdate_of_ne c k s E))
+        have E :=  Hc.uniq (pi.coneOfConeCompEval (coneUpdate c k s)) l
+        rw [<- E]
+        · simp only [Functor.mapCone_pt, Functor.comp_obj, Functor.mapCone_π_app, ↓reduceDIte, l]
+          erw [eqToHom_trans_assoc, eqToHom_refl, Category.id_comp]
+        · intro j; ext i
+          rw [Pi.comp_apply]
+          simp only [l]
+          simp only [pi.coneOfConeCompEval, Functor.mapCone_pt, Functor.comp_obj,
+            Functor.mapCone_π_app]
+          split_ifs with E
+          · subst E; simp only
+            erw [Category.assoc, w j]
+            rw [Cone.π_app_of_eq (coneUpdate_self c i s) j]
+            rfl
+          · rw [Cone.π_app_of_eq (coneUpdate_of_ne c k s E) j]
+            simp; rfl
+    }⟩
+  }
+
+
+open Classical in
+theorem pi_hasLimitsOfShape_iff [∀ i, Nonempty (Cs i)] :
+    HasLimitsOfShape J (∀ i, Cs i) ↔ ∀ i, HasLimitsOfShape J (Cs i) where
+  mp H k := {
+    has_limit F := by
+      let K : J ⥤ ((i : I) → Cs i) :=
+        Functor.pi' (fun i => if E : i = k then E ▸ F else (Functor.const J).obj (Nonempty.some inferInstance))
+      have ⟨⟨HK⟩⟩ := (H.has_limit K)
+      have ⟨H⟩ :=  ((piEval_preservesLimitsOfShape (J := J) (Cs := Cs) k).preservesLimit (K := K)).preserves HK.2
+      have E : (K ⋙ Pi.eval Cs k) = F := by simp [K]
+      rw [<- E]
+      apply HasLimit.mk ⟨_, H⟩
+  }
+  mpr H := {
+    has_limit F := by
+      let K : ∀ (i : I), J ⥤ Cs i := fun i => {
+        obj j := F.obj j i
+        map {j j'} f :=  F.map f i
+        map_id j := by simp
+        map_comp {a b c} f g := by simp
+      }
+      let c : ∀ (s : Cone F) i, Cone (K i) := fun s i => {
+        pt := s.pt i
+        π := {
+          app j := s.π.app j i
+          naturality {j j'} f := by
+            have E := s.π.naturality f
+            erw [Functor.const_obj_map, Category.id_comp] at E
+            rw [E]; simp [K]
+        }
+      }
+      apply HasLimit.mk {
+        cone := {
+          pt i := limit (K i)
+          π := {
+            app j i := limit.π (K i) j
+            naturality {j j'} f:= by
+              ext i; simp only [Functor.const_obj_obj, Functor.const_obj_map, Pi.comp_apply,
+                Pi.id_apply, Category.id_comp]
+              rw [<- limit.w (K i) f]
+          }
+        }
+        isLimit := {
+          lift s i := limit.lift (K i) (c s i)
+          fac s j := by
+            ext i; simp [c]
+          uniq s m w := by
+            ext i j; simp only [limit.lift_π, c]
+            rw [<- w]; simp
+        }
+      }
+  }
+
+
+end
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 命題3.4.9
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 /-
@@ -986,8 +1185,9 @@ theorem under_hasColimitsOfShape_of_isConnected [IsConnected J] (c : C)
 したがって、任意の添字圏 J について、C が J 型の極限を持てば、(i) Cᴬ も J 型の極限を持ち、
 (ii) 各 a ∈ A について評価関手 ev_a : Cᴬ → C は J 型の極限を保存する。余極限についても同様。
 
-構成: 小圏 A の対象を極大な離散部分圏 ob A ↪ A と見て、忘却関手 ev を組む。ev が極限を
-      厳密に創出することを示し、そこから (i) と (ii) を示す。
+構成: 小圏 A の対象を極大な離散部分圏 ob A ↪ A と見て、忘却関手 ev を組む。創出は定義3.4.1
+      の創出 `CreatesLimit` で述べる（厳密な創出からは持ち上げの等式での一意性が落ちる）。
+      そこから (i) と (ii) を示す。
 -/
 
 #check Discrete.functor
@@ -998,24 +1198,188 @@ def obIncl (A : Type v) [SmallCategory A] : Discrete A ⥤ A where
 
 -- ob A ↪ A と書けるのは、この包含が埋め込み（忠実で対象に単射）だから（`Riehl.Topics.Embedding`）。
 theorem discreteFunctorId_embedding (A : Type v) [SmallCategory A] :
-    Embedding (Discrete.functor (id : A → A)) := sorry
+    Embedding (Discrete.functor (id : A → A)) := by
+  constructor; intro x y E
+  simp only [Discrete.functor, Function.id_comp, Function.comp_apply, id_eq] at E
+  ext; exact E
 
 def ev (A : Type v) [SmallCategory A] (C : Type u) [Category.{v} C] :
     (A ⥤ C) ⥤ (Discrete A ⥤ C) where
   obj G := Discrete.functor id ⋙ G
-  map α := Functor.whiskerLeft (Discrete.functor id) α
+  map α :=  Functor.whiskerLeft (Discrete.functor id) α
 
-noncomputable def evStrictlyCreatesLimit (A : Type v) [SmallCategory A] (K : J ⥤ (A ⥤ C)) :
-    StrictlyCreatesLimit K (ev A C) where
-  lifts d Hd := {
-    liftedCone := _
-    validLift := _
-    unique := _
-    makesLimit := _
+-- 本が C^{ob A} ≅ ∏_{ob A} C と書く同一視。`A → C` は `∀ _ : A, C`（演習3.4.v の積の圏）。
+#check piEquivalenceFunctorDiscrete
+
+def piEquivalenceFunctorDiscrete' (A : Type v) (C : Type u) [Category.{v} C] :
+    (A → C) ≌ (Discrete A ⥤ C) where
+  functor := {
+    obj f := {
+      obj a := f a.as
+      map {a a'} g := eqToHom (congr_arg f g.eq)
+      map_id a := by simp only [eqToHom_refl]
+      map_comp {a b c} g h := by simp only [eqToHom_trans]
+    }
+    map {f g} F := {
+      app a := F a.as
+      naturality {a a'} h := by
+        simp
+        obtain ⟨a⟩ := a
+        obtain ⟨a'⟩ := a'
+        obtain ⟨rfl⟩ := h.eq
+        simp
+    }
+    map_id f := by
+      apply NatTrans.ext; ext; simp
+    map_comp {f g h} F  G := by
+      apply NatTrans.ext; ext; simp
+
+  }
+  inverse := {
+    obj F a := F.obj ⟨a⟩
+    map {F G} σ a := σ.app ⟨a⟩
+    map_id F := by ext; simp
+    map_comp {F G H} σ τ := by ext; simp
+  }
+  unitIso := {
+    hom := {
+      app f a := 𝟙 (f a)
+      naturality {f g} F := by ext a; simp
+    }
+    inv := {
+      app f a := 𝟙 (f a)
+      naturality {f g} F := by ext; simp
+    }
+    hom_inv_id := by
+      apply NatTrans.ext; ext; simp
+    inv_hom_id := by
+      apply NatTrans.ext; ext; simp
+  }
+  counitIso := {
+    hom := {
+      app F := {
+        app i := 𝟙 (F.obj i)
+        naturality {x y} f := by
+          obtain ⟨x⟩ := x
+          obtain ⟨y⟩ := y
+          obtain ⟨⟨rfl⟩⟩ := f
+          simp
+      }
+      naturality {G H} σ := by
+        ext x; simp
+    }
+    inv := {
+      app F := {
+        app i := 𝟙 F.obj i
+        naturality {x y} f := by
+          obtain ⟨x⟩ := x
+          obtain ⟨y⟩ := y
+          obtain ⟨⟨rfl⟩⟩ := f
+          simp
+      }
+      naturality {G H} σ := by
+        ext x; simp
+    }
+    hom_inv_id := by
+      ext F x; simp
+    inv_hom_id := by
+      ext F x; simp
+  }
+  functor_unitIso_comp f := by
+    ext x; simp
+
+
+-- この同一視のもとで、`Discrete A ⥤ C` の各点 a での評価関手は積の射影 `Pi.eval` に対応する。
+#check piEquivalenceFunctorDiscreteCompEvaluationIso
+
+def piEquivalenceFunctorDiscreteCompEvaluationIso' {A : Type v} (a : A) :
+    (piEquivalenceFunctorDiscrete A C).functor ⋙ (evaluation (Discrete A) C).obj ⟨a⟩ ≅
+    Pi.eval (fun _ : A => C) a where
+  hom := {
+    app f := 𝟙 (f a)
+    naturality {f g} F:= by
+      simp only [evaluation, Functor.comp_obj, Functor.comp_map,
+        piEquivalenceFunctorDiscrete_functor_map, Discrete.natTrans_app, Pi.eval_map]
+      erw [Category.comp_id, Category.id_comp]
+  }
+  inv := {
+    app f := 𝟙 (f a)
+    naturality {f g} F := by
+      simp only [evaluation, Functor.comp_obj, Pi.eval_map, Functor.comp_map,
+        piEquivalenceFunctorDiscrete_functor_map, Discrete.natTrans_app]
+      erw [Category.comp_id, Category.id_comp]
+  }
+  hom_inv_id := by
+    ext f
+    simp only [piEquivalenceFunctorDiscrete, Functor.comp_obj, Functor.id_obj,
+      Discrete.functor_obj_eq_as, Discrete.mk_as, evaluation_obj_obj, NatTrans.comp_app,
+      NatTrans.id_app]
+    erw [Category.comp_id]
+  inv_hom_id := by
+    ext f
+    simp? [Pi.eval]
+    erw [Category.comp_id]
+
+
+
+
+-- C^{ob A} = `Discrete A ⥤ C` の各点への射影は極限を保存する。本が上の同一視と演習3.4.v で
+-- 済ませている箇所。
+theorem discreteEvaluation_preservesLimitsOfShape (A : Type v) [SmallCategory A] (a : A) :
+    PreservesLimitsOfShape J ((evaluation (Discrete A) C).obj ⟨a⟩) where
+  preservesLimit {K} := {
+    preserves {c} Hc := by
+      constructor
+      have E : ((evaluation (Discrete A) C).obj { as := a }) =
+        (piEquivalenceFunctorDiscrete A C).inverse ⋙  Pi.eval (fun _ : A => C) a := rfl
+      rw [E]
+      have Hc' := ((preservesLimit_of_isEquivalence (piEquivalenceFunctorDiscrete A C).inverse K).preserves Hc).some
+      have Hc'':= ((piEval_preservesLimitsOfShape (Cs := fun _ : A => C) a).preservesLimit.preserves Hc').some
+      apply Hc''.ofIsoLimit
+      apply Functor.mapConeMapCone
   }
 
+noncomputable instance evCreatesLimit (A : Type v) [SmallCategory A] (K : J ⥤ (A ⥤ C)) :
+    CreatesLimit K (ev A C) where
+  reflects {c} Hc := ⟨{
+    lift s := {
+      app a := (Hc.lift ((ev A C).mapCone s)).app ⟨a⟩
+      naturality {a a'} f := by
+        have H := ((discreteEvaluation_preservesLimitsOfShape A a').preservesLimit.preserves Hc).some
+        apply H.hom_ext; intro j
+        have Fa : (Hc.lift ((ev A C).mapCone s)).app ⟨a⟩ ≫ (c.π.app j).app a = (s.π.app j).app a :=
+          NatTrans.congr_app (Hc.fac ((ev A C).mapCone s) j) ⟨a⟩
+        have Fa' : (Hc.lift ((ev A C).mapCone s)).app ⟨a'⟩ ≫ (c.π.app j).app a' = (s.π.app j).app a' :=
+          NatTrans.congr_app (Hc.fac ((ev A C).mapCone s) j) ⟨a'⟩
+        have E : c.pt.map f ≫ (c.π.app j).app a' = (c.π.app j).app a ≫ (K.obj j).map f :=
+          (c.π.app j).naturality f
+        change (s.pt.map f ≫ (Hc.lift ((ev A C).mapCone s)).app ⟨a'⟩) ≫ (c.π.app j).app a' =
+          ((Hc.lift ((ev A C).mapCone s)).app ⟨a⟩ ≫ c.pt.map f) ≫ (c.π.app j).app a'
+        erw [Category.assoc, Fa', Category.assoc, E, ← Category.assoc, Fa]
+        exact (s.π.app j).naturality f
+    }
+    fac s j := by
+      ext a; simp only [Functor.mapCone_pt, NatTrans.comp_app]
+      have E := (Hc.fac ((ev A C).mapCone s)) j
+      have E' :=  NatTrans.congr_app E ⟨a⟩
+      set σ := (Hc.lift ((ev A C).mapCone s))
+      erw [NatTrans.comp_app] at E'
+      simp [ev] at E'
+      exact E'
+    uniq s m w := by
+      ext a; simp
+      have E := (Hc.uniq ((ev A C).mapCone s)) (Functor.whiskerLeft (Discrete.functor id) m)
+      rw [<- E]; simp
+      intro j; ext a';
+      simp only [ev, Functor.mapCone_pt, Functor.comp_obj, Discrete.functor_obj_eq_as, id_eq,
+        Functor.mapCone_π_app, NatTrans.comp_app, Functor.whiskerLeft_app]
+      rw [<- w j]; simp
+  }⟩
+  lifts c Hc := {
+    liftedCone := by
 
-
+    validLift := _
+  }
 
 #check functorCategoryHasLimitsOfShape
 
@@ -1026,6 +1390,127 @@ theorem functorCategory_hasLimitsOfShape (A : Type v) [SmallCategory A] [HasLimi
 
 theorem evaluationObj_preservesLimitsOfShape (A : Type v) [SmallCategory A]
     [HasLimitsOfShape J C] (a : A) : PreservesLimitsOfShape J ((evaluation A C).obj a) := sorry
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 命題3.4.9（Mathlib の形）
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+/-
+小圏 A と図式 K : J → Cᴬ について、Cᴬ の錐が極限錐であるのは、各 a ∈ A での評価が C の極限錐で
+あるときである。また各 a ∈ A で j ↦ (K j)(a) の極限錐を取ると、それらは Cᴬ の K 上の極限錐に
+束ねられ、各 a での評価は元の極限錐に戻る。
+
+構成: 上の命題3.4.9 を Mathlib が述べている形。忘却関手 ev を使わず、各点の評価関手
+      `(evaluation A C).obj a` の族で述べ、反映と束ねの 2 つに分ける。
+-/
+
+#check evaluationJointlyReflectsLimits
+
+def evaluationJointlyReflectsLimits' (A : Type v) [SmallCategory A] {K : J ⥤ A ⥤ C} (c : Cone K)
+    (H : ∀ a : A, IsLimit (((evaluation A C).obj a).mapCone c)) : IsLimit c where
+  lift s := {
+    app a := (H a).lift (((evaluation A C).obj a).mapCone s)
+    naturality {a a'} f := by
+      apply (H a').hom_ext; intro j;
+      simp only [Functor.comp_obj, evaluation_obj_obj,
+        Functor.mapCone_pt, Functor.mapCone_π_app, evaluation_obj_map, Category.assoc,
+        NatTrans.naturality]
+      have Ha := (H a).fac (((evaluation A C).obj a).mapCone s) j
+      have Ha' := (H a').fac (((evaluation A C).obj a').mapCone s) j
+      simp only [Functor.mapCone_pt, evaluation_obj_obj, Functor.comp_obj, Functor.mapCone_π_app,
+        evaluation_obj_map] at Ha Ha'
+      rw [<- Category.assoc _ _ ((K.obj j).map f), Ha, Ha', <- (s.π.app j).naturality f]
+      simp
+  }
+
+
+  fac s j := by
+    ext a; simp only [NatTrans.comp_app]
+    have E := (H a).fac (((evaluation A C).obj a).mapCone s) j
+    simp only [Functor.mapCone_pt, evaluation_obj_obj, Functor.comp_obj, Functor.mapCone_π_app,
+      evaluation_obj_map] at E
+    exact E
+  uniq s m w := by
+    ext a; simp only
+    apply (H a).hom_ext; intro j; simp only [Functor.comp_obj, evaluation_obj_obj,
+      Functor.mapCone_pt, Functor.mapCone_π_app, evaluation_obj_map]
+    have E := (H a).uniq (((evaluation A C).obj a).mapCone s) (m.app a)
+    simp only [Functor.mapCone_pt, evaluation_obj_obj, Functor.comp_obj, Functor.mapCone_π_app,
+      evaluation_obj_map] at E
+    rw [E]
+    intro j; rw [<- w j]; simp
+
+
+-- 各点 a での図式 j ↦ (K j)(a) は `K.flip.obj a`（`Functor.flip` は引数の順を入れ替えた関手）。
+#check Functor.flip
+#check combineCones
+
+def combineCones' (A : Type v) [SmallCategory A] (K : J ⥤ A ⥤ C)
+    (c : ∀ a : A, LimitCone (K.flip.obj a)) : Cone K where
+  pt := {
+    obj a := (c a).cone.pt
+    map {a a'} f := by
+      let s := (Cone.postcompose (K.flip.map f)).obj (c a).cone
+      exact ((c a').isLimit.lift s)
+    map_id a := by
+      apply (c a).isLimit.hom_ext
+      intro j; dsimp only [Cone.postcompose_obj_pt, Functor.flip_obj_obj]
+      rw [(c a).isLimit.fac]; simp
+    map_comp {x y z} f g := by
+      apply (c z).isLimit.hom_ext
+      intro j; simp
+  }
+  π := {
+    app j := {
+      app a := (c a).cone.π.app j
+      naturality {a a'} f := by
+        dsimp only [Lean.Elab.WF.paramLet, Functor.const_obj_obj]
+        have := (c a').isLimit.fac ((Cone.postcompose (K.flip.map f)).obj (c a).cone) j
+        rw [this]; simp
+    }
+    naturality {j j'} f := by
+      ext a; dsimp
+      have := (c a).cone.π.naturality f
+      simp only [Functor.const_obj_obj, Functor.flip_obj_obj, Functor.const_obj_map,
+        Category.id_comp, Functor.flip_obj_map] at this
+      rw [this]; simp
+  }
+
+
+
+
+#check evaluateCombinedCones
+
+def evaluateCombinedCones' (A : Type v) [SmallCategory A] (K : J ⥤ A ⥤ C)
+    (c : ∀ a : A, LimitCone (K.flip.obj a)) (a : A) :
+    ((evaluation A C).obj a).mapCone (combineCones K c) ≅ (c a).cone where
+  hom := {
+    hom := 𝟙 _
+    w j := by erw [Category.id_comp]; rfl
+  }
+  inv := {
+    hom := 𝟙 _
+    w j := by erw [Category.id_comp]; simp
+  }
+  hom_inv_id := by
+    erw [Category.comp_id]; rfl
+  inv_hom_id := by
+    erw [Category.comp_id]; rfl
+
+
+
+#check combinedIsLimit
+
+def combinedIsLimit' (A : Type v) [SmallCategory A] (K : J ⥤ A ⥤ C)
+    (c : ∀ a : A, LimitCone (K.flip.obj a)) : IsLimit (combineCones K c) := by
+  apply evaluationJointlyReflectsLimits
+  intro a
+  apply (c a).isLimit.ofIsoLimit
+  symm; apply evaluateCombinedCones
+
+
+
+
+
 
 -- ╔═════════════════════════════════════════════════════════════════════════
 -- ║  節末問題
@@ -1041,12 +1526,72 @@ theorem evaluationObj_preservesLimitsOfShape (A : Type v) [SmallCategory A]
 -/
 
 noncomputable def colimitComparison (K : J ⥤ C) (F : C ⥤ D) [HasColimit K] [HasColimit (K ⋙ F)] :
-    colimit (K ⋙ F) ⟶ F.obj (colimit K) := sorry
+    colimit (K ⋙ F) ⟶ F.obj (colimit K) :=
+  colimit.desc  (K ⋙ F) (F.mapCocone (colimit.cocone K))
 
 #check preservesColimit_of_isIso_post
 
-theorem preservesColimit_iff_isIso_colimitComparison (K : J ⥤ C) (F : C ⥤ D) [HasColimit K]
-    [HasColimit (K ⋙ F)] : PreservesColimit K F ↔ IsIso (colimitComparison K F) := sorry
+theorem preservesColimit_iff_isIso_colimitComparison (K : J ⥤ C) (F : C ⥤ D)
+    [HasColimit K] [HasColimit (K ⋙ F)] :
+    PreservesColimit K F ↔ IsIso (colimitComparison K F) where
+  mp H := by
+    constructor
+    have HF := (H.preserves (colimit.isColimit K)).some
+    use HF.desc (colimit.cocone (K ⋙ F))
+    simp only [colimitComparison]; constructor
+    · apply colimit.hom_ext; intro j
+      rw [<- Category.assoc, colimit.ι_desc, HF.fac]
+      simp
+    · apply HF.hom_ext; intro j
+      erw [Category.comp_id]
+      rw [<- Category.assoc, HF.fac]
+      erw [colimit.ι_desc]
+  mpr H := by
+    rcases H with ⟨inv, map_inv, inv_map⟩
+    constructor; intro c Hc; constructor
+    let σ := Hc.uniqueUpToIso (colimit.isColimit K)
+    apply (colimit.isColimit (K ⋙ F)).ofIsoColimit
+    refine {
+      hom := {
+        hom := colimitComparison K F ≫ F.map σ.inv.hom
+        w j := by
+          simp only [Functor.comp_obj, Functor.mapCocone_pt, colimit.cocone_x, colimit.cocone_ι,
+            colimitComparison, IsColimit.uniqueUpToIso_inv, IsColimit.descCoconeMorphism_hom,
+            colimit.isColimit_desc, colimit.ι_desc_assoc, Functor.mapCocone_ι_app, σ]
+          rw [<- F.map_comp, colimit.ι_desc]
+      }
+      inv := {
+        hom := F.map σ.hom.hom ≫ inv
+        w j := by
+          simp only [Functor.comp_obj, colimit.cocone_x, Functor.mapCocone_pt,
+            Functor.mapCocone_ι_app, IsColimit.uniqueUpToIso_hom, IsColimit.descCoconeMorphism_hom,
+            colimit.cocone_ι, σ]
+          simp only [colimitComparison] at map_inv
+          rw [<- F.map_comp_assoc, Hc.fac]
+          have E :=  colimit.ι_desc (F.mapCocone (colimit.cocone K)) j
+          dsimp only [Functor.comp_obj, Functor.mapCocone_pt, colimit.cocone_x,
+            Functor.mapCocone_ι_app, colimit.cocone_ι] at E
+          erw [<- E]
+          rw [Category.assoc, map_inv]; simp
+      }
+      hom_inv_id := by
+        ext; simp only [colimit.cocone_x, Functor.mapCocone_pt, Cocone.category_comp_hom,
+          Category.assoc, Cocone.category_id_hom]
+        rw [<- F.map_comp_assoc]
+        have E := congr_arg (fun c => c.hom)  σ.inv_hom_id;
+        dsimp only [Cocone.category_comp_hom, colimit.cocone_x, Cocone.category_id_hom] at E
+        rw [E]; simp only [CategoryTheory.Functor.map_id, Category.id_comp]
+        rw [map_inv]
+      inv_hom_id := by
+        ext; simp only [Functor.mapCocone_pt, colimit.cocone_x, Cocone.category_comp_hom,
+          Category.assoc, Cocone.category_id_hom]
+        rw [<- Category.assoc inv, inv_map]
+        simp only [Category.id_comp]
+        have E := congr_arg (fun c => c.hom)  σ.hom_inv_id;
+        dsimp only [Cocone.category_comp_hom, colimit.cocone_x, Cocone.category_id_hom] at E
+        rw [<- F.map_comp, E]; simp
+    }
+
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 演習3.4.ii
@@ -1059,10 +1604,162 @@ theorem preservesColimit_iff_isIso_colimitComparison (K : J ⥤ C) (F : C ⥤ D)
 
 noncomputable def elementsPiStrictlyCreatesLimit (F : C ⥤ Type v) (K : J ⥤ F.Elements)
     [HasLimit (K ⋙ Functor.Elements.π F)] [PreservesLimit (K ⋙ Functor.Elements.π F) F] :
-    StrictlyCreatesLimit K (Functor.Elements.π F) := sorry
+    StrictlyCreatesLimit K (Functor.Elements.π F) where
+  lifts s Hs := {
+    liftedCone := by
+      have HF := (PreservesLimit.preserves (F := F) Hs).some
+      refine {
+        pt := {
+          obj := s.pt
+          val := by
+            let s : Cone ((K ⋙ Functor.Elements.π F) ⋙ F) := {
+              pt := PUnit
+              π := {
+                app j := TypeCat.ofHom (fun _ => (K.obj j).val)
+                naturality {j j'} f := by
+                  ext x; simp
+              }
+            }
+            exact HF.lift s PUnit.unit
+        }
+        π := {
+          app j := {
+            hom := s.π.app j
+            map_val := by
+              simp only [Functor.const_obj_obj, Functor.comp_obj, Functor.Elements.π_obj,
+                Functor.mapCone_pt, Lean.Elab.WF.paramLet]
+              rw [<- comp_apply, <- F.mapCone_π_app, HF.fac]
+              simp
+          }
+          naturality {j j'} f := by
+            ext; simp only [Functor.const_obj_obj, Functor.const_obj_map, Category.id_comp,
+              Functor.Elements.comp_hom]
+            have E := s.π.naturality f
+            dsimp only [Functor.const_obj_obj, Functor.comp_obj, Functor.Elements.π_obj,
+              Functor.const_obj_map, Functor.comp_map, Functor.Elements.π_map] at E;
+            rw [<- E]; simp
+
+        }
+      }
+
+    validLift := rfl
+    unique c Hc := by
+      rw [Cone.mk.injEq]
+      · sorry
+      · sorry
+
+
+    makesLimit := sorry
+  }
+
 
 noncomputable def elementsPiStrictlyCreatesColimit [IsConnected J] (F : C ⥤ Type v)
     (K : J ⥤ F.Elements) : StrictlyCreatesColimit K (Functor.Elements.π F) := sorry
+
+/- 同じ主張を定義3.4.1 の創出 `CreatesLimit`・`CreatesColimit` で述べたもの。厳密な創出との差は、
+   持ち上げの一意性 `unique` が落ち、`validLift` が錐の等式でなく同型になること。 -/
+
+-- Mathlib は、C が J 型の極限をすべて持ち F がそれらをすべて保存する仮定のもとで、名前のない
+-- instance `Functor.Elements.instCreatesLimitπ` として持つ（`Mathlib/CategoryTheory/Limits/
+-- Elements.lean`。このファイルでは import しない）。
+noncomputable def elementsPiCreatesLimit (F : C ⥤ Type v) (K : J ⥤ F.Elements)
+    [HasLimit (K ⋙ Functor.Elements.π F)] [PreservesLimit (K ⋙ Functor.Elements.π F) F] :
+    CreatesLimit K (Functor.Elements.π F) where
+  reflects {c} Hc := ⟨{
+    lift s := {
+      hom := Hc.lift ((Functor.Elements.π F).mapCone s)
+      map_val := by
+        have HF := (PreservesLimit.preserves (F := F) Hc).some
+        let σ := Types.isLimitEquivSections HF
+        simp at σ
+        apply σ.injective
+        ext j
+        rw [Types.isLimitEquivSections_apply]
+        rw [Types.isLimitEquivSections_apply]
+        simp only [Functor.mapCone_pt, Functor.Elements.π_obj, Functor.mapCone_π_app,
+          Functor.comp_obj, Functor.Elements.π_map, Functor.const_obj_obj,
+          Functor.Elements.Hom.map_val]
+        rw [<- comp_apply, <- F.map_comp]
+        have E := Hc.fac ((Functor.Elements.π F).mapCone s) j
+        dsimp only [Functor.mapCone_pt, Functor.Elements.π_obj, Functor.comp_obj,
+          Functor.mapCone_π_app, Functor.Elements.π_map] at E
+        rw [E]
+        exact (s.π.app j).map_val
+    }
+
+
+    fac s j := by
+      ext; simp only [Functor.Elements.comp_hom]
+      have E := Hc.fac ((Functor.Elements.π F).mapCone s) j
+      simp only [Functor.mapCone_pt, Functor.Elements.π_obj, Functor.comp_obj,
+        Functor.mapCone_π_app, Functor.Elements.π_map] at E
+      rw [E]
+
+    uniq s m w := by
+      ext; simp only
+      rw [Hc.uniq ((Functor.Elements.π F).mapCone s) m.hom]
+      intro j; simp only [Functor.mapCone_pt, Functor.Elements.π_obj, Functor.comp_obj,
+        Functor.mapCone_π_app, Functor.Elements.π_map]
+      rw [<- w j]; simp
+  }⟩
+  lifts s Hs := {
+    liftedCone := by
+      have HF := (PreservesLimit.preserves (F := F) Hs).some
+      refine {
+        pt := {
+          obj := s.pt
+          val := by
+            let s : Cone ((K ⋙ Functor.Elements.π F) ⋙ F) := {
+              pt := PUnit
+              π := {
+                app j := TypeCat.ofHom (fun _ => (K.obj j).val)
+                naturality {j j'} f := by
+                  ext x; simp
+              }
+            }
+            exact HF.lift s PUnit.unit
+        }
+        π := {
+          app j := {
+            hom := s.π.app j
+            map_val := by
+              simp only [Functor.const_obj_obj, Functor.comp_obj, Functor.Elements.π_obj,
+                Functor.mapCone_pt, Lean.Elab.WF.paramLet]
+              rw [<- comp_apply, <- F.mapCone_π_app, HF.fac]
+              simp
+          }
+          naturality {j j'} f := by
+            ext; simp only [Functor.const_obj_obj, Functor.const_obj_map, Category.id_comp,
+              Functor.Elements.comp_hom]
+            have E := s.π.naturality f
+            dsimp only [Functor.const_obj_obj, Functor.comp_obj, Functor.Elements.π_obj,
+              Functor.const_obj_map, Functor.comp_map, Functor.Elements.π_map] at E;
+            rw [<- E]; simp
+
+        }
+      }
+
+
+    validLift := {
+      hom := {
+        hom := 𝟙 _
+        w j := by simp
+      }
+
+      inv := {
+        hom := 𝟙 _
+        w := by simp
+      }
+      hom_inv_id := by ext; simp
+      inv_hom_id := by ext; simp
+    }
+
+  }
+
+#check CreatesColimit
+
+noncomputable def elementsPiCreatesColimit [IsConnected J] (F : C ⥤ Type v)
+    (K : J ⥤ F.Elements) : CreatesColimit K (Functor.Elements.π F) := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 演習3.4.iii
@@ -1089,33 +1786,7 @@ theorem pointedTop_forget_not_preservesBinaryCoproducts :
     ¬ PreservesColimitsOfShape (Discrete WalkingPair) (Under.forget (TopCat.of PUnit.{v + 1})) :=
   sorry
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- 演習3.4.v
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-/-
-圏の積 ∏_{i∈I} C_i について、(i) 各射影関手 π_k : ∏ C_i → C_k は任意の図式に対して極限を
-保存し、(ii) 射影関手は共同で極限を創出する。すなわち任意の図式 F : J → ∏ C_i について、
-各成分 π_k F が極限を持てば、それらが F の極限の成分を定める。したがって、任意の添字圏 J に
-ついて、積の圏が J 型の極限を持つのは各成分が持つとき、かつそのときに限る。
--/
 
-section
-
-variable {I : Type w} (Cs : I → Type u) [∀ i, Category.{v} (Cs i)]
-
-theorem piEval_preservesLimitsOfShape (k : I) : PreservesLimitsOfShape J (Pi.eval Cs k) := sorry
-
-def piConeOfComponents (F : J ⥤ ∀ i, Cs i) (c : ∀ k, LimitCone (F ⋙ Pi.eval Cs k)) : Cone F where
-  pt := fun k => (c k).cone.pt
-  π := sorry
-
-def isLimitPiConeOfComponents (F : J ⥤ ∀ i, Cs i) (c : ∀ k, LimitCone (F ⋙ Pi.eval Cs k)) :
-    IsLimit (piConeOfComponents Cs F c) := sorry
-
-theorem pi_hasLimitsOfShape_iff [∀ i, Nonempty (Cs i)] :
-    HasLimitsOfShape J (∀ i, Cs i) ↔ ∀ i, HasLimitsOfShape J (Cs i) := sorry
-
-end
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 演習3.4.vi
