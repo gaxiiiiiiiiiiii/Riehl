@@ -157,7 +157,6 @@ theorem prop_3_3_1_fac [HasLimitsOfShape J C] {F G : J ⥤ C} (α : F ⟶ G) (j 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 図式の間の自然同型は、極限の間、あるいは余極限の間に、存在する限り同型を誘導する。
 
-#check IsLimit.map
 #check IsLimit.conePointsIsoOfNatIso
 
 def cor_3_3_3 {F G : J ⥤ C} {s : Cone F} (hs : IsLimit s) {t : Cone G} (ht : IsLimit t)

@@ -454,7 +454,6 @@ noncomputable def Embedding.ofImage (F : S ⥤ A) [Embedding F] : Embedding.imag
 
 
 #check Functor.toCatHom
-#check Cat.ext
 
 noncomputable def Embedding.isoImage (F : S ⥤ A) [Embedding F] :
     Cat.of S ≅ Cat.of (Embedding.image F) where

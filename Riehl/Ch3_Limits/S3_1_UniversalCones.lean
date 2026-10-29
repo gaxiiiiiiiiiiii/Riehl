@@ -361,7 +361,6 @@ C(c, ∏ Fj) ≅ ∏ C(c, Fk) を定めることである。
 -/
 
 #check @CategoryTheory.Discrete.functor
-#check @CategoryTheory.Discrete.natTrans
 
 def def_3_1_9_cone_equiv {β : Type v} (f : β → C) (c : C) :
     ((Functor.const (Discrete β)).obj c ⟶ Discrete.functor f) ≃ ∀ b, c ⟶ f b := sorry
@@ -723,7 +722,6 @@ def ex_3_1_vii {X : J} (tX : IsInitial X) (F : J ⥤ C) : IsLimit (coneOfDiagram
 -- 零対象を持つ圏では、余積錐の脚は分裂モノ射である。
 
 #check @CategoryTheory.Limits.isSplitMono_sigma_ι
-#check Limits.coprod
 #check Limits.HasCoproduct
 #check
 

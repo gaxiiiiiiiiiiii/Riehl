@@ -133,7 +133,7 @@ statement を置かない節末問題:
     `ReflectsLimit`・`fullyFaithful_reflectsLimits`）
   - `Mathlib/CategoryTheory/Limits/Preserves/Limits.lean`（`preservesLimit_of_isIso_post`）
   - `Mathlib/CategoryTheory/Limits/Creates.lean`（`CreatesLimit`・`LiftableCone`・
-    `createsLimitOfReflectsIso`）
+    `createsLimitOfReflectsIsomorphismsOfPreserves`）
   - `Mathlib/CategoryTheory/Adjunction/Limits.lean`（`Adjunction.isEquivalencePreservesLimits`・
     `Functor.reflectsLimits_of_isEquivalence`）
   - `Mathlib/CategoryTheory/IsConnected.lean`（`IsConnected`・`zigzag_isConnected`）
@@ -431,7 +431,6 @@ theorem reflectsLimit_of_fullyFaithful (F : C ⥤ D) [F.Full] [F.Faithful] (K : 
 -- 圏同値 F : C → D と図式 K : J → C について、F は錐の圏の同値 Cone K ≃ Cone FK を誘導する。
 
 #check Cone.functorialityEquivalence
-#check Functor.mapConeInv
 
 #print CategoryTheory.Equivalence
 
@@ -1016,7 +1015,6 @@ theorem under_hasColimitsOfShape_of_isConnected [IsConnected J] (c : C)
 section
 
 variable {I : Type v} {Cs : I → Type u} [∀ i, Category.{v} (Cs i)]
-#check Pi.π
 #check Pi.eval
 
 #check pi.coneOfConeCompEval
@@ -1838,8 +1836,6 @@ noncomputable instance elementsPiCreatesColimit [IsConnected J] (F : C ⥤ Type 
 -- 関手 F : C → D と図式 K : J → C について、K の極限が C に存在して F がそれを保存し、F が
 -- 同型を反映するならば、F は K の極限を創出する。
 
-#check createsLimitOfReflectsIso
-
 -- F で写した錐が極限錐なら、その錐から lim K への標準の射は同型。
 theorem isIso_limitLift_of_isLimit_mapCone (K : J ⥤ C) (F : C ⥤ D) [HasLimit K]
     [PreservesLimit K F] [F.ReflectsIsomorphisms] {c : Cone K} (Hc : IsLimit (F.mapCone c)) :
@@ -1855,6 +1851,8 @@ theorem isIso_limitLift_of_isLimit_mapCone (K : J ⥤ C) (F : C ⥤ D) [HasLimit
   have Hf : IsIso (F.map (limit.lift K c)) := by
     rw [E]; exact σ.isIso_hom
   exact Functor.ReflectsIsomorphisms.reflects F (limit.lift K c)
+
+#check createsLimitOfReflectsIsomorphismsOfPreserves
 
 noncomputable instance createsLimitOfPreservesOfReflectsIso (K : J ⥤ C) (F : C ⥤ D)
     [HasLimit K] [PreservesLimit K F] [F.ReflectsIsomorphisms] :

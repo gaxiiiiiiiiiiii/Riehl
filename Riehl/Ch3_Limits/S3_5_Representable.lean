@@ -1,5 +1,6 @@
 import Mathlib.CategoryTheory.Limits.Yoneda
 import Mathlib.CategoryTheory.Limits.Types.Limits
+import Mathlib.CategoryTheory.Limits.Types.Yoneda
 import Mathlib.CategoryTheory.Limits.Opposites
 import Mathlib.CategoryTheory.Limits.Constructions.LimitsOfProductsAndEqualizers
 import Mathlib.CategoryTheory.Limits.Constructions.BinaryProducts
@@ -26,43 +27,363 @@ universe v u
 variable {J : Type v} [SmallCategory J] {C : Type u} [Category.{v} C]
 
 -- ╔═════════════════════════════════════════════════════════════════════════
+-- ║  前の節の復習
+-- ╚═════════════════════════════════════════════════════════════════════════
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 定義3.1.5
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 極限 limit F は関手 Cone(−, F) を表現する：Hom(−, limit F) ≅ Cone(−, F)
+#check IsLimit.natIso
+noncomputable def homLimitIsoCones (F : J ⥤ C) [HasLimit F] :
+    yoneda.obj (limit F) ≅ F.cones where
+  hom := {
+    app x':= TypeCat.ofHom (fun f => {
+      app i := f ≫ limit.π F i
+      naturality {i i'} f := by simp
+    })
+    naturality {x' y'} f := by
+      ext f; apply NatTrans.ext; ext j; simp
+  }
+
+  inv := {
+    app x := TypeCat.ofHom (fun σ => limit.lift F ⟨unop x, σ⟩)
+    naturality {x x'} f := by
+      ext σ; apply limit.hom_ext; intro j; simp
+  }
+  hom_inv_id := by
+    ext x f; apply limit.hom_ext; intro j; simp
+  inv_hom_id := by
+    ext x σ; apply NatTrans.ext; ext j; simp
+
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 定理3.2.4
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- Set の極限の要素は、各射影での値で決まる
+#check Types.limit_ext
+theorem types_limit_ext {F : J ⥤ Type v} (x y : limit F)
+    (w : ∀ j, limit.π F j x = limit.π F j y) :
+    x = y := by
+  let σ := Functor.CorepresentableBy.id.homEquiv (Y := limit F)
+  simp at σ
+  apply σ.symm.injective
+  apply limit.hom_ext
+  intro j
+  ext u; simp only [TypeCat.Fun.toFun_apply, comp_apply]
+  erw [w j]
+  simp  [σ]
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 命題3.3.1
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 極限関手 lim : Cᴶ → C（命題3.3.1）を組み直す
+#check lim
+noncomputable def lim' [HasLimitsOfShape J C] : (J ⥤ C) ⥤ C where
+  obj F := limit F
+  map {F G} σ := by
+    set s : Cone G := {
+      pt := limit F
+      π := {
+        app i := limit.π F i ≫ σ.app i
+        naturality {j j'} f := by
+          simp only [Functor.const_obj_obj, Functor.const_obj_map, Category.id_comp, Category.assoc]
+          rw [<- limit.w F f, Category.assoc, σ.naturality f]
+      }
+    }
+    exact limit.lift G s
+
+-- limit.lift F c ≫ limMap α は、c を α で後合成した錐の limit.lift
+#check limit.lift_map
+theorem limit_lift_map {F G : J ⥤ C} [HasLimit F] [HasLimit G] (c : Cone F) (α : F ⟶ G) :
+    limit.lift F c ≫ limMap α = limit.lift G ((Cone.postcompose α).obj c) := by
+  apply limit.hom_ext; intro j
+  rw [limit.lift_π]
+  dsimp only [Cone.postcompose_obj_pt, Cone.postcompose_obj_π, NatTrans.comp_app,
+    Functor.const_obj_obj]
+  simp only [limMap, IsLimit.map]
+  rw [limit.isLimit_lift, Category.assoc, limit.lift_π]
+  dsimp only [Cone.postcompose_obj_pt, limit.cone_x, Cone.postcompose_obj_π, NatTrans.comp_app,
+    Functor.const_obj_obj, limit.cone_π]
+  rw [<- Category.assoc, limit.lift_π]
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 補題3.4.3
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 関手 F で写した極限錐から得られる比較射 F(limit K) → limit (K ⋙ F) を組み直す
+#check limit.post
+
+noncomputable def limitPost' (K : J ⥤ C) {D : Type*} [Category.{v} D] (F : C ⥤ D)
+    [HasLimit K] [HasLimit (K ⋙ F)] :
+    F.obj (limit K) ⟶ limit (K ⋙ F) := by
+  exact limit.lift (K ⋙ F) (F.mapCone (limit.cone K))
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 命題3.4.9
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 関手圏に値を取る図式は、各点で極限を持てば極限を持つ
+#check functorCategoryHasLimit
+
+theorem functorCategory_hasLimit {K : Type*} [Category K] (F : J ⥤ K ⥤ C)
+    [∀ k, HasLimit (F.flip.obj k)] :
+    HasLimit F where
+  exists_limit := ⟨{
+    cone := {
+      pt := {
+        obj k := limit ((F.flip.obj k))
+        map {k k'} f := limMap (F.flip.map f)
+        map_id k := by ext j; simp
+        map_comp {k l m} f g := by ext j; simp
+      }
+      π := {
+        app j := {
+          app k := limit.π (F.flip.obj k) j
+          naturality {k k'} f := by simp
+        }
+
+        naturality {j j'} f := by
+          apply NatTrans.ext; ext k;
+          simp only [Functor.const_obj_obj, Functor.const_obj_map, Category.id_comp,
+            NatTrans.comp_app]
+          rw [<- limit.w (F.flip.obj k) f]; simp
+      }
+    }
+    isLimit := {
+      lift s := {
+        app k := by
+          simp only
+          let c : Cone (F.flip.obj k) := {
+            pt := s.pt.obj k
+            π := {
+              app j := (s.π.app j).app k
+              naturality {j j'} f := by
+                simp only [Functor.const_obj_obj, Functor.flip_obj_obj, Functor.const_obj_map,
+                  Category.id_comp, Functor.flip_obj_map]
+                rw [<- NatTrans.comp_app, <- s.π.naturality f]
+                rw [NatTrans.comp_app]; simp
+            }
+          }
+          exact limit.lift (F.flip.obj k) c
+        naturality {k k'} f := by
+          dsimp only [Functor.const_obj_obj, Lean.Elab.WF.paramLet, id_eq]
+          apply limit.hom_ext; intro j
+          rw [Category.assoc, limit.lift_π]
+          dsimp only [Functor.flip_obj_obj]
+          rw [limit.lift_map, limit.lift_π]
+          dsimp only [Cone.postcompose_obj_pt, Cone.postcompose_obj_π, NatTrans.comp_app,
+            Functor.const_obj_obj, Functor.flip_obj_obj, Functor.flip_map_app]
+          rw [<- ((s.π.app j)).naturality f]
+          rfl
+      }
+
+      fac s j := by
+        apply NatTrans.ext; ext k;
+        dsimp only [Functor.const_obj_obj, Lean.Elab.WF.paramLet, id_eq, NatTrans.comp_app]
+        rw [limit.lift_π]
+      uniq s m w := by
+        simp only [Functor.const_obj_obj] at m w
+        apply NatTrans.ext; ext k j;
+        dsimp only [Functor.flip_obj_obj, Functor.const_obj_obj, Lean.Elab.WF.paramLet, id_eq]
+        rw [limit.lift_π]; dsimp only
+        rw [<- w j]; simp
+    }
+  }⟩
+
+
+-- ╔═════════════════════════════════════════════════════════════════════════
 -- ║  本文の定義と主張
 -- ╚═════════════════════════════════════════════════════════════════════════
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- 錐の集合としての lim C(X, F−)（定理3.5.2 の前）
+-- (3.5.1) と演習3.5.i（定理3.5.2 の前）
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 /-
-任意の図式 F : J → C と対象 X ∈ C について、Set の図式 C(X, F−) の極限の要素は頂点 X を持つ
-F 上の錐にほかならず、lim_J C(X, F−) ≅ Cone(X, F) である。
+任意の図式 F : J → C について、limit (Hom(X, F-)) の要素は頂点 X を持つ F 上の錐にほかならず、
+同型 limit (Hom(X, F-)) ≅ Cone(X, F) が X について自然に成り立つ（(3.5.1)、演習3.5.i）。
+
+構成: 関手 X ↦ limit (Hom(X, F-)) を前合成と lim の合成で組み、Cone(−, F)（Functor.cones）との
+      自然同型を組む。
 -/
 
-#check Types.limitEquivSections
-#check Limits.coneOfSectionCompCoyoneda
-#print Functor.cones
+-- 関手 F : J → C との前合成 (C → D) → (J → D) を関手として組む。射の部分は 1.7 の whiskering
+#check Functor.whiskeringLeft
 
-noncomputable def limitHomEquivCone (F : J ⥤ C) (X : Cᵒᵖ) :
-    limit (F ⋙ coyoneda.obj X) ≃ F.cones.obj X := sorry
+def whiskeringLeft' (J : Type v) [SmallCategory J] (C : Type u) [Category.{v} C] (D : Type*)
+    [Category.{v} D] :
+    (J ⥤ C) ⥤ (C ⥤ D) ⥤ (J ⥤ D) where
+  obj F := {
+    obj G := F ⋙ G
+    map {G G'} σ := F.whiskerLeft σ
+    map_id G := by simp
+    map_comp {G H K} σ ι := by simp
+  }
+  map {F F'} σ := {
+    app G := Functor.whiskerRight σ G
+    naturality {G G'} ι := by
+      ext j; simp
+  }
+  map_id F := by
+    ext G j; simp
+  map_comp {F G H} ι τ := by
+    ext I j; simp
+
+
+-- X ↦ limit (Hom(X, F-))
+noncomputable def limHomFunctor (F : J ⥤ C) : Cᵒᵖ ⥤ Type v :=
+  (coyoneda ⋙ (Functor.whiskeringLeft J C (Type v)).obj F) ⋙ lim
+
+-- 関手 G ↦ limit G と G ↦ Hom((const J).obj PUnit, G) の自然同型
+noncomputable def limIsoCoyonedaConstPUnit :
+    lim ≅ coyoneda.obj (op ((Functor.const J).obj PUnit.{v + 1})) where
+  hom := {
+    app F := TypeCat.ofHom (fun f => {
+      app i := TypeCat.ofHom (fun u => limit.π F i f)
+      naturality {i j} h := by ext u; simp
+    })
+    naturality {F G} σ := by
+      ext x; apply NatTrans.ext; ext j u; simp
+  }
+  inv := {
+    app F := TypeCat.ofHom (fun σ => limit.lift F ⟨_, σ⟩ PUnit.unit)
+    naturality {F G} σ := by
+      ext τ; apply Types.limit_ext; intro j; simp
+  }
+  hom_inv_id := by
+    apply NatTrans.ext; ext F x
+    rw [NatTrans.comp_app]
+    apply Types.limit_ext; intro j
+    simp
+  inv_hom_id := by
+    apply NatTrans.ext; ext F σ
+    apply NatTrans.ext; ext j u
+    rcases u; simp
+
+#check limitCompCoyonedaIsoCone
+#print Functor.cones
+noncomputable def limHomIsoCones (F : J ⥤ C) : limHomFunctor F ≅ F.cones := by
+  symm
+  apply Iso.trans _ (Functor.isoWhiskerLeft ((coyoneda ⋙ (Functor.whiskeringLeft J C (Type v)).obj F))
+    limIsoCoyonedaConstPUnit.symm)
+  apply NatIso.ofComponents ?_ ?_
+  · intro x
+    refine {
+      hom :=
+      TypeCat.ofHom (fun σ => {
+        app i := TypeCat.ofHom (fun u => σ.app i)
+        naturality {i j} f := by
+          ext u;
+          simp only [Functor.comp_obj, Functor.whiskeringLeft_obj_obj, Functor.flip_obj_obj,
+            yoneda_obj_obj, Functor.const_obj_obj, Functor.const_obj_map, Functor.op_obj,
+            Category.id_comp, TypeCat.hom_ofHom, TypeCat.Fun.toFun_apply, TypeCat.Fun.coe_mk,
+            Functor.comp_map, Functor.flip_obj_map, yoneda_map_app, comp_apply]
+          rw [<- σ.naturality f]
+          simp
+      })
+      inv := TypeCat.ofHom (fun σ => {
+        app i :=  (σ.app i).hom PUnit.unit
+        naturality {i j} f := by
+          simp only [Functor.op_obj, Functor.const_obj_obj, Functor.const_obj_map, Functor.comp_obj,
+            Functor.whiskeringLeft_obj_obj, Functor.flip_obj_obj, yoneda_obj_obj, Category.id_comp]
+          have E := σ.naturality f
+          apply congr_arg (fun x => x.hom PUnit.unit) E
+      })
+      hom_inv_id := by
+        ext σ; apply NatTrans.ext; ext j; simp
+      inv_hom_id := by
+        ext σ; apply NatTrans.ext; ext j u
+        congr
+    }
+  · intro x y f; ext σ
+    apply NatTrans.ext; ext j u
+    dsimp
+
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 定理3.5.2
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 /-
 極限が存在する任意の図式 F : J → C について、極限錐が誘導する標準的な写像は、各 X ∈ C に
-ついて自然な同型 C(X, lim_J F) ≅ lim_J C(X, F−) を定める。したがって共変表現可能関手
-C(X, −) : C → Set は、C に存在する任意の極限を保存する。
+ついて自然な同型 Hom(X, limit F) ≅ limit (Hom(X, F-)) を定める。したがって共変表現可能関手
+Hom(X, −) : C → Set は、C に存在する任意の極限を保存する。
+
+構成: 本文の証明に沿う。補題3.4.3 の比較射を Hom(X, −) に当てて標準的な写像の X 成分とし、
+      X について束ねる。それと (3.5.1) の自然同型との合成が、定義3.1.5 の自然同型
+      Hom(−, limit F) ≅ Cone(−, F) に等しいこと（三角形）から、標準的な写像が同型であることを
+      示す。最後に補題3.4.3 から極限の保存を示す。
 -/
 
+#check limit.post
+noncomputable def homLimitToLimitHomApp (F : J ⥤ C) [HasLimit F] (X : Cᵒᵖ) :
+    (unop X ⟶ limit F) ⟶ limit (F ⋙ coyoneda.obj X) :=
+  limit.post F (coyoneda.obj X)
+
+noncomputable def homLimitToLimitHom (F : J ⥤ C) [HasLimit F] :
+    yoneda.obj (limit F) ⟶ limHomFunctor F where
+  app X := homLimitToLimitHomApp F X
+  naturality {X Y} f := by
+    ext y; simp only [yoneda_obj_obj, yoneda_obj_map, TypeCat.Fun.toFun_apply]
+    apply Types.limit_ext; intro j
+    dsimp only [Functor.comp_obj, Functor.whiskeringLeft_obj_obj, Functor.flip_obj_obj,
+      yoneda_obj_obj]
+    dsimp only [limHomFunctor, Functor.comp_obj, Functor.whiskeringLeft_obj_obj, lim_obj,
+      homLimitToLimitHomApp, Functor.comp_map, Functor.whiskeringLeft_obj_map, lim_map]
+    simp only [limit.post, limit.lift_map]
+    erw [<- comp_apply, <- comp_apply]
+    rw [Category.assoc, limit.lift_π, limit.lift_π]
+    simp
+
+#check IsLimit.representableBy
+theorem homLimitToLimitHom_comp (F : J ⥤ C) [HasLimit F] :
+    homLimitToLimitHom F ≫ (limHomIsoCones F).hom =
+      (limit.isLimit F).representableBy.toIso.hom := by
+  let σ := yonedaEquiv (X := limit F) (F := F.cones)
+  apply σ.injective
+  apply NatTrans.ext; ext j
+  simp only [Functor.op_obj, Functor.const_obj_obj, Functor.cones_obj, yonedaEquiv, yoneda_obj_obj,
+    op_unop, Functor.cones_map, Quiver.Hom.unop_op, TypeCat.hom_ofHom, TypeCat.Fun.coe_mk,
+    Equiv.coe_fn_mk, NatTrans.comp_app, comp_apply, limit.cone_x, σ]
+
+  simp only [Functor.RepresentableBy.toIso, IsLimit.representableBy, limit.cone_x]
+  simp only [Functor.representableByEquiv, op_unop, Functor.cones_obj, yoneda_obj_obj,
+    IsLimit.homEquiv, limit.cone_x, Cone.extend_π, limit.isLimit_lift, Equiv.coe_fn_mk,
+    NatIso.ofComponents_hom_app, Equiv.toIso_hom_hom_apply, CategoryTheory.Functor.map_id,
+    Category.id_comp, limit.cone_π]
+
+  simp only [homLimitToLimitHom, homLimitToLimitHomApp]
+  -- erw [<- comp_apply]
+  simp only [limHomIsoCones, Functor.cones_obj, Functor.comp_obj, Functor.whiskeringLeft_obj_obj,
+    Functor.flip_obj_obj, yoneda_obj_obj, Functor.const_obj_obj, Functor.op_obj]
+  erw [Iso.trans_symm]
+  simp only [Iso.trans_hom, Iso.symm_hom, NatTrans.comp_app, Functor.comp_obj,
+    Functor.whiskeringLeft_obj_obj, Functor.flip_obj_obj, yoneda_obj_obj, Functor.cones_obj,
+    NatIso.ofComponents_inv_app]
+  erw [comp_apply]
+  erw [Iso.symm_hom, Functor.isoWhiskerLeft_inv, Functor.whiskerLeft_app, Iso.symm_inv]
+  simp only [TypeCat.hom_ofHom, limIsoCoyonedaConstPUnit, lim_obj, Functor.flip_obj_obj,
+    yoneda_obj_obj, Functor.const_obj_obj, Functor.comp_obj, Functor.whiskeringLeft_obj_obj,
+    TypeCat.Fun.coe_mk]
+  change (limit.post F (coyoneda.obj (op (limit F))) ≫
+      limit.π (F ⋙ coyoneda.obj (op (limit F))) j) (𝟙 (limit F)) = _
+  rw [limit.post_π]
+  simp
+
+
+
+theorem isIso_homLimitToLimitHom (F : J ⥤ C) [HasLimit F] :
+    IsIso (homLimitToLimitHom F) := by
+  have E := homLimitToLimitHom_comp F
+  rw [<- Iso.eq_comp_inv] at E
+  rw [E]
+  exact
+    NatIso.isIso_of_isIso_app ((limit.isLimit F).representableBy.toIso.hom ≫ (limHomIsoCones F).inv)
+
 #check coyoneda_preservesLimit
-
-theorem isIso_limit_post_coyoneda (F : J ⥤ C) [HasLimit F] (X : Cᵒᵖ) :
-    IsIso (limit.post F (coyoneda.obj X)) := sorry
-
-noncomputable def yonedaObjLimitIso (F : J ⥤ C) [HasLimit F] :
-    yoneda.obj (limit F) ≅ coyoneda ⋙ (Functor.whiskeringLeft J C (Type v)).obj F ⋙ lim := sorry
-
-theorem coyonedaObj_preservesLimit (F : J ⥤ C) (X : Cᵒᵖ) :
-    PreservesLimit F (coyoneda.obj X) := sorry
+theorem coyonedaObj_preservesLimit (F : J ⥤ C) [HasLimit F] (X : Cᵒᵖ) :
+    PreservesLimit F (coyoneda.obj X) := by
+  have H := isIso_homLimitToLimitHom F
+  have HX :=  NatIso.isIso_app_of_isIso (homLimitToLimitHom F) X
+  simp [homLimitToLimitHom, homLimitToLimitHomApp] at HX
+  apply preservesLimit_of_isIso_post
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 定理3.5.5
@@ -92,17 +413,25 @@ theorem yonedaEmbedding_reflectsLimits :
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 /-
 余極限が存在する任意の図式 F : J → C について、余極限錐が誘導する標準的な写像は、各 X ∈ C
-について自然な同型 C(colim_J F, X) ≅ lim_{J^op} C(F−, X) を定める。したがって反変表現可能
-関手 C(−, X) : C^op → Set は、C に存在する任意の余極限を Set の極限に写す。
+について自然な同型 Hom(colimit F, X) ≅ limit (Hom(F-, X)) を定める。したがって反変表現可能
+関手 Hom(−, X) : Cᵒᵖ → Set は、C に存在する任意の余極限を Set の極限に写す。
 
-構成: C(colim_J F, X) は `limit F.op` に `yoneda.obj X` を適用した値として書く。
+構成: 定理3.5.2 の双対。関手 X ↦ limit (Hom(F-, X)) を組み、標準的な写像を
+      Hom(colimit F, −) からその関手への自然変換として組み、それが関手圏で同型であることを
+      示す。そこから、Hom(−, X) が F の余極限を Fᵒᵖ の極限として保存することを示す。
 -/
 
-#check limitOpIsoOpColimit
-#check yoneda_preservesLimit
+-- X ↦ limit (Hom(F-, X))。射は f との後合成が誘導する。Mathlib では既存の関手の合成で書ける
+noncomputable def limHomOpFunctor (F : J ⥤ C) : C ⥤ Type v := sorry
 
-theorem isIso_limit_post_yoneda (F : J ⥤ C) [HasColimit F] (X : C) :
-    IsIso (limit.post F.op (yoneda.obj X)) := sorry
+-- (X ↦ Hom(colimit F, X)) → (X ↦ limit (Hom(F-, X)))
+noncomputable def homColimitToLimitHom (F : J ⥤ C) [HasColimit F] :
+    coyoneda.obj (op (colimit F)) ⟶ limHomOpFunctor F := sorry
+
+theorem isIso_homColimitToLimitHom (F : J ⥤ C) [HasColimit F] :
+    IsIso (homColimitToLimitHom F) := sorry
+
+#check yoneda_preservesLimit
 
 theorem yonedaObj_preservesLimit (F : J ⥤ C) (X : C) :
     PreservesLimit F.op (yoneda.obj X) := sorry
@@ -254,13 +583,7 @@ theorem hasFiniteLimits_of_hasTerminal_of_hasPullbacks [HasTerminal C] [HasPullb
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 演習 3.5.i
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- 同型 (3.5.1) lim_J C(X, F−) ≅ Cone(X, F) は X について自然である。
-
-#check NatIso.ofComponents
-
-noncomputable def limCoyonedaIsoCones (F : J ⥤ C) :
-    coyoneda ⋙ (Functor.whiskeringLeft J C (Type v)).obj F ⋙ lim ≅ F.cones :=
-  NatIso.ofComponents (fun X ↦ (limitHomEquivCone F X).toIso) sorry
+-- statement を置かない。本文の「(3.5.1) と演習3.5.i」の limHomIsoCones が受け持つ。
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 演習 3.5.ii
