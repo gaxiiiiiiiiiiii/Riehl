@@ -231,6 +231,10 @@ def whiskeringLeft' (J : Type v) [SmallCategory J] (C : Type u) [Category.{v} C]
 -- X ↦ limit (Hom(X, F-))
 noncomputable def limHomFunctor (F : J ⥤ C) : Cᵒᵖ ⥤ Type v :=
   (coyoneda ⋙ (Functor.whiskeringLeft J C (Type v)).obj F) ⋙ lim
+-- (x ↦ Hom(x,-))   (G ↦ F ⋙ G)   (K ↦ limt K)
+-- (x ↦ F ⋙ Hom(x, -))  (K ↦ limit K)
+-- (x ↦ Hom(x, F-)) (K →  limit K)
+-- x ↦ limit (Hom(x, F-))
 
 -- 関手 G ↦ limit G と G ↦ Hom((const J).obj PUnit, G) の自然同型
 noncomputable def limIsoCoyonedaConstPUnit :
@@ -317,6 +321,8 @@ noncomputable def homLimitToLimitHomApp (F : J ⥤ C) [HasLimit F] (X : Cᵒᵖ)
     (unop X ⟶ limit F) ⟶ limit (F ⋙ coyoneda.obj X) :=
   limit.post F (coyoneda.obj X)
 
+
+-- (X ↦ Hom(X, limit F)) → (X ↦ limit (Hom(X, F-)))
 noncomputable def homLimitToLimitHom (F : J ⥤ C) [HasLimit F] :
     yoneda.obj (limit F) ⟶ limHomFunctor F where
   app X := homLimitToLimitHomApp F X
@@ -390,23 +396,66 @@ theorem coyonedaObj_preservesLimit (F : J ⥤ C) [HasLimit F] (X : Cᵒᵖ) :
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 /-
 C を任意の局所小圏とする。(i) 共変表現可能関手 C(X, −) は C に存在するすべての極限を保存する。
-(ii) 共変米田埋め込み よ : C ↪ Set^{C^op} は極限を保存し、かつ反映する。
+(ii) 共変米田埋め込み c ↦ Hom(−, c) : C ↪ Set^{C^op} は極限を保存し、かつ反映する。
 -/
+
+#print Functor.RepresentableBy.toIso
 
 #check coyoneda_preservesLimits
 
 theorem coyonedaObj_preservesLimits (X : Cᵒᵖ) :
-    PreservesLimitsOfSize.{v, v} (coyoneda.obj X) := sorry
+    PreservesLimitsOfSize.{v, v} (coyoneda.obj X) where
+  preservesLimitsOfShape {J} := {
+    preservesLimit {K} := by
+      apply coyoneda_preservesLimit
+  }
+
+example [Category C] [Category D] (F : C ⥤ D) [F.Full] [F.Faithful] (K : J ⥤ C) :
+    ReflectsLimit K F where
+  reflects {c} Hc := ⟨{
+    lift s := F.preimage (Hc.lift (F.mapCone s))
+    fac s j := by
+      apply F.map_injective
+      rw [F.map_comp, F.map_preimage]
+      have E := Hc.fac (F.mapCone s) j
+      simp only [Functor.mapCone_pt, Functor.comp_obj, Functor.mapCone_π_app] at E
+      rw [E]
+    uniq s m w := by
+      apply F.map_injective
+      erw [F.map_preimage]
+      rw [Hc.uniq (F.mapCone s) (F.map m)]
+      intro j; simp only [Functor.mapCone_pt, Functor.comp_obj, Functor.mapCone_π_app]
+      rw [<- F.map_comp, w j]
+  }⟩
 
 #check yonedaFunctor_preservesLimits
 
 theorem yonedaEmbedding_preservesLimits :
-    PreservesLimitsOfSize.{v, v} (yoneda : C ⥤ Cᵒᵖ ⥤ Type v) := sorry
+    PreservesLimitsOfSize.{v, v} (yoneda : C ⥤ Cᵒᵖ ⥤ Type v) where
+  preservesLimitsOfShape {J} := {
+    preservesLimit {F} := {
+      preserves {c} Hc := ⟨by
+        apply evaluationJointlyReflectsLimits
+        intro x
+        have E :
+          ((evaluation Cᵒᵖ (Type v)).obj x).mapCone (yoneda.mapCone c) = (coyoneda.obj x).mapCone c
+          := rfl
+        rw [E]
+        have := coyoneda_preservesLimits.{v, v} x
+        exact isLimitOfPreserves (coyoneda.obj x) Hc
+      ⟩
+    }
+  }
+
 
 #check yonedaFunctor_reflectsLimits
 
 theorem yonedaEmbedding_reflectsLimits :
-    ReflectsLimitsOfSize.{v, v} (yoneda : C ⥤ Cᵒᵖ ⥤ Type v) := sorry
+    ReflectsLimitsOfSize.{v, v} (yoneda : C ⥤ Cᵒᵖ ⥤ Type v) := by
+  have H1 := Yoneda.yoneda_faithful (C := C)
+  have H2 := Yoneda.yoneda_full (C := C)
+  apply fullyFaithful_reflectsLimits
+
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 定理3.5.6
@@ -441,7 +490,7 @@ theorem yonedaObj_preservesLimit (F : J ⥤ C) (X : C) :
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 /-
 C を任意の局所小圏とする。(i) 反変表現可能関手 C(−, X) は C の余極限を Set の極限に写す。
-(ii) 反変米田埋め込み よ : C^op ↪ Set^C は C^op の極限を保存し、かつ反映する。
+(ii) 反変米田埋め込み c ↦ Hom(c, −) : C^op ↪ Set^C は C^op の極限を保存し、かつ反映する。
 -/
 
 #check yoneda_preservesLimits
@@ -498,6 +547,88 @@ noncomputable def isColimitCoproductCoequalizerCocone (F : J ⥤ C) [HasCoproduc
 
 theorem hasColimits_of_hasCoproducts_of_hasCoequalizers [HasCoproducts.{v} C] [HasCoequalizers C] :
     HasColimitsOfSize.{v, v} C := sorry
+
+-- 極限の形（双対）：等化子図式 lim F → ∏ Fj ⇉ ∏ F(cod f) を Mathlib 流に書いたもの
+-- c₁ : ∏ Fj（脚 c₁.π.app ⟨j⟩ が射影 π_j）、c₂ : ∏ F(cod f)（脚 c₂.π.app ⟨f⟩ が射影 π_f）
+-- 添字 f = ⟨(j, k), φ⟩ は J の射 φ : j ⟶ k で、f.1.1 = dom f、f.1.2 = cod f、f.2 = φ
+-- s が本の d、t が本の c。hs は d の四角形 s ≫ π_f = π_j ≫ F.map φ、ht は c の三角形 t ≫ π_f = π_k
+-- c₂ が積とは仮定しないので、s, t は成分から作らずに受け取り、成分を hs, ht で指定する
+-- i : Fork s t が等化子の候補で、そこから F 上の錐を組む
+#check Fan
+#check HasLimitOfHasProductsOfHasEqualizers.buildLimit
+noncomputable def buildLimit' {F : J ⥤ C} {c₁ : Fan F.obj}
+    {c₂ : Fan (fun f : Σ p : J × J, p.1 ⟶ p.2 => F.obj f.1.2)} (s t : c₁.pt ⟶ c₂.pt)
+    (hs : ∀ f : Σ p : J × J, p.1 ⟶ p.2, s ≫ c₂.π.app ⟨f⟩ = c₁.π.app ⟨f.1.1⟩ ≫ F.map f.2)
+    (ht : ∀ f : Σ p : J × J, p.1 ⟶ p.2, t ≫ c₂.π.app ⟨f⟩ = c₁.π.app ⟨f.1.2⟩)
+    (i : Fork s t) : Cone F where
+  pt := i.pt
+  π := {
+    app j := i.ι ≫ c₁.π.app ⟨j⟩
+    naturality {j j'} f := by
+      simp only [Functor.const_obj_obj, Functor.const_obj_map, Category.id_comp, Category.assoc]
+      erw [ <- hs ⟨⟨j, j'⟩, f⟩, <- ht ⟨⟨j, j'⟩, f⟩]
+      rw [<- Category.assoc, <- i.condition, Category.assoc]
+  }
+
+
+
+
+#check HasLimitOfHasProductsOfHasEqualizers.buildIsLimit
+noncomputable def buildIsLimit' {F : J ⥤ C} {c₁ : Fan F.obj}
+    {c₂ : Fan fun f : Σ p : J × J, p.1 ⟶ p.2 => F.obj f.1.2} (s t : c₁.pt ⟶ c₂.pt)
+    (hs : ∀ f : Σ p : J × J, p.1 ⟶ p.2, s ≫ c₂.π.app ⟨f⟩ = c₁.π.app ⟨f.1.1⟩ ≫ F.map f.2)
+    (ht : ∀ f : Σ p : J × J, p.1 ⟶ p.2, t ≫ c₂.π.app ⟨f⟩ = c₁.π.app ⟨f.1.2⟩)
+    {i : Fork s t} (t₁ : IsLimit c₁) (t₂ : IsLimit c₂) (hi : IsLimit i) :
+    IsLimit (buildLimit' s t hs ht i) where
+  lift c := by
+    -- simp [buildLimit']
+    have := hi.lift
+    let c' :=  Fan.mk c.pt (fun i => c.π.app i)
+    let f := t₁.lift c'
+    have Hf : f ≫ s = f ≫ t := by {
+      simp only [f, c']; clear f
+      apply t₂.hom_ext
+      intro ⟨⟨j, j'⟩, f⟩
+      simp only [Fan.mk_pt, Discrete.functor_obj_eq_as, Category.assoc]
+      rw [hs, ht, t₁.fac, <- Category.assoc, t₁.fac]
+      dsimp only [Discrete.functor_obj_eq_as, Fan.mk_pt, Fan.mk_π_app]
+      exact c.w f
+    }
+
+    let j : Fork s t :=  Fork.ofι f Hf
+    exact hi.lift j
+  fac c j := by
+    simp only [Fan.mk_pt, buildLimit']
+    rw [<- i.app_zero_eq_ι]
+    rw [<- Category.assoc, hi.fac]
+    dsimp only [Fork.ofι_pt, Fork.ofι_π_app, Functor.const_obj_obj, parallelPair_obj_zero,
+      parallelPair_obj_one]
+    rw [t₁.fac]; rfl
+  uniq c m w := by
+    simp only [Fan.mk_pt, buildLimit'] at ⊢ m w
+    apply hi.hom_ext; intro j
+    rcases j
+    · dsimp only [parallelPair_obj_zero, Fork.app_zero_eq_ι]
+      rw [<- i.app_zero_eq_ι, hi.fac]
+      dsimp only [Fork.app_zero_eq_ι, Fork.ofι_pt, Fork.ofι_π_app, Functor.const_obj_obj,
+        parallelPair_obj_zero, parallelPair_obj_one]
+      apply t₁.hom_ext; intro ⟨j⟩
+      dsimp only [Discrete.functor_obj_eq_as]
+      rw [Category.assoc, w, t₁.fac]; rfl
+    · rw [hi.fac]
+      dsimp only [parallelPair_obj_one, Fork.ofι_pt, Fork.ofι_π_app, Functor.const_obj_obj]
+      apply t₂.hom_ext
+      intro ⟨⟨j, j'⟩, f⟩
+      rw [Category.assoc, i.app_one_eq_ι_comp_left, Category.assoc, hs]
+      rw [<- Category.assoc, <- Category.assoc, Category.assoc m, w]
+      rw [Category.assoc, hs, <- Category.assoc, t₁.fac]
+      rfl
+
+
+
+#check has_limits_of_hasEqualizers_and_products
+theorem has_limits_of_hasEqualizers_and_products' [HasProducts.{v} C] [HasEqualizers C] :
+    HasLimitsOfSize.{v, v} C := sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 補題3.5.15

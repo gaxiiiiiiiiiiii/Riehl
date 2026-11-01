@@ -83,8 +83,7 @@
   <tr><td>List : Set → Set</td><td>有限列をとる関手。List(X) は X の元の有限列全体、List(h) は各成分に h を施す</td></tr>
   <tr><td>Id : Set → Set</td><td>恒等関手</td></tr>
   <tr><td>D</td><td>対象 E, V と平行な射 σ, τ : E → V だけからなる圏（例C の添字圏）</td></tr>
-  <tr><td>Hom(C(c,−), F)</td><td>自然変換 C(c,−) ⇒ F 全体の集まり</td></tr>
-  <tr><td>よ</td><td>米田埋め込み（系2.2.8）</td></tr>
+  <tr><td>Hom(Hom(c,−), F)</td><td>自然変換 Hom(c,−) ⇒ F 全体の集まり</td></tr>
 </table>
 </div>
 
@@ -92,7 +91,7 @@
 
 <p>定理2.2.4 の内容は、写像</p>
 
-<p class="disp">ev<sub>id</sub> : Hom(C(c,−), F) → F(c),　α ↦ α<sub>c</sub>(id<sub>c</sub>)</p>
+<p class="disp">ev<sub>id</sub> : Hom(Hom(c,−), F) → F(c),　α ↦ α<sub>c</sub>(id<sub>c</sub>)</p>
 
 <p>が全単射だ、という一文に尽きる。全単射であることは二つの主張に分かれる。</p>
 
@@ -105,23 +104,23 @@
 
 <h2>例A — C = Set、c = 1（自然変換を数え上げる）</h2>
 
-<p>舞台を Set に取り、表現対象を一点集合 1 = {∗} にする。全単射 Set(1,X) ≅ X（f ↦ f(∗)）は X について自然だから、1 が表現する関手は<b>恒等関手 Id そのもの</b>と思ってよい。</p>
+<p>舞台を Set に取り、表現対象を一点集合 1 = {∗} にする。全単射 Hom<sub>Set</sub>(1,X) ≅ X（f ↦ f(∗)）は X について自然だから、1 が表現する関手は<b>恒等関手 Id そのもの</b>と思ってよい。</p>
 
 <p>行き先の関手として共変べき集合関手 P を取る。問いはこうなる: <b>自然変換 α : Id ⇒ P は何個あるか。</b>言い換えれば、集合 X の要素 x に部分集合 α<sub>X</sub>(x) ⊆ X を、X について自然な仕方で割り当てる方法は何通りあるか。</p>
 
 <p>米田の補題に頼らず手で解く。自然性の四角形を、射 f : 1 → X について書く。</p>
 
 <figure class="cd">
-<svg class="cd" viewBox="0 0 440 180" width="440" role="img" aria-label="Set(1,−) から P への自然変換の自然性の四角形">
+<svg class="cd" viewBox="0 0 440 180" width="440" role="img" aria-label="Hom_Set(1,−) から P への自然変換の自然性の四角形">
   <defs><marker id="ya1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
 
-  <text x="100" y="48" text-anchor="middle">Set(1,1)</text>
-  <text x="340" y="48" text-anchor="middle">Set(1,X)</text>
+  <text x="100" y="48" text-anchor="middle">Hom<tspan baseline-shift="sub" font-size="70%">Set</tspan>(1,1)</text>
+  <text x="340" y="48" text-anchor="middle">Hom<tspan baseline-shift="sub" font-size="70%">Set</tspan>(1,X)</text>
   <text x="100" y="158" text-anchor="middle">P(1)</text>
   <text x="340" y="158" text-anchor="middle">P(X)</text>
 
   <line x1="143" y1="43" x2="300" y2="43" marker-end="url(#ya1)"/>
-  <text class="lbl" x="221" y="33" text-anchor="middle">Set(1,f)</text>
+  <text class="lbl" x="221" y="33" text-anchor="middle">Hom<tspan baseline-shift="sub" font-size="70%">Set</tspan>(1,f)</text>
 
   <line x1="126" y1="153" x2="316" y2="153" marker-end="url(#ya1)"/>
   <text class="lbl" x="221" y="143" text-anchor="middle">P(f)</text>
@@ -135,11 +134,11 @@
 <figcaption>左上の唯一の元 id<sub>1</sub> を、右下まで二通りに追う</figcaption>
 </figure>
 
-<p>Set(1,f) は「f を後から合成する」操作だから、左上の唯一の元 id<sub>1</sub> を右上の f に送る。したがって id<sub>1</sub> を右下まで二通りに追うと</p>
+<p>Hom<sub>Set</sub>(1,f) は「f を後から合成する」操作だから、左上の唯一の元 id<sub>1</sub> を右上の f に送る。したがって id<sub>1</sub> を右下まで二通りに追うと</p>
 
 <p class="disp">α<sub>X</sub>(f) = P(f)(α<sub>1</sub>(id<sub>1</sub>))</p>
 
-<p>を得る。つまり α は A := α<sub>1</sub>(id<sub>1</sub>) ⊆ 1 ひとつで完全に決まる——これが (i) である。Set(1,X) ≅ X の下で f を要素 x ∈ X と読み替えれば、α<sub>X</sub>(x) = x̂[A]。A の候補は ∅ と {∗} の二つしかないので、答えは二つしかありえない:</p>
+<p>を得る。つまり α は A := α<sub>1</sub>(id<sub>1</sub>) ⊆ 1 ひとつで完全に決まる——これが (i) である。Hom<sub>Set</sub>(1,X) ≅ X の下で f を要素 x ∈ X と読み替えれば、α<sub>X</sub>(x) = x̂[A]。A の候補は ∅ と {∗} の二つしかないので、答えは二つしかありえない:</p>
 
 <ul>
   <li>A = ∅ のとき α<sub>X</sub>(x) = ∅（どの要素にも空集合を割り当てる）</li>
@@ -154,16 +153,16 @@
 
 <h2>例B — C = Set、c = 2（自然な二項演算は射影しかない）</h2>
 
-<p>同じ Set で、表現対象を2元集合 2 = {0,1} に替える。全単射 Set(2,X) ≅ X × X（f ↦ (f(0), f(1))）は X について自然だから、2 が表現するのは<b>対をとる関手</b> X ↦ X × X である。</p>
+<p>同じ Set で、表現対象を2元集合 2 = {0,1} に替える。全単射 Hom<sub>Set</sub>(2,X) ≅ X × X（f ↦ (f(0), f(1))）は X について自然だから、2 が表現するのは<b>対をとる関手</b> X ↦ X × X である。</p>
 
-<p>定理2.2.4 は Hom(Set(2,−), F) ≅ F(2) を与える。F をいくつか入れてみる。</p>
+<p>定理2.2.4 は Hom(Hom<sub>Set</sub>(2,−), F) ≅ F(2) を与える。F をいくつか入れてみる。</p>
 
 <div class="table-wrap">
 <table>
   <tr><th>自然変換の型</th><th>米田が与える集合</th><th>個数</th><th>中身</th></tr>
   <tr><td>X × X ⇒ X</td><td>Id(2) = 2</td><td>2</td><td>二つの射影 (x<sub>0</sub>,x<sub>1</sub>) ↦ x<sub>0</sub>、(x<sub>0</sub>,x<sub>1</sub>) ↦ x<sub>1</sub></td></tr>
-  <tr><td>X × X ⇒ X × X</td><td>Set(2,2)</td><td>4</td><td>(x<sub>0</sub>,x<sub>0</sub>)、(x<sub>0</sub>,x<sub>1</sub>)、(x<sub>1</sub>,x<sub>0</sub>)、(x<sub>1</sub>,x<sub>1</sub>)</td></tr>
-  <tr><td>X ⇒ X × X</td><td>Set(2,1) = 1</td><td>1</td><td>対角 x ↦ (x,x)</td></tr>
+  <tr><td>X × X ⇒ X × X</td><td>Hom<sub>Set</sub>(2,2)</td><td>4</td><td>(x<sub>0</sub>,x<sub>0</sub>)、(x<sub>0</sub>,x<sub>1</sub>)、(x<sub>1</sub>,x<sub>0</sub>)、(x<sub>1</sub>,x<sub>1</sub>)</td></tr>
+  <tr><td>X ⇒ X × X</td><td>Hom<sub>Set</sub>(2,1) = 1</td><td>1</td><td>対角 x ↦ (x,x)</td></tr>
 </table>
 </div>
 
@@ -171,7 +170,7 @@
 
 <p>これは「<b>裸の集合には、二つの射影のほかに自然な二項演算が存在しない</b>」と読める。掛け算も、和も、二つのうち条件で一方を選ぶような操作も、集合の圏では自然になりようがない。自然であるためには X の要素について何も知らないまま定義できねばならず、手元にあるのは受け取った x<sub>0</sub> と x<sub>1</sub> だけだからである。三行目も同様で、X から X × X への自然な操作は対角しかない。</p>
 
-<p>二行目は系2.2.8 の実例になっている。系2.2.8 は Set(2,2) ≅ Hom(Set(2,−), Set(2,−)) を主張するので、四つの自然変換は写像 σ : 2 → 2 からの前合成</p>
+<p>二行目は系2.2.8 の実例になっている。系2.2.8 は Hom<sub>Set</sub>(2,2) ≅ Hom(Hom<sub>Set</sub>(2,−), Hom<sub>Set</sub>(2,−)) を主張するので、四つの自然変換は写像 σ : 2 → 2 からの前合成</p>
 
 <p class="disp">(x<sub>0</sub>, x<sub>1</sub>) ↦ (x<sub>σ(0)</sub>, x<sub>σ(1)</sub>)</p>
 
@@ -183,22 +182,22 @@
 
 <p>関手 X : D → Set とは何か。集合 X(E)、X(V) と、写像 X(σ), X(τ) : X(E) → X(V) の指定である。X(V) を頂点の集合、X(E) を辺の集合、X(σ)・X(τ) を辺にその始点・終点を割り当てる写像と読めば、これは<b>有向グラフ</b>にほかならない（多重辺と自己ループを許す）。そして自然変換 X ⇒ Y は、頂点と辺の対応であって始点・終点と両立するもの、つまりグラフの準同型である。</p>
 
-<p>表現された関手 D(V,−) と D(E,−) を、この読み方でグラフとして描いてみる。</p>
+<p>表現された関手 Hom<sub>D</sub>(V,−) と Hom<sub>D</sub>(E,−) を、この読み方でグラフとして描いてみる。</p>
 
 <ul>
-  <li>D(V,−): 頂点集合は D(V,V) = {id<sub>V</sub>}（1元）、辺集合は D(V,E) = ∅。<b>頂点1つ、辺なし</b>のグラフ</li>
-  <li>D(E,−): 頂点集合は D(E,V) = {σ, τ}（2元）、辺集合は D(E,E) = {id<sub>E</sub>}（1元）。構造写像は D(E,σ)(id<sub>E</sub>) = σ、D(E,τ)(id<sub>E</sub>) = τ だから、唯一の辺 id<sub>E</sub> は始点 σ・終点 τ を持つ。<b>辺1本とその両端</b></li>
+  <li>Hom<sub>D</sub>(V,−): 頂点集合は Hom<sub>D</sub>(V,V) = {id<sub>V</sub>}（1元）、辺集合は Hom<sub>D</sub>(V,E) = ∅。<b>頂点1つ、辺なし</b>のグラフ</li>
+  <li>Hom<sub>D</sub>(E,−): 頂点集合は Hom<sub>D</sub>(E,V) = {σ, τ}（2元）、辺集合は Hom<sub>D</sub>(E,E) = {id<sub>E</sub>}（1元）。構造写像は Hom<sub>D</sub>(E,σ)(id<sub>E</sub>) = σ、Hom<sub>D</sub>(E,τ)(id<sub>E</sub>) = τ だから、唯一の辺 id<sub>E</sub> は始点 σ・終点 τ を持つ。<b>辺1本とその両端</b></li>
 </ul>
 
 <figure class="cd">
-<svg class="cd" viewBox="0 0 480 110" width="480" role="img" aria-label="表現された関手 D(V,−) と D(E,−) が表すグラフ">
+<svg class="cd" viewBox="0 0 480 110" width="480" role="img" aria-label="表現された関手 Hom_D(V,−) と Hom_D(E,−) が表すグラフ">
   <defs><marker id="ya2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
 
-  <text class="lbl" x="20" y="66" text-anchor="start">D(V,−):</text>
+  <text class="lbl" x="20" y="66" text-anchor="start">Hom<tspan baseline-shift="sub" font-size="70%">D</tspan>(V,−):</text>
   <circle cx="150" cy="60" r="4.5" fill="currentColor"/>
   <text class="lbl" x="150" y="88" text-anchor="middle">id<tspan dy="3" font-size="10.5">V</tspan></text>
 
-  <text class="lbl" x="270" y="66" text-anchor="start">D(E,−):</text>
+  <text class="lbl" x="270" y="66" text-anchor="start">Hom<tspan baseline-shift="sub" font-size="70%">D</tspan>(E,−):</text>
   <circle cx="380" cy="60" r="4.5" fill="currentColor"/>
   <circle cx="450" cy="60" r="4.5" fill="currentColor"/>
   <line x1="389" y1="60" x2="441" y2="60" marker-end="url(#ya2)"/>
@@ -211,13 +210,13 @@
 
 <p>定理2.2.4 をこの二つの表現対象に当てはめると</p>
 
-<p class="disp">Hom(D(V,−), X) ≅ X(V),　Hom(D(E,−), X) ≅ X(E)</p>
+<p class="disp">Hom(Hom<sub>D</sub>(V,−), X) ≅ X(V),　Hom(Hom<sub>D</sub>(E,−), X) ≅ X(E)</p>
 
 <p>日本語にすれば、<b>点グラフから X への準同型は X の頂点そのもの、辺グラフから X への準同型は X の辺そのもの</b>である。</p>
 
 <p>ここで初めて「表現された関手は<b>形</b>であり、そこから出る自然変換は<b>X の中に置かれたその形の図形</b>である」という読みが出る。(i)（α は α<sub>c</sub>(id<sub>c</sub>) で決まる）は「図形の置き方は代表元の行き先だけで決まる」ということであり、(ii)（値は自由）は「X のどの辺も、辺グラフの置き方として実現される」ということである。米田埋め込みは、この読みでは「形を X に当てて探る」操作になる。</p>
 
-<p>系2.2.8 もここで見える。Hom(D(V,−), D(E,−)) ≅ D(E,V) = {σ, τ} で2元。実際、点グラフを辺グラフに置く方法は「始点に置く」「終点に置く」の2通りしかない。D の射が σ, τ の2本であることと合っている（よ は反変なので、対応する射の向きは裏返る）。</p>
+<p>系2.2.8 もここで見える。Hom(Hom<sub>D</sub>(V,−), Hom<sub>D</sub>(E,−)) ≅ Hom<sub>D</sub>(E,V) = {σ, τ} で2元。実際、点グラフを辺グラフに置く方法は「始点に置く」「終点に置く」の2通りしかない。D の射が σ, τ の2本であることと合っている（米田埋め込み c ↦ Hom<sub>D</sub>(c,−) は反変なので、対応する射の向きは裏返る）。</p>
 
 <h2>三つの例の位置づけ</h2>
 

@@ -43,7 +43,7 @@ statement を置かない節末問題:
            （`Mathlib/AlgebraicTopology/SimplicialSet/CoherentIso.lean`）にあるだけで、
            iso・mor を表現された関手として組むところからになる
   2.2.v    4つの自己変換を記述する、その形自体が答えの一部になる
-  2.2.iii  前半（よ を集合と写像の族として書き下す）。後半の充満忠実性のみ置く
+  2.2.iii  前半（米田埋め込み c ↦ Hom(−, c) を集合と写像の族として書き下す）。後半の充満忠実性のみ置く
   2.2.vi   説明問題
   2.2.vii  特徴づけの主張の形自体が答えの一部になる
 
@@ -205,15 +205,32 @@ def myCoyonedaLemma (C : Type u₁) [SmallCategory C] :
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 系2.2.8（米田埋め込み）
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- c ↦ C(−,c) と c ↦ C(c,−) の二つの埋め込み よ は、どちらも充満忠実である。
+-- 二つの米田埋め込み c ↦ Hom(−, c) と c ↦ Hom(c, −) は、どちらも充満忠実である。
 
 #check @CategoryTheory.Yoneda.yoneda_full
 
-theorem cor_2_2_8_yoneda_full : (yoneda : C ⥤ Cᵒᵖ ⥤ Type v₁).Full := sorry
+theorem cor_2_2_8_yoneda_full : (yoneda : C ⥤ Cᵒᵖ ⥤ Type v₁).Full where
+  map_surjective := by
+    intro X Y f
+    use f.app (op X) (𝟙 X)
+    ext A g; simp only [yoneda_obj_obj, yoneda_map_app, TypeCat.hom_ofHom, TypeCat.Fun.toFun_apply,
+      TypeCat.Fun.coe_mk]
+    have E := congr_arg (fun x => x.hom (𝟙 X)) (f.naturality g.op)
+    simp only [op_unop, yoneda_obj_obj, yoneda_obj_map, Quiver.Hom.unop_op, comp_apply,
+      TypeCat.hom_ofHom, TypeCat.Fun.coe_mk, Category.comp_id] at E
+    rw [E]
+
 
 #check @CategoryTheory.Yoneda.yoneda_faithful
 
-theorem cor_2_2_8_yoneda_faithful : (yoneda : C ⥤ Cᵒᵖ ⥤ Type v₁).Faithful := sorry
+theorem cor_2_2_8_yoneda_faithful : (yoneda : C ⥤ Cᵒᵖ ⥤ Type v₁).Faithful where
+  map_injective := by
+    intro X Y f g E
+    have := congr_arg (fun x => x.hom (𝟙 X)) (congr_app E (op X))
+    simp only [yoneda_obj_obj, yoneda_map_app, TypeCat.hom_ofHom, TypeCat.Fun.coe_mk,
+      Category.id_comp] at this
+    exact this
+
 
 #check @CategoryTheory.Coyoneda.coyoneda_full
 
@@ -296,7 +313,7 @@ theorem ex_2_2_i_nat_object (F : Cᵒᵖ ⥤ Type v₁) {c d : C} (g : d ⟶ c)
 -- 演習2.2.iii
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 /-
-よ : ω ↪ Set^(ωᵒᵖ) を集合と写像の族として書き下し、米田の補題に訴えずに、充満忠実性を
+米田埋め込み c ↦ Hom(−, c) : ω ↪ Set^(ωᵒᵖ) を集合と写像の族として書き下し、米田の補題に訴えずに、充満忠実性を
 直接証明する。
 -/
 

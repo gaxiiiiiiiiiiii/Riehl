@@ -78,9 +78,9 @@
 <div class="table-wrap"><table>
 <tr><th>記号</th><th>型・意味</th></tr>
 <tr><td>C</td><td>局所小な圏</td></tr>
-<tr><td>よ</td><td>米田埋め込み よ : C ↪ Set<sup>C<sup>op</sup></sup>（共変版は よ : C<sup>op</sup> ↪ Set<sup>C</sup>）。系2.2.8</td></tr>
+<tr><td>c ↦ Hom(−,c)</td><td>米田埋め込み C ↪ Set<sup>C<sup>op</sup></sup>（共変版は c ↦ Hom(c,−) : C<sup>op</sup> ↪ Set<sup>C</sup>）。系2.2.8</td></tr>
 <tr><td>α, β</td><td>自然同型。表現のデータ</td></tr>
-<tr><td>Ψ(x)</td><td>米田の補題が要素 x ∈ Fc から定める自然変換 C(c,−) ⇒ F（反変では C(−,c) ⇒ F）。定理2.2.4 の逆写像</td></tr>
+<tr><td>Ψ(x)</td><td>米田の補題が要素 x ∈ Fc から定める自然変換 Hom(c,−) ⇒ F（反変では Hom(−,c) ⇒ F）。定理2.2.4 の逆写像</td></tr>
 <tr><td>f<sub>∗</sub> / f<sup>∗</sup></td><td>射 f との後合成・前合成が誘導する自然変換</td></tr>
 <tr><td>g·f</td><td>合成。f を先に適用する（g·f = g ∘ f）</td></tr>
 <tr><td>ℤ[x]</td><td>整数係数1変数多項式環。忘却関手 U : Ring → Set の表現対象</td></tr>
@@ -96,31 +96,31 @@
 
 <p>2.2 の米田の補題は、表現された関手から出て行く自然変換を完全に分類した。この節ではそれを2つの方向に使う。ひとつは、<b>表現可能関手はその表現対象を（同型を除いて、しかも正準的に）決定する</b>という基本定理（命題2.3.1・系2.3.2）。もうひとつは、表現のデータ——自然同型ひとつぶん——を関手のたった1つの要素に圧縮する語彙（定義2.3.3 の普遍要素）で、これにより「テンソル積とは何か」「群環とは何か」といった問いに、構成を経由せず普遍性で答えられるようになる。</p>
 
-<p>出発点はこうである。局所小な圏 C で対象 x ≅ y が同型なら、hom 関手も C(−,x) ≅ C(−,y)、C(x,−) ≅ C(y,−) と同型になる。これは米田埋め込みが関手であることの帰結にすぎない（補題1.2.3 が「同型は representably に定義できる」と予告していた事実である）。この節の最初の主張は、米田の補題がその<b>逆</b>を与えるということだ。hom 関手の側の自然同型から、C の中の同型を明示的に組み立てられる。</p>
+<p>出発点はこうである。局所小な圏 C で対象 x ≅ y が同型なら、hom 関手も Hom(−,x) ≅ Hom(−,y)、Hom(x,−) ≅ Hom(y,−) と同型になる。これは米田埋め込みが関手であることの帰結にすぎない（補題1.2.3 が「同型は representably に定義できる」と予告していた事実である）。この節の最初の主張は、米田の補題がその<b>逆</b>を与えるということだ。hom 関手の側の自然同型から、C の中の同型を明示的に組み立てられる。</p>
 
 <h2>命題2.3.1 — 同型と表現可能同型</h2>
 
 <div class="thm"><b>命題2.3.1.</b> 局所小な圏 C の対象 x, y について、次の3つのデータは等価である。
 <ol>
 <li>C における同型 x ≅ y</li>
-<li>圏 Set<sup>C<sup>op</sup></sup> における同型 C(−,x) ≅ C(−,y)</li>
-<li>圏 Set<sup>C</sup> における同型 C(y,−) ≅ C(x,−)</li>
+<li>圏 Set<sup>C<sup>op</sup></sup> における同型 Hom(−,x) ≅ Hom(−,y)</li>
+<li>圏 Set<sup>C</sup> における同型 Hom(y,−) ≅ Hom(x,−)</li>
 </ol>
 </div>
 
-<p class="note">(iii) で x と y の順序が入れ替わることに注意。共変側の埋め込みは よ : C<sup>op</sup> ↪ Set<sup>C</sup> なので、向きが1回ひっくり返る。</p>
+<p class="note">(iii) で x と y の順序が入れ替わることに注意。共変側の埋め込みは c ↦ Hom(c,−) : C<sup>op</sup> ↪ Set<sup>C</sup> なので、向きが1回ひっくり返る。</p>
 
-<p><span class="proof-head">証明.</span> 埋め込み よ : C ↪ Set<sup>C<sup>op</sup></sup> と よ : C<sup>op</sup> ↪ Set<sup>C</sup> は充満忠実（系2.2.8）であり、充満忠実関手は同型を保存・反映・創出する（演習1.5.iv）。これで (i)⇔(ii) と (i)⇔(iii) が出て証明は終わりだが、自然同型 α : C(−,x) ≅ C(−,y) から C の同型を明示的に組み立てる手続きも見ておく価値がある。</p>
+<p><span class="proof-head">証明.</span> 埋め込み c ↦ Hom(−,c) : C ↪ Set<sup>C<sup>op</sup></sup> と c ↦ Hom(c,−) : C<sup>op</sup> ↪ Set<sup>C</sup> は充満忠実（系2.2.8）であり、充満忠実関手は同型を保存・反映・創出する（演習1.5.iv）。これで (i)⇔(ii) と (i)⇔(iii) が出て証明は終わりだが、自然同型 α : Hom(−,x) ≅ Hom(−,y) から C の同型を明示的に組み立てる手続きも見ておく価値がある。</p>
 
 <p>定理2.2.4（の反変版）により、α は表現対象での恒等射の像で決まる。α の x 成分に id<sub>x</sub> を入れて射 α<sub>x</sub>(id<sub>x</sub>) : x → y を、逆向き α<sup>−1</sup> の y 成分に id<sub>y</sub> を入れて射 α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>) : y → x を得る。この2つが互いに逆であることを、自然性の四角形2枚で確認する。</p>
 
 <figure class="cd">
 <svg class="cd" viewBox="0 0 360 170" width="360" role="img" aria-label="α の自然性の四角形。射 α 逆 y (id y) : y → x における前合成">
   <defs><marker id="ar1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
-  <text x="70" y="35" text-anchor="middle">C(x, x)</text>
-  <text x="290" y="35" text-anchor="middle">C(x, y)</text>
-  <text x="70" y="145" text-anchor="middle">C(y, x)</text>
-  <text x="290" y="145" text-anchor="middle">C(y, y)</text>
+  <text x="70" y="35" text-anchor="middle">Hom(x, x)</text>
+  <text x="290" y="35" text-anchor="middle">Hom(x, y)</text>
+  <text x="70" y="145" text-anchor="middle">Hom(y, x)</text>
+  <text x="290" y="145" text-anchor="middle">Hom(y, y)</text>
   <line x1="115" y1="30" x2="245" y2="30" marker-end="url(#ar1)"/>
   <line x1="115" y1="140" x2="245" y2="140" marker-end="url(#ar1)"/>
   <line x1="70" y1="50" x2="70" y2="122" marker-end="url(#ar1)"/>
@@ -133,17 +133,17 @@
 <figcaption>α の自然性を、射 α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>) : y → x に適用した四角形。縦の写像は前合成</figcaption>
 </figure>
 
-<p>この四角形で id<sub>x</sub> ∈ C(x,x) を追う。右回り（上→右）では、まず α<sub>x</sub>(id<sub>x</sub>) になり、前合成で α<sub>x</sub>(id<sub>x</sub>)·α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>) に着く。左回り（左→下）では、まず id<sub>x</sub>·α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>) = α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>) になり、α<sub>y</sub> で送られて α<sub>y</sub>(α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>)) = id<sub>y</sub> に着く。両者が等しいから</p>
+<p>この四角形で id<sub>x</sub> ∈ Hom(x,x) を追う。右回り（上→右）では、まず α<sub>x</sub>(id<sub>x</sub>) になり、前合成で α<sub>x</sub>(id<sub>x</sub>)·α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>) に着く。左回り（左→下）では、まず id<sub>x</sub>·α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>) = α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>) になり、α<sub>y</sub> で送られて α<sub>y</sub>(α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>)) = id<sub>y</sub> に着く。両者が等しいから</p>
 
 <p style="text-align:center">α<sub>x</sub>(id<sub>x</sub>) · α<sup>−1</sup><sub>y</sub>(id<sub>y</sub>) = id<sub>y</sub>.</p>
 
 <figure class="cd">
 <svg class="cd" viewBox="0 0 360 170" width="360" role="img" aria-label="α 逆の自然性の四角形。射 α x (id x) : x → y における前合成">
   <defs><marker id="ar2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
-  <text x="70" y="35" text-anchor="middle">C(y, y)</text>
-  <text x="290" y="35" text-anchor="middle">C(y, x)</text>
-  <text x="70" y="145" text-anchor="middle">C(x, y)</text>
-  <text x="290" y="145" text-anchor="middle">C(x, x)</text>
+  <text x="70" y="35" text-anchor="middle">Hom(y, y)</text>
+  <text x="290" y="35" text-anchor="middle">Hom(y, x)</text>
+  <text x="70" y="145" text-anchor="middle">Hom(x, y)</text>
+  <text x="290" y="145" text-anchor="middle">Hom(x, x)</text>
   <line x1="115" y1="30" x2="245" y2="30" marker-end="url(#ar2)"/>
   <line x1="115" y1="140" x2="245" y2="140" marker-end="url(#ar2)"/>
   <line x1="70" y1="50" x2="70" y2="122" marker-end="url(#ar2)"/>
@@ -162,13 +162,13 @@
 
 <div class="thm"><b>系2.3.2.</b> 圏 C の対象 x と y が同じ関手を表現するなら、x ≅ y である。さらに、2つの表現のデータと可換になる同型 x ≅ y はただ一つ存在する。</div>
 
-<p><span class="proof-head">証明.</span> 共通の関手 F : C<sup>op</sup> → Set の表現 α : C(−,x) ≅ F と β : C(−,y) ≅ F があるとする。縦合成 β<sup>−1</sup>·α : C(−,x) ≅ C(−,y) は表現可能同型だから、命題2.3.1 により同型 f : x ≅ y を定める。しかも、次の図式を可換にする同型はこの f に限る。米田埋め込みが忠実だから、f<sub>∗</sub> = β<sup>−1</sup>·α を満たす射 f は一意だからである。<span class="qed">□</span></p>
+<p><span class="proof-head">証明.</span> 共通の関手 F : C<sup>op</sup> → Set の表現 α : Hom(−,x) ≅ F と β : Hom(−,y) ≅ F があるとする。縦合成 β<sup>−1</sup>·α : Hom(−,x) ≅ Hom(−,y) は表現可能同型だから、命題2.3.1 により同型 f : x ≅ y を定める。しかも、次の図式を可換にする同型はこの f に限る。米田埋め込みが忠実だから、f<sub>∗</sub> = β<sup>−1</sup>·α を満たす射 f は一意だからである。<span class="qed">□</span></p>
 
 <figure class="cd">
-<svg class="cd" viewBox="0 0 360 165" width="360" role="img" aria-label="C(−,x) から C(−,y) への f 後合成と、2つの表現 α, β のなす三角形">
+<svg class="cd" viewBox="0 0 360 165" width="360" role="img" aria-label="Hom(−,x) から Hom(−,y) への f 後合成と、2つの表現 α, β のなす三角形">
   <defs><marker id="ar3" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
-  <text x="70" y="35" text-anchor="middle">C(−, x)</text>
-  <text x="290" y="35" text-anchor="middle">C(−, y)</text>
+  <text x="70" y="35" text-anchor="middle">Hom(−, x)</text>
+  <text x="290" y="35" text-anchor="middle">Hom(−, y)</text>
   <text x="180" y="150" text-anchor="middle">F</text>
   <line x1="118" y1="30" x2="242" y2="30" marker-end="url(#ar3)"/>
   <line x1="90" y1="52" x2="163" y2="132" marker-end="url(#ar3)"/>
@@ -185,9 +185,9 @@
 
 <p>米田の補題は、表現のデータをさらに圧縮した記述も与える。自然同型ひとつぶんのデータが、関手の要素1つに置き換わる。</p>
 
-<div class="thm"><b>定義2.3.3.</b> 圏 C で添字づけられた（共変または反変の）集合値関手 F の<b>要素</b>とは、対象 c ∈ C と要素 x ∈ Fc の組をいう。要素 (c, x) が<b>普遍要素</b>であるとは、米田の補題が定める自然変換——共変なら Ψ(x) : C(c,−) ⇒ F、反変なら Ψ(x) : C(−,c) ⇒ F——が自然同型であることをいう。このとき c は F を表現し、Ψ(x) がその表現を定める。</div>
+<div class="thm"><b>定義2.3.3.</b> 圏 C で添字づけられた（共変または反変の）集合値関手 F の<b>要素</b>とは、対象 c ∈ C と要素 x ∈ Fc の組をいう。要素 (c, x) が<b>普遍要素</b>であるとは、米田の補題が定める自然変換——共変なら Ψ(x) : Hom(c,−) ⇒ F、反変なら Ψ(x) : Hom(−,c) ⇒ F——が自然同型であることをいう。このとき c は F を表現し、Ψ(x) がその表現を定める。</div>
 
-<p>定理2.2.4 により、自然変換 C(c,−) ⇒ F の全体は Fc の要素と1対1に対応するのだった。だから「表現＝対象 c と自然同型の組」というデータは「対象 c と、Ψ(x) が同型になるような要素 x ∈ Fc の組」と言い換えられる。例2.1.5・2.1.6 に挙げた表現はすべてこの形で記述し直せる（演習2.3.i）。以下、原型的な例を順に見る。</p>
+<p>定理2.2.4 により、自然変換 Hom(c,−) ⇒ F の全体は Fc の要素と1対1に対応するのだった。だから「表現＝対象 c と自然同型の組」というデータは「対象 c と、Ψ(x) が同型になるような要素 x ∈ Fc の組」と言い換えられる。例2.1.5・2.1.6 に挙げた表現はすべてこの形で記述し直せる（演習2.3.i）。以下、原型的な例を順に見る。</p>
 
 <h2>例2.3.4 — 多項式環 ℤ[x]</h2>
 
@@ -201,7 +201,7 @@
 
 <p>反変冪集合関手 P : Set<sup>op</sup> → Set は2元集合 Ω = {⊤, ⊥} に表現されるのだった（例2.1.6(i)）。表現</p>
 
-<p style="text-align:center">Set(A, Ω) ≅ P(A)</p>
+<p style="text-align:center">Hom<sub>Set</sub>(A, Ω) ≅ P(A)</p>
 
 <p>の普遍要素は、部分集合 {⊤} ∈ PΩ である。要素 ⊤ ∈ Ω ではないことに注意——普遍要素は関手の値 PΩ の要素でなければならない。同型は関数 f : A → Ω を逆像 f<sup>−1</sup>(⊤) ∈ P(A) に送る写像として与えられる。部分集合と特性関数の対応である。</p>
 
@@ -342,7 +342,7 @@
 <ul>
   <li><b>2.3.i</b> — 次の表現の普遍要素は何か。(i) 例2.1.5(x) の、圏 2 による関手 mor : Cat → Set の表現。(ii) 例2.1.6(ii) の、シェルピンスキー空間による表現。(iii) 例2.1.6(iii) の、シェルピンスキー空間による表現。</li>
   <li><b>2.3.ii</b> — テンソル積の定義的普遍性を使って次を示せ。(i) 任意の k-ベクトル空間 V に対し k ⊗<sub>k</sub> V ≅ V。(ii) 任意の U, V, W に対し U ⊗<sub>k</sub> (V ⊗<sub>k</sub> W) ≅ (U ⊗<sub>k</sub> V) ⊗<sub>k</sub> W。</li>
-  <li><b>2.3.iii</b> — 集合 A から集合 B への関数の集合 B<sup>A</sup> は、反変関手 Set(− × A, B) : Set<sup>op</sup> → Set を表現する。この表現の普遍要素は<b>評価写像</b>と呼ばれる関数 ev : B<sup>A</sup> × A → B である。ev を定義し、例2.3.8 の普遍双線型写像 ⊗ との類比で、その普遍性を記述せよ。</li>
+  <li><b>2.3.iii</b> — 集合 A から集合 B への関数の集合 B<sup>A</sup> は、反変関手 Hom<sub>Set</sub>(− × A, B) : Set<sup>op</sup> → Set を表現する。この表現の普遍要素は<b>評価写像</b>と呼ばれる関数 ev : B<sup>A</sup> × A → B である。ev を定義し、例2.3.8 の普遍双線型写像 ⊗ との類比で、その普遍性を記述せよ。</li>
   <li><b>2.3.iv</b> — 表現のデータは普遍要素1つに符号化されるが、同じ関手が複数の普遍要素を持つことはある。例2.3.4 と例2.3.6 の関手について、本文で挙げたのとは別の普遍要素を見つけよ。</li>
 </ul>
 
