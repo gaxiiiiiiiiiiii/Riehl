@@ -7,6 +7,7 @@ import Mathlib.CategoryTheory.Limits.Constructions.BinaryProducts
 import Mathlib.CategoryTheory.Limits.Constructions.Equalizers
 import Mathlib.CategoryTheory.Limits.Constructions.FiniteProductsOfBinaryProducts
 import Mathlib.CategoryTheory.Limits.Shapes.WidePullbacks
+import Mathlib.CategoryTheory.Limits.Shapes.FunctorToTypes
 import Mathlib.CategoryTheory.FinCategory.Basic
 
 /-!
@@ -22,7 +23,7 @@ open CategoryTheory Limits Opposite
 
 namespace Riehl
 
-universe v u
+universe v u w t
 
 variable {J : Type v} [SmallCategory J] {C : Type u} [Category.{v} C]
 
@@ -451,7 +452,7 @@ theorem yonedaEmbedding_preservesLimits :
 #check yonedaFunctor_reflectsLimits
 
 theorem yonedaEmbedding_reflectsLimits :
-    ReflectsLimitsOfSize.{v, v} (yoneda : C ⥤ Cᵒᵖ ⥤ Type v) := by
+    ReflectsLimitsOfSize.{w, t} (yoneda : C ⥤ Cᵒᵖ ⥤ Type v) := by
   have H1 := Yoneda.yoneda_faithful (C := C)
   have H2 := Yoneda.yoneda_full (C := C)
   apply fullyFaithful_reflectsLimits
@@ -470,7 +471,7 @@ theorem yonedaEmbedding_reflectsLimits :
       示す。そこから、Hom(−, X) が F の余極限を Fᵒᵖ の極限として保存することを示す。
 -/
 
--- X ↦ limit (Hom(F-, X))。射は f との後合成が誘導する。Mathlib では既存の関手の合成で書ける
+-- 対象 X を limit (Hom(F-, X)) に送り、射は f との後合成が誘導する。Mathlib では既存の関手の合成で書ける
 noncomputable def limHomOpFunctor (F : J ⥤ C) : C ⥤ Type v := sorry
 
 -- (X ↦ Hom(colimit F, X)) → (X ↦ limit (Hom(F-, X)))
@@ -551,7 +552,7 @@ theorem hasColimits_of_hasCoproducts_of_hasCoequalizers [HasCoproducts.{v} C] [H
 -- 極限の形（双対）：等化子図式 lim F → ∏ Fj ⇉ ∏ F(cod f) を Mathlib 流に書いたもの
 -- c₁ : ∏ Fj（脚 c₁.π.app ⟨j⟩ が射影 π_j）、c₂ : ∏ F(cod f)（脚 c₂.π.app ⟨f⟩ が射影 π_f）
 -- 添字 f = ⟨(j, k), φ⟩ は J の射 φ : j ⟶ k で、f.1.1 = dom f、f.1.2 = cod f、f.2 = φ
--- s が本の d、t が本の c。hs は d の四角形 s ≫ π_f = π_j ≫ F.map φ、ht は c の三角形 t ≫ π_f = π_k
+-- 本の d が s、本の c が t で、hs は d の四角形 s ≫ π_f = π_j ≫ F.map φ、ht は c の三角形 t ≫ π_f = π_k
 -- c₂ が積とは仮定しないので、s, t は成分から作らずに受け取り、成分を hs, ht で指定する
 -- i : Fork s t が等化子の候補で、そこから F 上の錐を組む
 #check Fan
@@ -643,16 +644,90 @@ I で添字づけられた対象の族 (A_i) の積は、射の族 (! : A_i → 
 
 def isLimitBinaryFanOfPullbackTerminal {P A B T : C} (hT : IsTerminal T) (f : P ⟶ A) (g : P ⟶ B)
     (h : IsLimit (PullbackCone.mk f g (hT.hom_ext (f ≫ hT.from A) (g ≫ hT.from B)))) :
-    IsLimit (BinaryFan.mk f g) := sorry
+    IsLimit (BinaryFan.mk f g) where
+  lift (s : BinaryFan A B) := h.lift (PullbackCone.mk s.fst s.snd (hT.hom_ext _ _))
+  fac (s : BinaryFan A B) i := by
+    have H1 := h.fac (PullbackCone.mk s.fst s.snd (hT.hom_ext _ _)) WalkingCospan.one
+    have Hl := h.fac (PullbackCone.mk s.fst s.snd (hT.hom_ext _ _)) WalkingCospan.left
+    have Hr := h.fac (PullbackCone.mk s.fst s.snd (hT.hom_ext _ _)) WalkingCospan.right
+    simp only [Functor.const_obj_obj, cospan_one, PullbackCone.mk_π_app, IsTerminal.comp_from,
+      cospan_left, cospan_right] at H1 Hl Hr
+    obtain ⟨i⟩ := i
+    rcases i
+    · dsimp only [pair_obj_left, BinaryFan.mk_pt, Functor.const_obj_obj, BinaryFan.mk_fst]
+      erw [Hl]
+    · dsimp only [pair_obj_right, BinaryFan.mk_pt, Functor.const_obj_obj, BinaryFan.mk_snd]
+      erw [Hr]
+  uniq (s : BinaryFan A B) m w := by
+    apply h.uniq (PullbackCone.mk s.fst s.snd (hT.hom_ext _ _))
+    intro i; rcases i with _ | ⟨i, i⟩
+    · simp only [Functor.const_obj_obj, cospan_one, PullbackCone.mk_π_app, IsTerminal.comp_from]
+      apply hT.hom_ext
+    · erw [w ⟨WalkingPair.left⟩]; rfl
+    · erw [ w ⟨WalkingPair.right⟩]; rfl
 
 #print WidePullbackShape
 #check WidePullbackShape.wideCospan
+#check WidePullbackCone
+#check WidePullbackCone.π
 
 def isLimitFanOfWidePullbackTerminal {I : Type v} (A : I → C) {T : C} (hT : IsTerminal T)
-    (c : Cone (WidePullbackShape.wideCospan T A fun i ↦ hT.from (A i))) (hc : IsLimit c) :
-    IsLimit (Fan.mk c.pt fun i ↦ c.π.app (some i)) := sorry
+    (c : WidePullbackCone fun i ↦ hT.from (A i)) (hc : IsLimit c) :
+    IsLimit (Fan.mk c.pt fun i ↦ c.π i) where
+  lift s :=
+    hc.lift (WidePullbackCone.mk (hT.from s.pt) (fun i =>  s.π.app ⟨i⟩) (fun i => hT.hom_ext _ _))
+  fac s i := by
+    apply hc.fac (WidePullbackCone.mk (hT.from s.pt) (fun i =>  s.π.app ⟨i⟩) (fun i => hT.hom_ext _ _)) (some i.as)
+  uniq s m w := by
+    rw [hc.uniq (WidePullbackCone.mk (hT.from s.pt) (fun i =>  s.π.app ⟨i⟩) (fun i => hT.hom_ext _ _)) m]
+    intro j
+    rcases j with _ | j
+    · apply hT.hom_ext
+    · simp only [WidePullbackCone.mk, WidePullbackShape.wideCospan_obj,
+        WidePullbackShape.mkCone_π_app]
+      rw [<- w ⟨j⟩]; rfl
+
+
+
 
 #check hasBinaryProducts_of_hasTerminal_and_pullbacks
+
+theorem hasBinaryProducts_of_hasTerminal_of_hasPullbacks [HasTerminal C] [HasPullbacks C] :
+    HasBinaryProducts C where
+  has_limit F := by
+    let f := (terminal.from (F.obj ⟨WalkingPair.left⟩))
+    let g := (terminal.from (F.obj ⟨WalkingPair.right⟩))
+    refine {
+    exists_limit := ⟨{
+      cone := {
+        pt := pullback f g
+        π := {
+          app := fun ⟨i⟩ => match i with
+            | .left => pullback.fst f g
+            | .right => pullback.snd f g
+          naturality {i j} h := by
+            obtain ⟨i⟩ := i
+            obtain ⟨j⟩ := j
+            obtain ⟨⟨rfl⟩⟩ := h
+            simp
+        }
+      }
+      isLimit := {
+        lift s :=
+          pullback.lift  (s.π.app ⟨WalkingPair.left⟩) (s.π.app ⟨WalkingPair.right⟩) ( terminal.hom_ext _ _)
+        fac s i := by
+          obtain ⟨⟨_|_⟩⟩ := i
+          · erw [pullback.lift_fst]
+          · rw [pullback.lift_snd]
+        uniq s m w := by
+          simp only [Functor.const_obj_obj, Discrete.forall] at m w
+          apply pullback.hom_ext
+          · rw [w WalkingPair.left, pullback.lift_fst]
+          · rw [w WalkingPair.right, pullback.lift_snd]
+      }
+    }⟩
+  }
+
 #check hasFiniteProducts_of_has_binary_and_terminal
 
 theorem hasFiniteProducts_of_hasTerminal_of_hasPullbacks [HasTerminal C] [HasPullbacks C] :
@@ -662,28 +737,275 @@ theorem hasFiniteProducts_of_hasTerminal_of_hasPullbacks [HasTerminal C] [HasPul
 -- 補題3.5.16
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 /-
-二項積を持つ任意の圏において、(f, g) : A → B × B と対角射 (id_B, id_B) : B → B × B の引き戻し
-E → A は、平行な対 f, g : A ⇉ B の等化子である。
-
-構成: `Fork.ofι` が条件 e ≫ f = e ≫ g を要求するので、条件を `fork_condition_of_pullback_diag` として
-先に立て、等化子であること `isLimitForkOfPullbackDiag` はそれを参照する。
+C を二項積を持つ圏とし、A, B を C の対象、f, g : A → B を平行な射の対とする。f と g が定める射
+(f, g) : A → B × B と、対角射 δ = (id_B, id_B) : B → B × B の引き戻しを E とし、その射影を
+e : E → A、ℓ : E → B とする。このとき E と e は f と g の等化子である。
 -/
+
+#check HasEqualizersOfHasPullbacksAndBinaryProducts.equalizerCone
+
+-- e を f と g のフォークとして見た、補題の図式 E → A ⇉ B
+def forkOfPullbackDiag {A B E : C} [HasBinaryProduct B B] {f g : A ⟶ B}
+    {e : E ⟶ A} {l : E ⟶ B} (w : e ≫ prod.lift f g = l ≫ prod.lift (𝟙 B) (𝟙 B)) :
+    Fork f g := by
+  apply Fork.ofι e
+  rw [<- prod.lift_fst f g, <- Category.assoc, w, Category.assoc, prod.lift_fst]
+  rw [<- prod.lift_snd f g, <- Category.assoc, w, Category.assoc, prod.lift_snd]
+
+-- 積の表現可能な普遍性 Hom(X, B × B) ≅ Hom(X, B) × Hom(X, B)
+noncomputable def homProdIso (B : C) [HasBinaryProduct B B] :
+    yoneda.obj (B ⨯ B) ≅ yoneda.obj B ⨯ yoneda.obj B := by
+  apply (prodIsProd B B).representableBy.toIso ≪≫ ?_ ≪≫ (FunctorToTypes.binaryProductIso _ _).symm
+  refine {
+    hom := {
+      app x := TypeCat.ofHom (fun σ => ⟨σ.app ⟨WalkingPair.left⟩, σ.app ⟨WalkingPair.right⟩⟩)
+      naturality {x y} f := by rfl
+    }
+    inv := {
+      app x :=  TypeCat.ofHom (fun ⟨f, g⟩ => {
+          app := fun ⟨i⟩ => match i with
+            | .left => f
+            | .right => g
+          naturality {x y} f := by
+            obtain ⟨x⟩ := x
+            obtain ⟨y⟩ := y
+            obtain ⟨⟨rfl⟩⟩ := f
+            simp
+      })
+      naturality {x y} f := by
+        simp only [Functor.cones_obj, FunctorToTypes.prod_map, yoneda_obj_obj, yoneda_obj_map,
+          TypeCat.hom_ofHom, TypeCat.Fun.coe_mk, Functor.op_obj, Functor.const_obj_obj,
+          Functor.cones_map];
+        ext ⟨f, g⟩ ⟨i⟩
+        rcases i<;> rfl
+    }
+    hom_inv_id := by
+      ext x σ; apply NatTrans.ext; ext ⟨i⟩
+      rcases i<;>rfl
+    inv_hom_id := by
+      ext x ⟨f, g⟩<;> rfl
+  }
+
+-- 引き戻しの錐を Hom(X, −) で移し、X 型の一般化された要素の錐として見る。
+noncomputable def isLimitHomPullback {A B E : C} [HasBinaryProduct B B] {f g : A ⟶ B}
+    {e : E ⟶ A} {l : E ⟶ B} (w : e ≫ prod.lift f g = l ≫ prod.lift (𝟙 B) (𝟙 B))
+    (h : IsLimit (PullbackCone.mk e l w)) (X : C) :
+    IsLimit ((coyoneda.obj (op X)).mapCone (PullbackCone.mk e l w)) :=
+  ((coyoneda_preservesLimits (op X)).preservesLimitsOfShape.preservesLimit.preserves h).some
+
+-- 例3.2.9: Set の引き戻しの頂点は対の集合 Hom(X, E) ≅ {(a, b) | (f, g) ∘ a = (id, id) ∘ b}
+noncomputable def homPairsIso {A B E : C} [HasBinaryProduct B B] {f g : A ⟶ B}
+    {e : E ⟶ A} {l : E ⟶ B} (w : e ≫ prod.lift f g = l ≫ prod.lift (𝟙 B) (𝟙 B)) (X : C)
+    (H : IsLimit (PullbackCone.mk e l w)) :
+    (X ⟶ E) ≅ {p : (X ⟶ A) × (X ⟶ B) // p.1 ≫ prod.lift f g = p.2 ≫ prod.lift (𝟙 B) (𝟙 B)} where
+  hom := TypeCat.ofHom <| fun h => by
+    use ⟨h ≫ e, h ≫ l⟩; simp only [prod.comp_lift, Category.assoc, Category.comp_id]
+    apply prod.hom_ext
+    · rw [prod.lift_fst, prod.lift_fst, <- prod.lift_fst f g]
+      rw [<- Category.assoc e, w, Category.assoc, prod.lift_fst]
+      simp
+    · rw [prod.lift_snd, prod.lift_snd, <- prod.lift_snd f g]
+      rw [<- Category.assoc e, w, Category.assoc, prod.lift_snd]
+      simp
+  inv := TypeCat.ofHom <| fun h => H.lift (PullbackCone.mk h.1.1 h.1.2 h.2)
+  hom_inv_id := by
+    ext h; simp only [TypeCat.Fun.toFun_apply, comp_apply, ConcreteCategory.hom_ofHom,
+      TypeCat.hom_ofHom, TypeCat.Fun.coe_mk, id_apply]
+    erw [TypeCat.Fun.coe_mk]
+    apply H.hom_ext; intro i
+    have He := PullbackCone.IsLimit.lift_fst H (h ≫ e) (h ≫ l) (by rw [Category.assoc, w]; simp)
+    have Hl := PullbackCone.IsLimit.lift_snd H (h ≫ e) (h ≫ l) (by rw [Category.assoc, w]; simp)
+    simp only [PullbackCone.mk_π_app] at He Hl
+    rcases i with _ | _ | _
+    · simp only [cospan_one, PullbackCone.mk_π_app, Functor.const_obj_obj, prod.comp_lift]
+      apply prod.hom_ext
+      · conv => arg 1; erw [Category.assoc]; arg 2; erw [prod.lift_fst]
+        conv => arg 2; erw [Category.assoc]; arg 2; erw [prod.lift_fst]
+        conv => arg 1;  erw [<- Category.assoc, He]
+        conv => arg 1; erw [Category.assoc]
+        rfl
+      · conv => arg 1; erw [Category.assoc]; arg 2; erw [prod.lift_snd]
+        conv => arg 2; erw [Category.assoc]; arg 2; erw [prod.lift_snd]
+        conv => arg 1;  erw [<- Category.assoc, He]
+        conv => arg 1; erw [Category.assoc]
+        rfl
+    · simp only [cospan_left, PullbackCone.mk_π_app]
+      erw [He]; rfl
+    · simp only [cospan_right, PullbackCone.mk_π_app]
+      erw [Hl]; rfl
+
+
+  inv_hom_id := by
+    ext ⟨⟨a, b⟩, h⟩
+    · dsimp only at h
+      simp only [TypeCat.Fun.toFun_apply, comp_apply, TypeCat.hom_ofHom, ConcreteCategory.hom_ofHom,
+        TypeCat.Fun.coe_mk, id_apply]
+      erw [TypeCat.Fun.coe_mk]
+      simp only
+      exact PullbackCone.IsLimit.lift_fst H a b h
+    · dsimp only at h
+      simp only [TypeCat.Fun.toFun_apply, comp_apply, TypeCat.hom_ofHom, ConcreteCategory.hom_ofHom,
+        TypeCat.Fun.coe_mk, id_apply]
+      erw [TypeCat.Fun.coe_mk]
+      simp only
+      exact PullbackCone.IsLimit.lift_snd H a b h
+
+
+-- e との合成による同型 Hom(X, E) ≅ {a ∈ Hom(X, A) | f ∘ a = g ∘ a}
+noncomputable def homEqualizerIso {A B E : C} [HasBinaryProduct B B] {f g : A ⟶ B}
+    {e : E ⟶ A} {l : E ⟶ B} (w : e ≫ prod.lift f g = l ≫ prod.lift (𝟙 B) (𝟙 B)) (X : C)
+    (h : IsLimit (PullbackCone.mk e l w)) :
+    (X ⟶ E) ≅ {a : X ⟶ A // a ≫ f = a ≫ g} := by
+  apply homPairsIso w X h ≪≫ _
+  refine {
+    hom := TypeCat.ofHom <| fun ⟨⟨a, b⟩, W⟩ => by
+      dsimp only at W
+      use a
+      rw [<- prod.lift_fst f g, <- Category.assoc, W, Category.assoc, prod.lift_fst, Category.comp_id]
+      rw [<- prod.lift_snd f g, <- Category.assoc, W, Category.assoc, prod.lift_snd, Category.comp_id]
+    inv := TypeCat.ofHom <| fun ⟨a, Ha⟩ => by
+      use ⟨a, a ≫ f⟩
+      simp only
+      apply prod.hom_ext
+      · rw [Category.assoc, prod.lift_fst, Ha]
+        erw [Category.assoc, prod.lift_fst]
+        simp
+      · rw [Category.assoc, prod.lift_snd, Ha]
+        erw [Category.assoc, prod.lift_snd]
+        simp
+    hom_inv_id := by
+      ext ⟨⟨a,b⟩, H⟩
+      · simp
+      · dsimp only [TypeCat.Fun.toFun_apply, types_comp_apply, TypeCat.hom_ofHom, TypeCat.Fun.coe_mk,
+        types_id_apply]
+        rw [<- prod.lift_fst f g, <- Category.assoc, H, Category.assoc, prod.lift_fst, Category.comp_id]
+    inv_hom_id := by
+      ext ⟨a, Ha⟩
+      simp
+  }
+
+
+-- Hom(X, E) → Hom(X, A) ⇉ Hom(X, B) は等化子図式
+noncomputable def isLimitHomForkOfPullbackDiag {A B E : C} [HasBinaryProduct B B] {f g : A ⟶ B}
+    {e : E ⟶ A} {l : E ⟶ B} (w : e ≫ prod.lift f g = l ≫ prod.lift (𝟙 B) (𝟙 B)) (X : C)
+    (h : IsLimit (PullbackCone.mk e l w)) :
+    IsLimit ((coyoneda.obj (op X)).mapCone (forkOfPullbackDiag w)) := by
+  let σ := homEqualizerIso w X h
+  let p (s : Cone (parallelPair f g ⋙ coyoneda.obj (op X))) (x : s.pt) :
+      {a : X ⟶ A // a ≫ f = a ≫ g} :=
+    ⟨s.π.app .zero x, by
+      have h1 := ConcreteCategory.congr_hom (s.w .left) x
+      have h2 := ConcreteCategory.congr_hom (s.w .right) x
+      simp at h1 h2
+      exact h1.trans h2.symm⟩
+  refine {
+    lift s := TypeCat.ofHom fun x => σ.inv.hom (p s x)
+    fac s i := by
+      ext x
+      simp only [Functor.comp_obj, Functor.flip_obj_obj, yoneda_obj_obj, forkOfPullbackDiag,
+        Functor.mapCone_pt, Fork.ofι_pt, Functor.const_obj_obj, parallelPair_obj_zero,
+        Functor.mapCone_π_app, Fork.ofι_π_app, parallelPair_obj_one, Functor.flip_obj_map,
+        yoneda_map_app, TypeCat.Fun.toFun_apply, comp_apply, TypeCat.hom_ofHom, TypeCat.Fun.coe_mk]
+      have E := congr_arg (fun t => (t.hom (p s x)).val) σ.inv_hom_id
+      dsimp at E
+      conv at E => arg 1; arg 1; arg 1; simp [σ, homEqualizerIso, homPairsIso]
+      conv at E => arg 2; simp [p]
+      simp only [comp_apply, TypeCat.hom_ofHom, TypeCat.Fun.coe_mk] at E
+      rcases i
+      · simp only [parallelPair_obj_zero]
+        exact E
+      · simp only [parallelPair_obj_one]
+        rw [<- Category.assoc, E]
+        have := ConcreteCategory.congr_hom (s.w .left) x
+        dsimp at this
+        exact this
+    uniq s m W := by
+      ext x
+      simp only [Functor.mapCone_pt, Functor.flip_obj_obj, yoneda_obj_obj, TypeCat.Fun.toFun_apply,
+        ConcreteCategory.hom_ofHom]
+      erw [TypeCat.Fun.coe_mk, TypeCat.Fun.coe_mk]
+      have H := congr_arg (fun t => (t.hom (m x))) σ.hom_inv_id
+      conv at H => arg 1; arg 1; arg 1; arg 1; simp [σ, homEqualizerIso, homPairsIso]
+      simp only [Category.assoc, Functor.mapCone_pt, Functor.flip_obj_obj, yoneda_obj_obj] at H
+      erw [comp_apply] at H
+      simp only [TypeCat.hom_ofHom, TypeCat.Fun.coe_mk, comp_apply] at H
+      simp only [Functor.mapCone_pt, Functor.flip_obj_obj, yoneda_obj_obj, TypeCat.Fun.toFun_apply,
+        Functor.const_obj_obj, Functor.comp_obj, parallelPair_obj_zero, p]
+      erw [<- H]
+      congr
+      have wo := W .zero; simp only [Functor.comp_obj, parallelPair_obj_zero, Functor.flip_obj_obj,
+        yoneda_obj_obj, forkOfPullbackDiag, Functor.mapCone_pt, Fork.ofι_pt, Functor.mapCone_π_app,
+        Fork.ofι_π_app, Functor.flip_obj_map, yoneda_map_app] at wo
+      rw [<- wo]; rfl
+  }
+
 
 #check HasEqualizersOfHasPullbacksAndBinaryProducts.equalizerConeIsLimit
 
-theorem fork_condition_of_pullback_diag {A B E : C} [HasBinaryProduct B B] {f g : A ⟶ B}
-    {e : E ⟶ A} {l : E ⟶ B} (w : e ≫ prod.lift f g = l ≫ prod.lift (𝟙 B) (𝟙 B)) :
-    e ≫ f = e ≫ g := sorry
-
-def isLimitForkOfPullbackDiag {A B E : C} [HasBinaryProduct B B] {f g : A ⟶ B}
+-- 定理3.5.5(ii): すべての X で Hom(X, −) が等化子図式に写すなら、元の図式も等化子
+noncomputable def isLimitForkOfPullbackDiag {A B E : C} [HasBinaryProduct B B] {f g : A ⟶ B}
     {e : E ⟶ A} {l : E ⟶ B} (w : e ≫ prod.lift f g = l ≫ prod.lift (𝟙 B) (𝟙 B))
-    (h : IsLimit (PullbackCone.mk e l w)) :
-    IsLimit (Fork.ofι e (fork_condition_of_pullback_diag w)) := sorry
+    (hF : ∀ X : C, IsLimit ((coyoneda.obj (op X)).mapCone (forkOfPullbackDiag w))) :
+    IsLimit (forkOfPullbackDiag w) := by
+  have H : IsLimit (yoneda.mapCone (forkOfPullbackDiag w)) :=
+    evaluationJointlyReflectsLimits (yoneda.mapCone (forkOfPullbackDiag w)) (fun X => hF X.unop)
+  exact (yonedaEmbedding_reflectsLimits.reflectsLimitsOfShape.reflectsLimit.reflects H).some
+
+
+
+
+
+
+-- WalkingParallelPair からの図式は、その 2 本の射が定める平行対と自然同型。本では明示されない Lean 側の補題
+#check diagramIsoParallelPair
+
+def diagramIsoParallelPair' (F : WalkingParallelPair ⥤ C) :
+    F ≅ parallelPair (F.map .left) (F.map .right) where
+  hom := {
+    app i := by simp; exact 𝟙 (F.obj i)
+    naturality {i j} f := by
+      rcases f with _ | _ | _ | _<;> simp
+  }
+
+  inv := {
+    app i := by simp; exact 𝟙 (F.obj i)
+    naturality {i j} f := by
+      rcases f with _ | _ | _ | _<;> simp
+  }
+  hom_inv_id := by
+    ext i; simp
+  inv_hom_id := by
+    ext i; simp
+
 
 #check hasEqualizers_of_hasPullbacks_and_binary_products
 
 theorem hasEqualizers_of_hasBinaryProducts_of_hasPullbacks [HasBinaryProducts C] [HasPullbacks C] :
-    HasEqualizers C := sorry
+    HasEqualizers C where
+  has_limit F := {
+    exists_limit := .intro <| by
+      let A := F.obj .zero
+      let B := F.obj .one
+      let f : A ⟶ B := F.map .left
+      let g : A ⟶ B := F.map .right
+      let E := pullback (prod.lift f g) (prod.lift (𝟙 B) (𝟙 B))
+      let e : E ⟶ A := pullback.fst (prod.lift f g) (prod.lift (𝟙 B) (𝟙 B))
+      let l : E ⟶ B := pullback.snd (prod.lift f g) (prod.lift (𝟙 B) (𝟙 B))
+      have w : e ≫ prod.lift f g = l ≫ prod.lift (𝟙 B) (𝟙 B)
+        := pullback.condition (f := prod.lift f g) (g := prod.lift (𝟙 B) (𝟙 B))
+      have H : IsLimit (forkOfPullbackDiag w) := by {
+        apply isLimitForkOfPullbackDiag w
+        intro x
+        apply isLimitHomForkOfPullbackDiag w x (pullbackIsPullback (prod.lift f g) (prod.lift (𝟙 B) (𝟙 B)))
+      }
+      have σ := diagramIsoParallelPair F
+      have := HasLimit.mk ⟨_, H⟩
+      have :=  hasLimit_of_iso σ.symm
+      exact getLimitCone F
+  }
+
+
+
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 定理3.5.17
