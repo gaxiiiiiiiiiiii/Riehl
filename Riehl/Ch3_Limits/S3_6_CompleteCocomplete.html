@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3.6 完備な圏と余完備な圏</title>
+<style>
+  :root {
+    --bg: #fdfcf9;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --accent: #8a4c14;
+    --line: #d8d3c8;
+    --box-bg: #f5f2ea;
+    --code-bg: #f0ede5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1e22;
+      --fg: #e4e1da;
+      --muted: #9aa2ab;
+      --accent: #e0a468;
+      --line: #3a3f46;
+      --box-bg: #24262b;
+      --code-bg: #2a2d33;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    line-height: 1.95;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.5rem; font-family: "Hiragino Sans", sans-serif; border-bottom: 2px solid var(--accent); padding-bottom: .4rem; }
+  h2 { font-size: 1.12rem; font-family: "Hiragino Sans", sans-serif; color: var(--accent); margin-top: 2.6rem; }
+  p { margin: .9rem 0; font-size: .97rem; }
+  li { font-size: .97rem; margin: .4rem 0; }
+  .note { color: var(--muted); font-size: .88em; }
+  .thm {
+    background: var(--box-bg);
+    border-left: 3px solid var(--accent);
+    padding: .7rem 1.1rem;
+    margin: 1.2rem 0;
+  }
+  .thm b { font-family: "Hiragino Sans", sans-serif; }
+  .proof-head { font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .qed { float: right; }
+  .fn { color: var(--muted); font-size: .88rem; border-top: 1px solid var(--line); padding-top: .5rem; }
+  .eq { text-align: center; margin: 1rem 0; }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
+  svg.cd path:not([fill]) { fill: none; stroke: currentColor; stroke-width: 1.1; }
+  svg.cd .dashed { stroke-dasharray: 5 4; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--box-bg); font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<h1>3.6 完備な圏と余完備な圏</h1>
+
+<p class="note">Emily Riehl, <i>Category Theory in Context</i> §3.6（pp.115–122）の内容を、個人学習のために日本語で書き直した解説。番号（命題3.6.1 など）は本と揃えてある。翻訳ではなく、同じ内容を自分の言葉で再構成したもの。</p>
+
+<h2>記号表</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>記号</th><th>型・意味</th></tr>
+  <tr><td>完備・余完備</td><td>圏がすべての小さな極限・余極限を持つこと（定義3.2.1）</td></tr>
+  <tr><td>連続・余連続</td><td>関手がすべての小さな極限・余極限を保存すること</td></tr>
+  <tr><td>Set, Top, Set<sub>∗</sub>, Top<sub>∗</sub>, Cat</td><td>集合、位相空間、基点付き集合、基点付き空間、小圏の圏</td></tr>
+  <tr><td>CAT</td><td>局所小圏の圏</td></tr>
+  <tr><td>U : Top → Set</td><td>台集合関手。一点空間 ∗ に表現される</td></tr>
+  <tr><td>∏<sub>α</sub> X<sub>α</sub>, π<sub>β</sub></td><td>積と、その射影</td></tr>
+  <tr><td>∐<sub>α</sub> X<sub>α</sub>, ι<sub>β</sub></td><td>余積と、その入射</td></tr>
+  <tr><td>Y/∼</td><td>同値関係 ∼ による Y の商</td></tr>
+  <tr><td>ω<sup>op</sup></td><td>順序数 ω の反対圏。⋯ → 3 → 2 → 1 → 0 の形の添字圏</td></tr>
+  <tr><td>PConf<sub>n</sub>(X), Conf<sub>n</sub>(X)</td><td>空間 X の n 点の順序付き配置空間と、配置空間</td></tr>
+  <tr><td>S<sub>n</sub>, BS<sub>n</sub></td><td>n 次対称群と、それを 1 対象圏と見たもの</td></tr>
+  <tr><td>c/C, C/c</td><td>対象 c の下と上のスライス圏（演習1.1.iii）</td></tr>
+  <tr><td>Π : c/C → C</td><td>スライス圏の忘却関手</td></tr>
+  <tr><td>ob, mor : Cat → Set</td><td>小圏をその対象集合・射集合に送る関手</td></tr>
+  <tr><td>𝟙, 𝟚, 𝟛</td><td>順序数 1, 2, 3 を圏と見たもの。𝟚 は自由な（walking）矢印</td></tr>
+  <tr><td>𝕀</td><td>自由な（walking）同型射の圏。対象 2 つと、互いに逆な 2 本の非恒等射</td></tr>
+  <tr><td>∫F</td><td>関手 F の要素の圏（定義2.4.1）</td></tr>
+  <tr><td>Bℕ, Bℤ</td><td>モノイド ℕ、群 ℤ を 1 対象圏と見たもの</td></tr>
+  <tr><td>poset</td><td>半順序集合。前順序集合の骨格</td></tr>
+  <tr><td>完備束</td><td>任意の部分集合が下限と上限を持つ poset</td></tr>
+  <tr><td>R, s, t : R ⇉ X</td><td>射 f : X → Y の核対</td></tr>
+  <tr><td>ρ, σ, τ</td><td>核対の反射律・対称律・推移律を与える射</td></tr>
+  <tr><td>e : X ↠ X/R</td><td>同値関係 R による商対象</td></tr>
+  <tr><td>BG</td><td>群 G を 1 対象圏と見たもの</td></tr>
+  <tr><td>π<sub>0</sub>(J)</td><td>圏 J の連結成分の集合</td></tr>
+  <tr><td>Set<sub>∂</sub></td><td>集合と部分関数の圏（演習1.6.iii）</td></tr>
+  <tr><td>A ∨ B, A ∧ B</td><td>Set<sub>∂</sub> の二項余積と、スマッシュ積</td></tr>
+  <tr><td>Quiver, rQuiver, Graph</td><td>クイバー、反射的クイバー、グラフの圏</td></tr>
+  <tr><td>C<sub>0</sub>, C<sub>1</sub></td><td>二重圏の対象の圏と射の圏</td></tr>
+  <tr><td>J<sup>◁</sup>, J<sup>▷</sup></td><td>J 上の錐、J 下の錐の形を表す圏</td></tr>
+  <tr><td>Fin<sub>mono</sub></td><td>有限集合と単射の圏</td></tr>
+  <tr><td>Top<sup>𝟚</sup>, Top/B, Top<sup>𝟚</sup><sub>pb</sub></td><td>ファイバー空間の圏、B 上のファイバー空間の圏、射を引き戻しの四角形に限ったファイバー空間の圏</td></tr>
+  <tr><td>Π<sub>B</sub> : Top/B → Set</td><td>B 上のファイバー空間にその連続切断の集合を対応させる関手</td></tr>
+</table>
+</div>
+
+<h2>この節の問い</h2>
+
+<p>定理3.5.11 や定理3.5.17 のように、一般の極限と余極限の構成を少数の単純なものに帰着させる定理は、圏が完備または余完備であること、すなわちすべての小さな極限または余極限を持つことを証明するとき、また関手が連続または余連続であること、すなわちすべての小さな極限または余極限を保存することを証明するときに役に立つ。証明は少数の場合の確認に帰着する。この節では、さまざまな圏における極限と余極限の構成を述べる。構成が主張どおりの普遍性を持つことの証明は、多くの場合読者に委ねる。その後、集合論の構成を適切な構造を持つ圏の内部に移し替えることで、これらの極限と余極限が何に使えるかを示す。</p>
+
+<p>よく知られた具体的な圏の多くは完備かつ余完備である。Set、Top、Set<sub>∗</sub>、Top<sub>∗</sub>、Cat、Group、Ab、Ring、<sub>R</sub>Mod などがそうである。ここでは最初の 5 つだけを扱う。残りの代数的な圏については、圏論的普遍代数の一般的な結果を特殊化すると完備かつ余完備であることが証明できる。これは定理5.6.12 で扱う。</p>
+
+<h2>命題3.6.1 — Set は余完備である</h2>
+
+<p>最初の例では、仕事の半分はすでに済んでいる。定理3.2.4 により Set は完備である。</p>
+
+<div class="thm"><b>命題3.6.1.</b> 圏 Set は余完備である。</div>
+
+<p><span class="proof-head">証明.</span> 定理3.5.11 により、Set が余積と余等化子を持つことを示せば十分である。余積は非交和で与えられる。平行な関数の対 f, g : A ⇉ B の余等化子は、各 a ∈ A について f(a) ∼ g(a) とする関係が生成する同値関係 ∼ による商集合 B/∼ である。<span class="qed">□</span></p>
+
+<h2>命題3.6.2 — Top は完備かつ余完備である</h2>
+
+<div class="thm"><b>命題3.6.2.</b> 空間の圏 Top は完備かつ余完備であり、台集合関手 U : Top → Set は連続かつ余連続である。</div>
+
+<p><span class="proof-head">証明.</span> 台集合関手 U : Top → Set は一点空間 ∗ に表現される。したがって定理3.5.2 により、Top に極限があるなら、それは台集合の図式の極限に位相を入れたものでなければならない。これは例3.1.10 で直積の場合に論じたとおりである。</p>
+
+<p>名前が示すとおり、空間の族 X<sub>α</sub> の積は、直積集合 ∏<sub>α</sub> X<sub>α</sub> に直積位相を入れたものである。直積位相とは、各射影 π<sub>β</sub> : ∏<sub>α</sub> X<sub>α</sub> → X<sub>β</sub> が連続になる最も粗い位相である。連続写像の対 f, g : X ⇉ Y の等化子は、台集合の等化子 E ⊂ X に部分空間位相を入れたものである。部分空間位相は、包含 E ↪ X が連続になる最も粗い位相と言い換えることもできる。</p>
+
+<p>双対に、Top の余極限は台集合の図式の余極限に位相を入れたものだと予想できる。定理4.5.2 により、余極限はこのように構成されなければならない。余積は、非交和 ∐<sub>α</sub> X<sub>α</sub> に、各入射 ι<sub>β</sub> : X<sub>β</sub> → ∐<sub>α</sub> X<sub>α</sub> が連続になる最も細かい位相を入れたものである。各空間 X<sub>α</sub> の開基の非交和が ∐<sub>α</sub> X<sub>α</sub> の開基になる。連続写像の対 f, g : X ⇉ Y の余等化子は、まず各点 x ∈ X について f(x) ∼ g(x) とする関係が生成する同値関係による集合の商 Y/∼ を作り、次に Y/∼ に商位相を入れたものである。商位相では、Y/∼ の部分集合が開であることと、その Y における逆像が開であることが同値である。これは商写像 q : Y ↠ Y/∼ が連続になる最も細かい位相である。</p>
+
+<p>定理3.5.11 とその双対により、Top はすべての小さな極限と余極限を持つ。以上の明示的な構成から、さらに忘却関手 U : Top → Set がそれらを保存することも分かる。<span class="qed">□</span></p>
+
+<h2>例3.6.3 — Top の極限・余極限の一般形と p 進ソレノイド</h2>
+
+<p>Top の任意の極限と余極限は、命題3.6.2 の証明で述べた方法で構成できる。すなわち、台集合の図式の極限または余極限を作り、極限錐または余極限錐の脚が連続になるような最も粗い位相（極限の場合）または最も細かい位相（余極限の場合）を入れる。</p>
+
+<p>例として、対象が円周 S<sup>1</sup> で、生成する射がどれも「p 乗写像」、すなわち定義域の円周を値域の円周に一様に p 回巻きつける被覆写像であるような図式 ω<sup>op</sup> → Top を考える。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 520 60" width="520" role="img" aria-label="⋯ → S¹ → S¹ → S¹ → S¹。各矢印は p 乗写像">
+  <defs><marker id="m01" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="40" y="36" text-anchor="middle">⋯</text>
+  <text x="150" y="36" text-anchor="middle">S<tspan dy="-6" font-size="11">1</tspan></text>
+  <text x="260" y="36" text-anchor="middle">S<tspan dy="-6" font-size="11">1</tspan></text>
+  <text x="370" y="36" text-anchor="middle">S<tspan dy="-6" font-size="11">1</tspan></text>
+  <text x="480" y="36" text-anchor="middle">S<tspan dy="-6" font-size="11">1</tspan></text>
+  <line x1="58" y1="31" x2="130" y2="31" marker-end="url(#m01)"/>
+  <text class="lbl" x="94" y="22" text-anchor="middle">p</text>
+  <line x1="170" y1="31" x2="240" y2="31" marker-end="url(#m01)"/>
+  <text class="lbl" x="205" y="22" text-anchor="middle">p</text>
+  <line x1="280" y1="31" x2="350" y2="31" marker-end="url(#m01)"/>
+  <text class="lbl" x="315" y="22" text-anchor="middle">p</text>
+  <line x1="390" y1="31" x2="460" y2="31" marker-end="url(#m01)"/>
+  <text class="lbl" x="425" y="22" text-anchor="middle">p</text>
+</svg>
+</figure>
+
+<p>この図式の逆極限が p 進ソレノイドである。</p>
+
+<h2>例3.6.4 — 配置空間</h2>
+
+<p>空間 X の n 点の（順序なしの）配置空間とは、X の相異なる n 点の集まりを点とし、二つの配置の点の間に全単射があって対応する各点の対が「近い」とき二つの配置を「近い」とみなす位相を入れた位相空間である。</p>
+
+<p>より正式には、n 点の順序付き配置の空間は直積空間 X<sup>n</sup> の部分空間であり、「太い対角線」の補集合</p>
+
+<p class="eq">PConf<sub>n</sub>(X) := {(x<sub>1</sub>, …, x<sub>n</sub>) ∈ X<sup>n</sup> | i ≠ j ならば x<sub>i</sub> ≠ x<sub>j</sub>}</p>
+
+<p>である。対称群 S<sub>n</sub> は座標の置換によって X<sup>n</sup> に作用し、この作用は部分空間 PConf<sub>n</sub>(X) ⊂ X<sup>n</sup> に制限される。図式 PConf<sub>n</sub>(X) : BS<sub>n</sub> → Top の余極限が n 点の配置空間</p>
+
+<p class="eq">Conf<sub>n</sub>(X) := colim (BS<sub>n</sub> → Top)</p>
+
+<p>を定める。演習3.6.i でその台集合を記述する。</p>
+
+<h2>命題3.6.5 — スライス圏の完備性と余完備性</h2>
+
+<p>Set と Top の完備性と余完備性から Set<sub>∗</sub> と Top<sub>∗</sub> の完備性と余完備性が従う。これは次の一般的な結果の特別な場合である。<sup>17</sup></p>
+
+<div class="thm"><b>命題3.6.5.</b> C が完備かつ余完備ならば、任意の c ∈ C について、スライス圏 c/C と C/c も完備かつ余完備である。</div>
+
+<p><span class="proof-head">証明.</span> 二つの主張は双対なので、c/C について示せば十分である。命題3.4.8 により、C が完備かつ余完備なら、c/C はすべての極限とすべての連結な余極限を持ち、それらは忘却関手 Π : c/C → C が創出する。したがって c/C は完備であり、余完備性を示すには c/C が余積を持つことを示せば残りはない。空な余積は始対象であり、c/C はそれを持つ。恒等射 id<sub>c</sub> が始対象である。空でない集合で添字づけられた余積は、補題3.5.15 の構成を双対化して、始対象の下の広い押し出しとして構成できる。この証明は余積の構成も教えている。対象の族 c → x<sub>α</sub> の余積は、c から、これらの射が C において定める図式の広い押し出しへの射である。<sup>18</sup><span class="qed">□</span></p>
+
+<p class="fn"><sup>17</sup> 演習3.4.iv で、Set<sub>∗</sub> と Top<sub>∗</sub> がスライス圏であることを説明している。</p>
+
+<p class="fn"><sup>18</sup> C が具体圏で、c が台集合関手 U : C → Set を表現し、したがって c/C ≅ ∫U が「基点付き対象」の圏であるときは特に、余積は通常の「⊔」の代わりに記号「∨」で書かれることが多い。例3.1.24 を参照。</p>
+
+<h2>Cat の極限の候補</h2>
+
+<p>次に、圏の図式の極限を考える。例2.1.5 の (ix) と (x) により、関手 ob, mor : Cat ⇉ Set は順序数圏 𝟙 と 𝟚 に表現される。定理3.5.5(i) により、どちらの関手も極限を保存する。したがって、圏の図式の極限が存在するなら、その対象集合は対象集合の図式の極限でなければならず、その射集合は射集合の図式の極限でなければならない。さらに、定義域・値域・恒等射も保存される。これらの写像はそれぞれ、例2.2.9 により、表現可能関手の間の自然変換として表せるからである。圏 𝟛 を使う同様の議論により、合成も保存される。以上の観察から、任意の圏の積と、任意の平行な関手の対の等化子の候補が得られ、次が証明できる。</p>
+
+<h2>命題3.6.6 — Cat と CAT は完備である</h2>
+
+<div class="thm"><b>命題3.6.6.</b> 圏 Cat と CAT は完備である。</div>
+
+<p><span class="proof-head">証明.</span> 定義1.3.12 で導入した積の高い項数版が、圏の積を定める。演習3.1.x を参照。平行な関手の対の等化子 E</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 380 70" width="380" role="img" aria-label="E → C ⇉ D。平行な関手は F と G">
+  <defs><marker id="m02" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="40" text-anchor="middle">E</text>
+  <text x="190" y="40" text-anchor="middle">C</text>
+  <text x="320" y="40" text-anchor="middle">D</text>
+  <line x1="76" y1="35" x2="174" y2="35" marker-end="url(#m02)"/>
+  <line x1="206" y1="30" x2="304" y2="30" marker-end="url(#m02)"/>
+  <text class="lbl" x="255" y="21" text-anchor="middle">F</text>
+  <line x1="206" y1="42" x2="304" y2="42" marker-end="url(#m02)"/>
+  <text class="lbl" x="255" y="60" text-anchor="middle">G</text>
+</svg>
+</figure>
+
+<p>は、Fc = Gc となる対象 c ∈ C と、Ff = Gf となる射 f からなる C の部分圏である。定理3.5.11 を適用すると、Cat と CAT がすべての小さな極限を持つことが従う。<span class="qed">□</span></p>
+
+<h2>例3.6.7 — 要素の圏は引き戻しである</h2>
+
+<p>任意の関手 F : C → Set について、CAT における C → Set ← Set<sub>∗</sub>、すなわち F と台集合関手 U : Set<sub>∗</sub> → Set の引き戻しは、Fc = X となる対 c ∈ C と (X, x) ∈ Set<sub>∗</sub> を対象とする圏である。射は、Ff = Ug となる対 f : c → c′ と g : (X, x) → (X′, x′) である。このデータをより手短に言い表すと、下の左の引き戻し</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 640 190" width="640" role="img" aria-label="左: ∫F → Set∗、∫F → C、C → Set、Set∗ → Set の引き戻しの四角形。右: (∫F)op → Set∗、(∫F)op → Cop、Cop → Set、Set∗ → Set の引き戻しの四角形">
+  <defs><marker id="m03" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="45" text-anchor="middle">∫F</text>
+  <text x="250" y="45" text-anchor="middle">Set<tspan dy="4" font-size="11">∗</tspan></text>
+  <text x="70" y="160" text-anchor="middle">C</text>
+  <text x="250" y="160" text-anchor="middle">Set</text>
+  <line x1="92" y1="40" x2="226" y2="40" marker-end="url(#m03)"/>
+  <line x1="70" y1="55" x2="70" y2="142" marker-end="url(#m03)"/>
+  <text class="lbl" x="58" y="103" text-anchor="end">Π</text>
+  <line x1="250" y1="55" x2="250" y2="142" marker-end="url(#m03)"/>
+  <text class="lbl" x="262" y="103" text-anchor="start">U</text>
+  <line x1="92" y1="155" x2="226" y2="155" marker-end="url(#m03)"/>
+  <text class="lbl" x="160" y="176" text-anchor="middle">F</text>
+  <path d="M96,66 L96,56 L106,56"/>
+
+  <text x="400" y="45" text-anchor="middle">(∫F)<tspan dy="-6" font-size="11">op</tspan></text>
+  <text x="580" y="45" text-anchor="middle">Set<tspan dy="4" font-size="11">∗</tspan></text>
+  <text x="400" y="160" text-anchor="middle">C<tspan dy="-6" font-size="11">op</tspan></text>
+  <text x="580" y="160" text-anchor="middle">Set</text>
+  <line x1="432" y1="40" x2="556" y2="40" marker-end="url(#m03)"/>
+  <line x1="400" y1="55" x2="400" y2="142" marker-end="url(#m03)"/>
+  <text class="lbl" x="388" y="103" text-anchor="end">Π<tspan dy="-6" font-size="11">op</tspan></text>
+  <line x1="580" y1="55" x2="580" y2="142" marker-end="url(#m03)"/>
+  <text class="lbl" x="592" y="103" text-anchor="start">U</text>
+  <line x1="422" y1="155" x2="556" y2="155" marker-end="url(#m03)"/>
+  <text class="lbl" x="490" y="176" text-anchor="middle">F</text>
+  <path d="M426,66 L426,56 L436,56"/>
+</svg>
+<figcaption>左は共変関手 F : C → Set の要素の圏、右は反変関手 F : C<sup>op</sup> → Set の要素の圏を与える引き戻し。</figcaption>
+</figure>
+
+<p>は F の要素の圏 ∫F である。右の同様の構成は、反変関手の要素の圏を定める。忘却関手 U : Set<sub>∗</sub> → Set は、集合の恒等関手の要素の圏からの射影であり、ある意味で普遍的な離散左ファイブレーションである。</p>
+
+<h2>Cat の余極限</h2>
+
+<p>小圏の圏は余完備でもある。Cat の余積の構成は簡単である。任意の圏は、その連結成分の余積として一意に表せる。補題3.5.16 により、押し出しを構成すれば十分である。しかし Cat の押し出しは、対応する極限の場合よりかなり複雑になりうる。</p>
+
+<h2>例3.6.8 — 押し出しとしての Bℕ と Bℤ</h2>
+
+<p>押し出し</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 300 190" width="300" role="img" aria-label="𝟙 ⊔ 𝟙 → 𝟚、𝟙 ⊔ 𝟙 → 𝟙、𝟚 → Bℕ、𝟙 → Bℕ の押し出しの四角形">
+  <defs><marker id="m04" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="45" text-anchor="middle">𝟙 ⊔ 𝟙</text>
+  <text x="240" y="45" text-anchor="middle">𝟚</text>
+  <text x="70" y="160" text-anchor="middle">𝟙</text>
+  <text x="240" y="160" text-anchor="middle">Bℕ</text>
+  <line x1="106" y1="40" x2="222" y2="40" marker-end="url(#m04)"/>
+  <line x1="70" y1="55" x2="70" y2="142" marker-end="url(#m04)"/>
+  <line x1="240" y1="55" x2="240" y2="142" marker-end="url(#m04)"/>
+  <line x1="86" y1="155" x2="216" y2="155" marker-end="url(#m04)"/>
+  <path d="M214,130 L214,140 L204,140"/>
+</svg>
+<figcaption>上の関手は 𝟚 の二つの対象 0, 1 を選び、左の関手は二つの対象を一点につぶす。</figcaption>
+</figure>
+
+<p>を計算するには、その普遍性を考えるのがよい。関手 Bℕ → C は、底点 C を持つ図式 𝟙 ← 𝟙 ⊔ 𝟙 → 𝟚 の下の錐に対応する。このデータは C の自己射 f、すなわち定義域と値域の対象が等しい C の射を定める。Bℕ を定めるとき、合成の自己射 f · f ⋯ f に関係を課さないように注意しなければならない。したがって Bℕ は、対象一つと非恒等射一つで生成される自由な圏でなければならない。1 対象圏はモノイドと同一視できることを思い出すと、Bℕ はよく知られたものである。それは加法のもとでの自然数のモノイド ℕ であり、これが記法の由来である。</p>
+
+<p>同様に、加法のもとでの整数の群 ℤ は、押し出し</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 300 190" width="300" role="img" aria-label="𝟙 ⊔ 𝟙 → 𝕀、𝟙 ⊔ 𝟙 → 𝟙、𝕀 → Bℤ、𝟙 → Bℤ の押し出しの四角形">
+  <defs><marker id="m05" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="45" text-anchor="middle">𝟙 ⊔ 𝟙</text>
+  <text x="240" y="45" text-anchor="middle">𝕀</text>
+  <text x="70" y="160" text-anchor="middle">𝟙</text>
+  <text x="240" y="160" text-anchor="middle">Bℤ</text>
+  <line x1="106" y1="40" x2="222" y2="40" marker-end="url(#m05)"/>
+  <line x1="70" y1="55" x2="70" y2="142" marker-end="url(#m05)"/>
+  <line x1="240" y1="55" x2="240" y2="142" marker-end="url(#m05)"/>
+  <line x1="86" y1="155" x2="216" y2="155" marker-end="url(#m05)"/>
+  <path d="M214,130 L214,140 L204,140"/>
+</svg>
+</figure>
+
+<p>として構成できる。ここでは自由な（walking）矢印 𝟚 を、自由な（walking）同型射 𝕀 に置き換えた。𝕀 は対象二つと、逆向きの非恒等射二つを持ち、二つの射は互いに逆な同型射である。</p>
+
+<p>Cat の余完備性の証明は系4.5.15 に延期する。そこでは、圏の任意の図式の余極限の明示的な構成を与える一般的な結果の特別な場合として導く。おおまかな考えは、圏の圏を、余極限がより理解しやすい大きな圏に埋め込み、その大きな圏の余極限を Cat に「反映」させることである。</p>
+
+<h2>注意3.6.9 — CAT は余完備でない</h2>
+
+<p>対照的に、局所小圏の圏 CAT は余完備でない。CAT は Cat と同じように構成される余積を持つが、局所小圏のある種の小さな余極限は、固定した対象の対の間に集合に収まらないほど多くの射を生み出す。例として、集合に収まらないほど多くの対象を持ち、各対象が一つの非恒等自己射で生成される自己射を持ち、相異なる対象の間には射がない圏 E を考える。この圏は局所小である。hom 集合は空であるか、自然数のモノイド ℕ と同型だからである。次の押し出しを作る。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 300 190" width="300" role="img" aria-label="∐_{ob E} 𝟙 → E、∐_{ob E} 𝟙 → 𝟙、E → P、𝟙 → P の押し出しの四角形">
+  <defs><marker id="m06" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="45" text-anchor="middle">∐<tspan dy="4" font-size="11">ob E</tspan><tspan dy="-4"> 𝟙</tspan></text>
+  <text x="240" y="45" text-anchor="middle">E</text>
+  <text x="70" y="160" text-anchor="middle">𝟙</text>
+  <text x="240" y="160" text-anchor="middle">P</text>
+  <line x1="112" y1="40" x2="222" y2="40" marker-end="url(#m06)"/>
+  <line x1="70" y1="55" x2="70" y2="142" marker-end="url(#m06)"/>
+  <line x1="240" y1="55" x2="240" y2="142" marker-end="url(#m06)"/>
+  <line x1="86" y1="155" x2="216" y2="155" marker-end="url(#m06)"/>
+  <path d="M214,130 L214,140 L204,140"/>
+</svg>
+</figure>
+
+<p>この押し出しは E のすべての対象を一つの対象につぶす。この対象は E の各対象ごとに相異なる非恒等自己射を持ち、さらにそれらの自己射の有限個の合成もすべて持つ。E は集合に収まらないほど多くの対象を持つので、P は局所小でない。実際、CAT はこのコスパンの押し出しを含まない。</p>
+
+<h2>完備性と余完備性は同値不変である</h2>
+
+<p>最後の例の類を考える前に、圏の完備性と余完備性が同値不変であることに注意する。特に、前順序集合が完備かつ余完備であることと、その骨格である poset が完備かつ余完備であることは同値である。</p>
+
+<h2>命題3.6.10 — poset の完備性と完備束</h2>
+
+<div class="thm"><b>命題3.6.10.</b> poset P が圏として完備かつ余完備であることと、P が完備束であること、すなわち任意の部分集合 A ⊂ P が下限（最大下界）と上限（最小上界）を両方持つことは同値である。</div>
+
+<p><span class="proof-head">証明.</span> 任意の poset または前順序集合において、図式の極限はその対象の下限であり、図式の余極限はその対象の上限である。図式に射があるかどうかは関係ない。前順序集合ではすべての図式が可換だからである。特に、定義域を共有する射の任意の集まりは、その値域で添字づけられた対象を持つ任意の図式の上の錐を定める。<span class="qed">□</span></p>
+
+<h2>極限と余極限は何の役に立つか</h2>
+
+<p>ここまでの準備のもとで、これらの極限と余極限はいったい何の役に立つのかと問うのは自然である。少数の単純な極限の構成の一つの用途は、一般の圏の内部で同値関係の概念を定義することである。単純な余極限と組み合わせると、一般の射をその像を通して分解することの圏論的な類似物が定義できる。他の重要な応用は §4.7 にあり、そこでは極限と余極限を使って関手を定義する。</p>
+
+<h2>例3.6.11 — 核対・同値関係・像分解</h2>
+
+<p>有限極限と有限余極限を持つ任意の圏において、任意の射 f : X → Y の、その像を通した分解を構成できる。これは集合の間の関数の像分解の一般化である。射 f : X → Y の核対とは、f の f 自身に沿った引き戻しである。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 300 190" width="300" role="img" aria-label="R → X (t)、R → X (s)、X → Y (f)、X → Y (f) の引き戻しの四角形">
+  <defs><marker id="m07" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="45" text-anchor="middle">R</text>
+  <text x="240" y="45" text-anchor="middle">X</text>
+  <text x="70" y="160" text-anchor="middle">X</text>
+  <text x="240" y="160" text-anchor="middle">Y</text>
+  <line x1="86" y1="40" x2="222" y2="40" marker-end="url(#m07)"/>
+  <text class="lbl" x="155" y="31" text-anchor="middle">t</text>
+  <line x1="70" y1="55" x2="70" y2="142" marker-end="url(#m07)"/>
+  <text class="lbl" x="58" y="103" text-anchor="end">s</text>
+  <line x1="240" y1="55" x2="240" y2="142" marker-end="url(#m07)"/>
+  <text class="lbl" x="252" y="103" text-anchor="start">f</text>
+  <line x1="86" y1="155" x2="222" y2="155" marker-end="url(#m07)"/>
+  <text class="lbl" x="155" y="176" text-anchor="middle">f</text>
+  <path d="M96,66 L96,56 L106,56"/>
+</svg>
+</figure>
+
+<p>これらの射はモノ射 (s, t) : R ↣ X × X を定めるので、対象 R はつねに積 X × X の部分対象である。<sup>19</sup> 核対は X の上の関係を定め、それは X の一般化された要素の上の関係を誘導する。X の一般化された要素の対 x, x′ : Z ⇉ X は、fx = fx′ のときちょうど同一視される。<sup>20</sup></p>
+
+<p class="fn"><sup>19</sup> 値域 c を持つモノ射は対象 c の部分対象を定める。定義4.7.8 を参照。</p>
+
+<p class="fn"><sup>20</sup> Barry Fawcett はこの種の構成が至るところにあることを認めて、「圏論はこう教える。A について学ぶには、A から出る［または A に入る］射の対を調べよ」と書いている [Faw86]。</p>
+
+<p>核対が定める部分対象は、次の圏論的な意味で、つねに同値関係である。</p>
+
+<p>(i) 反射律の射 ρ がある。ρ : X → R は s と t の両方の切断であり、すなわち対角射の分解</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 340 160" width="340" role="img" aria-label="X → X × X は (id, id)。X → R は ρ。R → X × X は (s, t)">
+  <defs><marker id="m08" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="50" y="45" text-anchor="middle">X</text>
+  <text x="290" y="45" text-anchor="middle">X × X</text>
+  <text x="170" y="140" text-anchor="middle">R</text>
+  <line x1="66" y1="40" x2="252" y2="40" marker-end="url(#m08)"/>
+  <text class="lbl" x="160" y="30" text-anchor="middle">(id<tspan dy="3" font-size="10.5">X</tspan><tspan dy="-3">, id</tspan><tspan dy="3" font-size="10.5">X</tspan><tspan dy="-3">)</tspan></text>
+  <line class="dashed" x1="62" y1="54" x2="156" y2="126" marker-end="url(#m08)"/>
+  <text class="lbl" x="98" y="104" text-anchor="end">ρ</text>
+  <line x1="186" y1="126" x2="278" y2="54" marker-end="url(#m08)"/>
+  <text class="lbl" x="246" y="104" text-anchor="start">(s, t)</text>
+</svg>
+</figure>
+
+<p>を定める。すなわち sρ = id<sub>X</sub> = tρ である。</p>
+
+<p>(ii) 対称律の射 σ がある。σ : R → R は tσ = s かつ sσ = t を満たす。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 340 160" width="340" role="img" aria-label="R → R は σ。左の R → X × X は (t, s)、右の R → X × X は (s, t)">
+  <defs><marker id="m09" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="50" y="45" text-anchor="middle">R</text>
+  <text x="290" y="45" text-anchor="middle">R</text>
+  <text x="170" y="140" text-anchor="middle">X × X</text>
+  <line x1="66" y1="40" x2="272" y2="40" marker-end="url(#m09)"/>
+  <text class="lbl" x="170" y="30" text-anchor="middle">σ</text>
+  <line x1="62" y1="54" x2="146" y2="126" marker-end="url(#m09)"/>
+  <text class="lbl" x="96" y="104" text-anchor="end">(t, s)</text>
+  <line x1="278" y1="54" x2="196" y2="126" marker-end="url(#m09)"/>
+  <text class="lbl" x="246" y="104" text-anchor="start">(s, t)</text>
+</svg>
+</figure>
+
+<p>(iii) 推移律の射 τ がある。τ の定義域は、t の s に沿った引き戻しである。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 320 190" width="320" role="img" aria-label="R ×_X R → R (s̃)、R ×_X R → R (t̃)、R → X (t)、R → X (s) の引き戻しの四角形">
+  <defs><marker id="m10" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="45" text-anchor="middle">R ×<tspan dy="4" font-size="11">X</tspan><tspan dy="-4"> R</tspan></text>
+  <text x="260" y="45" text-anchor="middle">R</text>
+  <text x="70" y="160" text-anchor="middle">R</text>
+  <text x="260" y="160" text-anchor="middle">X</text>
+  <line x1="114" y1="40" x2="242" y2="40" marker-end="url(#m10)"/>
+  <text class="lbl" x="178" y="31" text-anchor="middle">s̃</text>
+  <line x1="70" y1="55" x2="70" y2="142" marker-end="url(#m10)"/>
+  <text class="lbl" x="58" y="103" text-anchor="end">t̃</text>
+  <line x1="260" y1="55" x2="260" y2="142" marker-end="url(#m10)"/>
+  <text class="lbl" x="272" y="103" text-anchor="start">t</text>
+  <line x1="86" y1="155" x2="242" y2="155" marker-end="url(#m10)"/>
+  <text class="lbl" x="165" y="176" text-anchor="middle">s</text>
+  <path d="M96,66 L96,56 L106,56"/>
+</svg>
+</figure>
+
+<p>この図式は、R を定める引き戻しの上の錐を定める。fs = ft と上の四角形の可換性から f s s̃ = f t s̃ = f s t̃ = f t t̃ だからである。したがって射 τ が誘導される。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 340 210" width="340" role="img" aria-label="R ×_X R → X は s s̃ と t t̃。R → X は s と t。R ×_X R → R は τ">
+  <defs><marker id="m11" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="45" text-anchor="middle">R ×<tspan dy="4" font-size="11">X</tspan><tspan dy="-4"> R</tspan></text>
+  <text x="300" y="45" text-anchor="middle">X</text>
+  <text x="60" y="190" text-anchor="middle">X</text>
+  <text x="180" y="125" text-anchor="middle">R</text>
+  <line x1="106" y1="40" x2="282" y2="40" marker-end="url(#m11)"/>
+  <text class="lbl" x="194" y="30" text-anchor="middle">s s̃</text>
+  <line x1="60" y1="55" x2="60" y2="172" marker-end="url(#m11)"/>
+  <text class="lbl" x="48" y="118" text-anchor="end">t t̃</text>
+  <line class="dashed" x1="82" y1="56" x2="166" y2="112" marker-end="url(#m11)"/>
+  <text class="lbl" x="134" y="76" text-anchor="start">τ</text>
+  <line x1="194" y1="112" x2="286" y2="52" marker-end="url(#m11)"/>
+  <text class="lbl" x="250" y="92" text-anchor="start">s</text>
+  <line x1="166" y1="134" x2="80" y2="184" marker-end="url(#m11)"/>
+  <text class="lbl" x="130" y="176" text-anchor="start">t</text>
+</svg>
+</figure>
+
+<p>τ は sτ = s s̃ かつ tτ = t t̃ を満たす。</p>
+
+<p>有限極限を持つ圏 C における同値関係とは、部分対象 (s, t) : R ↣ X × X に、(i)、(ii)、(iii) の図式に示した仕方で射 s, t と可換になる射 ρ, σ, τ を備えたものである。同値関係の射 s, t : R ⇉ X の余等化子が存在するとき、それは商対象 e : X ↠ X/R を定める。Set では X/R は X の要素の R 同値類の集合である。核対として生じる同値関係については、一意な分解</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 380 170" width="380" role="img" aria-label="R ⇉ X (s, t)、X → X/R (e)、X → Y (f)、X/R → Y (m)">
+  <defs><marker id="m12" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="50" y="45" text-anchor="middle">R</text>
+  <text x="170" y="45" text-anchor="middle">X</text>
+  <text x="310" y="45" text-anchor="middle">X/R</text>
+  <text x="310" y="150" text-anchor="middle">Y</text>
+  <line x1="66" y1="34" x2="154" y2="34" marker-end="url(#m12)"/>
+  <text class="lbl" x="110" y="25" text-anchor="middle">s</text>
+  <line x1="66" y1="46" x2="154" y2="46" marker-end="url(#m12)"/>
+  <text class="lbl" x="110" y="64" text-anchor="middle">t</text>
+  <line x1="186" y1="40" x2="282" y2="40" marker-end="url(#m12)"/>
+  <text class="lbl" x="234" y="30" text-anchor="middle">e</text>
+  <line x1="186" y1="54" x2="290" y2="134" marker-end="url(#m12)"/>
+  <text class="lbl" x="226" y="112" text-anchor="end">f</text>
+  <line class="dashed" x1="310" y1="55" x2="310" y2="132" marker-end="url(#m12)"/>
+  <text class="lbl" x="322" y="98" text-anchor="start">m</text>
+</svg>
+</figure>
+
+<p>がある。C が Grothendieck トポス（§E.4）やより一般に正則圏であるような良い状況では、射 m はモノ射であり、この分解が射 f の像分解を定める。モノ射 X/R ↣ Y は像 X/R を Y の部分対象として同定する。</p>
+
+<h2>節末問題</h2>
+
+<p class="note">原文は英語。以下は和訳・言い換え。</p>
+
+<ul>
+  <li><b>3.6.i</b> — 群 G を 1 対象圏 BG とみなす。図式 X : BG → Set の余極限を、例3.2.10 で極限について行ったように、群論の言葉で記述せよ。</li>
+  <li><b>3.6.ii</b> — 任意の小図式 F : C → Set の余極限が、F の要素の圏の連結成分の集合 π<sub>0</sub>(∫F) と同型であることを証明せよ。余極限錐は何か。</li>
+  <li><b>3.6.iii</b> — 演習1.6.iii より、集合と部分関数の圏 Set<sub>∂</sub> は零対象を持つ。
+    <ul>
+      <li>(i) 集合と部分関数の圏における二つの対象 A と B の二項余積 A ∨ B の公式を与えよ。</li>
+      <li>(ii) 集合と部分関数の圏における二つの対象 A と B の二項積 A × B の公式を与えよ。</li>
+      <li>(iii) 単位行列は、余積から積への標準的な写像 I : A ∨ B → A × B を定める。その成分は恒等写像か零写像である。注意3.1.27 を参照。スマッシュ積 A ∧ B は、この写像の、零対象への一意な写像に沿った押し出しとして定義される。
+        <figure class="cd">
+        <svg class="cd" viewBox="0 0 300 190" width="300" role="img" aria-label="A ∨ B → A × B (I)、A ∨ B → 0、A × B → A ∧ B、0 → A ∧ B の押し出しの四角形">
+          <defs><marker id="m13" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+          <text x="70" y="45" text-anchor="middle">A ∨ B</text>
+          <text x="240" y="45" text-anchor="middle">A × B</text>
+          <text x="70" y="160" text-anchor="middle">0</text>
+          <text x="240" y="160" text-anchor="middle">A ∧ B</text>
+          <line x1="104" y1="40" x2="206" y2="40" marker-end="url(#m13)"/>
+          <text class="lbl" x="155" y="31" text-anchor="middle">I</text>
+          <line x1="70" y1="55" x2="70" y2="142" marker-end="url(#m13)"/>
+          <line x1="240" y1="55" x2="240" y2="142" marker-end="url(#m13)"/>
+          <line x1="86" y1="155" x2="206" y2="155" marker-end="url(#m13)"/>
+          <path d="M214,130 L214,140 L204,140"/>
+        </svg>
+        </figure>
+        集合と部分関数の圏における A ∧ B の公式を与えよ。</li>
+    </ul>
+  </li>
+  <li><b>3.6.iv</b> — クイバー（quiver）とは、二つの対象 A, V と平行な射の対 s, t : A ⇉ V を持つ圏から Set への関手である。二つのそのような関手の間の自然変換がクイバーの準同型である。したがってクイバーの圏 Quiver は、平行対の圏から Set への共変（または反変）関手の圏と同値である。
+    <ul>
+      <li>(i) クイバーの圏 Quiver が完備かつ余完備であることを証明し、その極限と余極限の構成法を説明せよ。</li>
+      <li>(ii) 各頂点に指定された自己辺を持つ反射的クイバーの圏 rQuiver も、同じ理由で完備かつ余完備である。自由な（walking）矢印のそれ自身との積を Quiver と rQuiver の両方で計算せよ。</li>
+      <li>(iii) グラフの圏 Graph が完備でも余完備でもないことを示す明示的な例を見つけよ。自由な（walking）辺のそれ自身との積を計算するか、そのような積が存在しないことを論じよ。</li>
+    </ul>
+  </li>
+  <li><b>3.6.v</b> — 二重圏（double category）とは Cat における内部圏であり、その基本データは圏と関手の図式
+    <figure class="cd">
+    <svg class="cd" viewBox="0 0 520 80" width="520" role="img" aria-label="C₁ ×_{C₀} C₁ → C₁ (∘)。C₁ ⇉ C₀ (dom, cod)。C₀ → C₁ (id)">
+      <defs><marker id="m14" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+      <text x="90" y="45" text-anchor="middle">C<tspan dy="4" font-size="11">1</tspan><tspan dy="-4"> ×</tspan><tspan dy="4" font-size="11">C₀</tspan><tspan dy="-4"> C</tspan><tspan dy="4" font-size="11">1</tspan></text>
+      <text x="280" y="45" text-anchor="middle">C<tspan dy="4" font-size="11">1</tspan></text>
+      <text x="440" y="45" text-anchor="middle">C<tspan dy="4" font-size="11">0</tspan></text>
+      <line x1="150" y1="40" x2="258" y2="40" marker-end="url(#m14)"/>
+      <text class="lbl" x="204" y="31" text-anchor="middle">∘</text>
+      <line x1="300" y1="28" x2="420" y2="28" marker-end="url(#m14)"/>
+      <text class="lbl" x="360" y="19" text-anchor="middle">dom</text>
+      <line x1="420" y1="40" x2="300" y2="40" marker-end="url(#m14)"/>
+      <text class="lbl" x="360" y="53" text-anchor="middle">id</text>
+      <line x1="300" y1="52" x2="420" y2="52" marker-end="url(#m14)"/>
+      <text class="lbl" x="360" y="70" text-anchor="middle">cod</text>
+    </svg>
+    <figcaption>(3.6.12)</figcaption>
+    </figure>
+    で与えられる。演習3.2.ii を参照。この定義を、次のものを含むより初等的なデータと操作に展開せよ。
+    <ul>
+      <li>対象と「水平射」。C<sub>0</sub> の対象と射</li>
+      <li>「垂直射」と「正方形」。C<sub>1</sub> の対象と射</li>
+    </ul>
+    これらは、圏 C<sub>0</sub> と C<sub>1</sub> の内部で定義される定義域・値域・恒等射・合成と、図式 (3.6.12) に現れる関手によって定義される定義域・値域・恒等射・合成を備えている。<sup>21</sup></li>
+  <li><b>3.6.vi</b> — 小圏 J について、Cat における押し出し
+    <figure class="cd">
+    <svg class="cd" viewBox="0 0 640 190" width="640" role="img" aria-label="左: J → J × 𝟚 (i₀)、J → 𝟙、J × 𝟚 → J◁、𝟙 → J◁ (s) の押し出し。右: J → J × 𝟚 (i₁)、J → 𝟙、J × 𝟚 → J▷、𝟙 → J▷ (n) の押し出し">
+      <defs><marker id="m15" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+      <text x="70" y="45" text-anchor="middle">J</text>
+      <text x="250" y="45" text-anchor="middle">J × 𝟚</text>
+      <text x="70" y="160" text-anchor="middle">𝟙</text>
+      <text x="250" y="160" text-anchor="middle">J<tspan dy="-6" font-size="11">◁</tspan></text>
+      <line x1="86" y1="40" x2="214" y2="40" marker-end="url(#m15)"/>
+      <text class="lbl" x="150" y="31" text-anchor="middle">i<tspan dy="3" font-size="10.5">0</tspan></text>
+      <line x1="70" y1="55" x2="70" y2="142" marker-end="url(#m15)"/>
+      <line x1="250" y1="55" x2="250" y2="142" marker-end="url(#m15)"/>
+      <line x1="86" y1="155" x2="226" y2="155" marker-end="url(#m15)"/>
+      <text class="lbl" x="156" y="176" text-anchor="middle">s</text>
+      <path d="M224,130 L224,140 L214,140"/>
+
+      <text x="400" y="45" text-anchor="middle">J</text>
+      <text x="580" y="45" text-anchor="middle">J × 𝟚</text>
+      <text x="400" y="160" text-anchor="middle">𝟙</text>
+      <text x="580" y="160" text-anchor="middle">J<tspan dy="-6" font-size="11">▷</tspan></text>
+      <line x1="416" y1="40" x2="544" y2="40" marker-end="url(#m15)"/>
+      <text class="lbl" x="480" y="31" text-anchor="middle">i<tspan dy="3" font-size="10.5">1</tspan></text>
+      <line x1="400" y1="55" x2="400" y2="142" marker-end="url(#m15)"/>
+      <line x1="580" y1="55" x2="580" y2="142" marker-end="url(#m15)"/>
+      <line x1="416" y1="155" x2="556" y2="155" marker-end="url(#m15)"/>
+      <text class="lbl" x="486" y="176" text-anchor="middle">n</text>
+      <path d="M554,130 L554,140 L544,140"/>
+    </svg>
+    </figure>
+    が、J 型の図式の上の錐と下の錐の形を表す圏 J<sup>◁</sup> と J<sup>▷</sup> を定めるように、関手の対 i<sub>0</sub>, i<sub>1</sub> : J ⇉ J × 𝟚 を定義せよ。さらに、関手 s と n が定める対象が、それぞれ J<sup>◁</sup> の始対象と J<sup>▷</sup> の終対象であることを示せ。注意3.1.8 にこれらの圏の非形式的な記述がある。</li>
+  <li><b>3.6.vii</b> — k が n を割り切るとき、かつそのときに限り k ≤ n とする順序関係を入れた自然数の poset における極限と余極限を記述せよ。</li>
+  <li><b>3.6.viii</b> — 有限集合と単射の圏から位相空間の圏への反変関手 PConf<sub>•</sub>(X) : Fin<sub>mono</sub><sup>op</sup> → Top で、n 要素の集合を例3.6.4 で構成した空間 PConf<sub>n</sub>(X) に送るものを定義せよ。この関手が、n 要素の集合を空間 Conf<sub>n</sub>(X) に送る同様の関手を誘導しない理由を説明せよ。</li>
+  <li><b>3.6.ix</b> — [Gro58] に従い、ファイバー空間（fiber space）p : E → B を Top の射と定める。ファイバー空間の写像は可換な四角形である。したがってファイバー空間の圏は図式圏 Top<sup>𝟚</sup> と同型である。B 上のファイバー空間と、値域成分が恒等射であるような写像からなる、充満でない部分圏 Top/B ⊂ Top<sup>𝟚</sup> にも関心がある。次を証明せよ。
+    <ul>
+      <li>(i) ファイバー空間の写像
+        <figure class="cd">
+        <svg class="cd" viewBox="0 0 300 190" width="300" role="img" aria-label="E′ → E (g)、E′ → B′ (p′)、E → B (p)、B′ → B (f) の可換な四角形">
+          <defs><marker id="m16" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+          <text x="70" y="45" text-anchor="middle">E′</text>
+          <text x="240" y="45" text-anchor="middle">E</text>
+          <text x="70" y="160" text-anchor="middle">B′</text>
+          <text x="240" y="160" text-anchor="middle">B</text>
+          <line x1="88" y1="40" x2="222" y2="40" marker-end="url(#m16)"/>
+          <text class="lbl" x="155" y="31" text-anchor="middle">g</text>
+          <line x1="70" y1="55" x2="70" y2="142" marker-end="url(#m16)"/>
+          <text class="lbl" x="58" y="103" text-anchor="end">p′</text>
+          <line x1="240" y1="55" x2="240" y2="142" marker-end="url(#m16)"/>
+          <text class="lbl" x="252" y="103" text-anchor="start">p</text>
+          <line x1="88" y1="155" x2="222" y2="155" marker-end="url(#m16)"/>
+          <text class="lbl" x="155" y="176" text-anchor="middle">f</text>
+        </svg>
+        </figure>
+        は、(3.1.17) で定義した、点 b ∈ B′ 上のファイバーから、その像 f(b) ∈ B 上のファイバーへの標準的な写像を誘導する。</li>
+      <li>(ii) ファイバー空間の積のファイバーは、ファイバーの積である。</li>
+    </ul>
+    射影 π<sub>B</sub> : B × F → B は B 上の自明なファイバー空間を定める。この定義は任意の空間 F について意味を持つ。
+    <ul>
+      <li>(iii) 自明なファイバー空間 B × F → B のファイバーが F と同型であることを示せ。</li>
+      <li>(iv) B 上の二つの自明なファイバー空間（ファイバーは異なっていてよい）の間の Top/B における同型射を特徴づけよ。</li>
+      <li>(v) B 上のファイバー空間にその連続切断の集合を対応させる割り当てが関手 Π<sub>B</sub> : Top/B → Set を定めることを証明せよ。</li>
+      <li>(vi) 射が引き戻しの四角形であるような、ファイバー空間の充満でない部分圏 Top<sup>𝟚</sup><sub>pb</sub> を考える。ファイバー空間にその連続切断の集合を対応させる割り当てが関手 Π : (Top<sup>𝟚</sup><sub>pb</sub>)<sup>op</sup> → Set を定めることを証明せよ。</li>
+      <li>(vii) いま導入した「切断」関手たちの作用が、B 上のファイバー空間 p と q の間の写像 g、および f : B′ → B に沿った引き戻しに関して、どのように整合するかを記述せよ。</li>
+    </ul>
+  </li>
+</ul>
+
+<p class="fn"><sup>21</sup> この概念はもともと Ehresmann が [Ehr63] で定義した。図入りの初期の解説として [KS74] を参照。</p>
+
+</body>
+</html>
