@@ -1004,6 +1004,71 @@ theorem hasEqualizers_of_hasBinaryProducts_of_hasPullbacks [HasBinaryProducts C]
       exact getLimitCone F
   }
 
+theorem hasEqualizers_of_hasBinaryProducts_of_hasPullbacks' [HasBinaryProducts C] [HasPullbacks C] :
+    HasEqualizers C where
+  has_limit F := by
+    let A := F.obj .zero
+    let B := F.obj .one
+    let f : A ⟶ B := F.map .left
+    let g : A ⟶ B := F.map .right
+    let E := pullback (prod.lift f g) (prod.lift (𝟙 B) (𝟙 B))
+    let e : E ⟶ A := pullback.fst (prod.lift f g) (prod.lift (𝟙 B) (𝟙 B))
+    let l : E ⟶ B := pullback.snd (prod.lift f g) (prod.lift (𝟙 B) (𝟙 B))
+    have w : e ≫ prod.lift f g = l ≫ prod.lift (𝟙 B) (𝟙 B)
+      := pullback.condition (f := prod.lift f g) (g := prod.lift (𝟙 B) (𝟙 B))
+    refine {
+      exists_limit := Nonempty.intro <| {
+        cone := {
+          pt := E
+          π := {
+            app i := match i with
+              | .zero => e
+              | .one => l
+            naturality {i j} h := match h with
+              | .left => by
+                simp only [Functor.const_obj_obj, Functor.const_obj_map, Category.id_comp]
+                change l = e ≫ f
+                rw [<- prod.lift_fst f g, <- Category.assoc, w, Category.assoc, prod.lift_fst, Category.comp_id]
+              | .right => by
+                simp only [Functor.const_obj_obj, Functor.const_obj_map, Category.id_comp]
+                change l = e ≫ g
+                rw [<- prod.lift_snd f g, <- Category.assoc, w, Category.assoc, prod.lift_snd, Category.comp_id]
+              | .id i => by simp
+          }
+        }
+        isLimit := {
+          lift s := by
+            apply pullback.lift (s.π.app .zero) (s.π.app .one) ?_
+            simp only [Functor.const_obj_obj, prod.comp_lift]
+            apply prod.hom_ext
+            · rw [prod.lift_fst, prod.lift_fst, <- s.π.naturality .left]
+              simp only [Functor.const_obj_obj, Functor.const_obj_map, Category.id_comp]
+              rw [Category.comp_id]
+            · rw [prod.lift_snd, prod.lift_snd, <- s.π.naturality .right]
+              simp only [Functor.const_obj_obj, Functor.const_obj_map, Category.id_comp]
+              rw [Category.comp_id]
+          fac s i := by
+            simp only [Functor.const_obj_obj]
+            rcases i
+            · simp only [e]
+              rw [pullback.lift_fst]
+            · simp only [l]
+              rw [pullback.lift_snd]
+          uniq s m W := by
+            apply pullback.hom_ext
+            · rw [W .zero, pullback.lift_fst]
+            · rw [W .one, pullback.lift_snd]
+        }
+      }
+    }
+
+
+
+
+
+
+
+
 
 
 
