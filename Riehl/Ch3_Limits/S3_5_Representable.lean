@@ -626,10 +626,37 @@ noncomputable def buildIsLimit' {F : J ⥤ C} {c₁ : Fan F.obj}
       rfl
 
 
+-- 2 つの積と等化子があれば、F は極限を持つ
+#check hasLimit_of_equalizer_and_product
 
+theorem hasLimit_of_hasProducts_of_hasEqualizer {J : Type w} [SmallCategory J] {F : J ⥤ C}
+    [HasProduct F.obj] [HasProduct (fun f : Σ p : J × J, p.1 ⟶ p.2 => F.obj f.1.2)]
+    [HasEqualizers C] :
+    HasLimit F :=
+  HasLimit.mk ⟨_, HasLimitOfHasProductsOfHasEqualizers.buildIsLimit
+    (Pi.lift fun f => Pi.π F.obj f.1.1 ≫ F.map f.2) (Pi.lift fun f => Pi.π F.obj f.1.2)
+    (fun _ => Pi.lift_comp_π _ _) (fun _ => Pi.lift_comp_π _ _)
+    (limit.isLimit _) (limit.isLimit _) (limit.isLimit _)⟩
+
+-- 小さい積と等化子を持つ圏は、すべての小さい極限を持つ
 #check has_limits_of_hasEqualizers_and_products
+
 theorem has_limits_of_hasEqualizers_and_products' [HasProducts.{v} C] [HasEqualizers C] :
-    HasLimitsOfSize.{v, v} C := sorry
+    HasLimitsOfSize.{v, v} C where
+  has_limits_of_shape _ _ := {
+    has_limit F := hasLimit_of_hasProducts_of_hasEqualizer (F := F)
+  }
+
+-- 有限版：有限積と等化子を持つ圏は、すべての有限極限を持つ
+#check hasFiniteLimits_of_hasEqualizers_and_finite_products
+
+theorem hasFiniteLimits_of_hasFiniteProducts_of_hasEqualizers [HasFiniteProducts C]
+    [HasEqualizers C] : HasFiniteLimits C where
+  out J SJ FJ := by
+    obtain ⟨HJ, FJ⟩ := FJ
+    refine {
+      has_limit F := hasLimit_of_hasProducts_of_hasEqualizer (F := F)
+    }
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 補題3.5.15
@@ -962,13 +989,13 @@ noncomputable def isLimitForkOfPullbackDiag {A B E : C} [HasBinaryProduct B B] {
 def diagramIsoParallelPair' (F : WalkingParallelPair ⥤ C) :
     F ≅ parallelPair (F.map .left) (F.map .right) where
   hom := {
-    app i := by simp; exact 𝟙 (F.obj i)
+    app i := by simp only [parallelPair_functor_obj]; exact 𝟙 (F.obj i)
     naturality {i j} f := by
       rcases f with _ | _ | _ | _<;> simp
   }
 
   inv := {
-    app i := by simp; exact 𝟙 (F.obj i)
+    app i := by simp only [parallelPair_functor_obj]; exact 𝟙 (F.obj i)
     naturality {i j} f := by
       rcases f with _ | _ | _ | _<;> simp
   }
@@ -1092,7 +1119,26 @@ theorem finCategory'_iff (J : Type v) [SmallCategory J] :
 #check hasFiniteLimits_of_hasTerminal_and_pullbacks
 
 theorem hasFiniteLimits_of_hasTerminal_of_hasPullbacks [HasTerminal C] [HasPullbacks C] :
-    HasFiniteLimits C := sorry
+    HasFiniteLimits C := by
+  have := hasBinaryProducts_of_hasTerminal_and_pullbacks C
+  have := hasFiniteProducts_of_has_binary_and_terminal (C := C)
+  have := hasEqualizers_of_hasPullbacks_and_binary_products (C := C)
+  exact {
+    out J _ _ := {
+      has_limit F := by
+        let c₁ := getLimitCone (Discrete.functor F.obj)
+        let c₂ := getLimitCone (Discrete.functor fun f : Σ p : J × J, p.1 ⟶ p.2 => F.obj f.1.2)
+        let s : c₁.cone.pt ⟶ c₂.cone.pt :=
+          c₂.isLimit.lift (Fan.mk c₁.cone.pt fun f => c₁.cone.π.app ⟨f.1.1⟩ ≫ F.map f.2)
+        let t : c₁.cone.pt ⟶ c₂.cone.pt :=
+          c₂.isLimit.lift (Fan.mk c₁.cone.pt fun f => c₁.cone.π.app ⟨f.1.2⟩)
+        let e := getLimitCone (parallelPair s t)
+        exact HasLimit.mk ⟨_, HasLimitOfHasProductsOfHasEqualizers.buildIsLimit
+          (c₁ := c₁.cone) (c₂ := c₂.cone) s t
+          (fun f => c₂.isLimit.fac _ ⟨f⟩) (fun f => c₂.isLimit.fac _ ⟨f⟩)
+          c₁.isLimit c₂.isLimit e.isLimit⟩
+    }
+  }
 
 -- ╔═════════════════════════════════════════════════════════════════════════
 -- ║  節末問題

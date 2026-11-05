@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3.7 大きさの問題</title>
+<style>
+  :root {
+    --bg: #fdfcf9;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --accent: #8a4c14;
+    --line: #d8d3c8;
+    --box-bg: #f5f2ea;
+    --code-bg: #f0ede5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1e22;
+      --fg: #e4e1da;
+      --muted: #9aa2ab;
+      --accent: #e0a468;
+      --line: #3a3f46;
+      --box-bg: #24262b;
+      --code-bg: #2a2d33;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    line-height: 1.95;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.5rem; font-family: "Hiragino Sans", sans-serif; border-bottom: 2px solid var(--accent); padding-bottom: .4rem; }
+  h2 { font-size: 1.12rem; font-family: "Hiragino Sans", sans-serif; color: var(--accent); margin-top: 2.6rem; }
+  p { margin: .9rem 0; font-size: .97rem; }
+  li { font-size: .97rem; margin: .4rem 0; }
+  .note { color: var(--muted); font-size: .88em; }
+  .thm {
+    background: var(--box-bg);
+    border-left: 3px solid var(--accent);
+    padding: .7rem 1.1rem;
+    margin: 1.2rem 0;
+  }
+  .thm b { font-family: "Hiragino Sans", sans-serif; }
+  .proof-head { font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .qed { float: right; }
+  .fn { color: var(--muted); font-size: .88rem; border-top: 1px solid var(--line); padding-top: .5rem; }
+  .eq { text-align: center; margin: 1rem 0; }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
+  svg.cd path:not([fill]) { fill: none; stroke: currentColor; stroke-width: 1.1; }
+  svg.cd .dashed { stroke-dasharray: 5 4; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--box-bg); font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+</style>
+</head>
+
+<body>
+
+<h1>3.7 大きさの問題</h1>
+
+<p class="note">Emily Riehl, <i>Category Theory in Context</i> §3.7（pp.123–125）の内容を、個人学習のために日本語で書き直した解説。番号（補題3.7.1 など）は本と揃えてある。翻訳ではなく、同じ内容を自分の言葉で再構成したもの。</p>
+
+<h2>記号表</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>記号</th><th>型・意味</th></tr>
+  <tr><td>完備</td><td>圏が、小圏を定義域とするすべての図式の極限を持つこと（定義3.2.1）</td></tr>
+  <tr><td>id<sub>C</sub> : C → C</td><td>圏 C の恒等関手。C 全体を添字圏とする図式と見る</td></tr>
+  <tr><td>λ : Δℓ ⇒ id<sub>C</sub></td><td>頂点 ℓ を持つ id<sub>C</sub> 上の錐。脚は λ<sub>c</sub> : ℓ → c（c ∈ C）</td></tr>
+  <tr><td>弱始対象</td><td>すべての対象 c ∈ C へ少なくとも 1 本の射を持つ対象</td></tr>
+  <tr><td>始対象</td><td>すべての対象 c ∈ C へちょうど 1 本の射を持つ対象</td></tr>
+  <tr><td>mor C</td><td>小圏 C の射全体の集合</td></tr>
+  <tr><td>|X|</td><td>集合 X の濃度</td></tr>
+  <tr><td>κ, 2<sup>κ</sup></td><td>基数と、濃度 κ の集合の部分集合全体の濃度</td></tr>
+  <tr><td>A<sup>κ</sup></td><td>対象 A の κ 個の複製の積（冪、例3.5.4）</td></tr>
+  <tr><td>A ⋅ κ</td><td>対象 A の κ 個の複製の余積（余冪）</td></tr>
+  <tr><td>前順序</td><td>どの 2 対象の間にも射が高々 1 本しかない圏</td></tr>
+  <tr><td>𝒫(X)</td><td>集合 X の冪集合</td></tr>
+  <tr><td>∗</td><td>一点集合</td></tr>
+</table>
+</div>
+
+<h2>この節の問い</h2>
+
+<p>定義3.2.1 で、圏が完備であるとは、定義域が<b>小圏</b>であるような任意の図式の極限を持つことだった。この節は、なぜ添字圏の大きさをこう制限するのかを説明する。</p>
+
+<p>答えの要点は命題3.7.3 にある。添字圏の大きさを制限せずに極限を要求すると、それを満たす圏は、どの 2 対象の間にも射が高々 1 本しかない圏（前順序）に限られてしまう。その一方で、大きな図式でも極限を持つものはある。その準備として、まず恒等関手の極限を調べる。</p>
+
+<h2>補題3.7.1 — 恒等関手の極限と始対象</h2>
+
+<p>始対象は空な図式の<em>余</em>極限として定義されたものだった。少し意外なことに、始対象は恒等関手の<em>極限</em>としても特徴づけられる。恒等関手 id<sub>C</sub> : C → C は C 全体を添字圏とする図式なので、C が小圏でなければ、これは大きな図式の極限の例になる。</p>
+
+<p>id<sub>C</sub> 上の錐 λ : Δℓ ⇒ id<sub>C</sub> のデータは、頂点 ℓ ∈ C と、各対象 c ∈ C への脚 λ<sub>c</sub> : ℓ → c の族である。錐の条件は、図式 id<sub>C</sub> の各射 f : c → d、すなわち C の各射 f について f ∘ λ<sub>c</sub> = λ<sub>d</sub> が成り立つことである。頂点 ℓ もまた C の対象なので、ℓ 自身で添字づけられた脚 λ<sub>ℓ</sub> : ℓ → ℓ がある。</p>
+
+<div class="thm"><b>補題3.7.1.</b> 任意の圏 C について次が成り立つ。
+<ul>
+  <li>(i) 恒等関手上の任意の錐の頂点は、C の弱始対象である。すなわち、すべての対象 c ∈ C へ少なくとも 1 本の射を持つ。さらに、頂点の対象で添字づけられた錐の脚が恒等射ならば、その錐は極限錐であり、頂点は C の始対象である。</li>
+  <li>(ii) 恒等関手 id<sub>C</sub> : C → C が極限を持つことと、C が始対象を持つことは同値である。</li>
+</ul>
+</div>
+
+<p><span class="proof-head">証明.</span> まず (i) を示し、その結果を使って (ii) の順方向を示す。</p>
+
+<p><b>(i)</b> 錐 λ : Δℓ ⇒ id<sub>C</sub> を考える。各対象 c について脚 λ<sub>c</sub> : ℓ → c が ℓ から c への射なので、頂点 ℓ は弱始対象である。</p>
+
+<p>次に、λ<sub>ℓ</sub> = id<sub>ℓ</sub> と仮定して、λ<sub>c</sub> が ℓ から c への唯一の射であることを示す。任意の射 f : ℓ → c をとる。f は C の射なので、図式 id<sub>C</sub> の射 f : ℓ → c でもある。この射における錐の条件は、下の三角形が可換であること、すなわち f ∘ λ<sub>ℓ</sub> = λ<sub>c</sub> である。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 340 200" width="340" role="img" aria-label="頂点 ℓ から ℓ への脚 λℓ と c への脚 λc、図式の射 f : ℓ → c がなす三角形">
+  <defs><marker id="m1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="170" y="38" text-anchor="middle">ℓ</text>
+  <text x="60" y="172" text-anchor="middle">ℓ</text>
+  <text x="280" y="172" text-anchor="middle">c</text>
+  <line x1="160" y1="46" x2="70" y2="150" marker-end="url(#m1)"/>
+  <text class="lbl" x="100" y="96" text-anchor="end">λ<tspan baseline-shift="sub" font-size="70%">ℓ</tspan></text>
+  <line x1="180" y1="46" x2="270" y2="150" marker-end="url(#m1)"/>
+  <text class="lbl" x="240" y="96" text-anchor="start">λ<tspan baseline-shift="sub" font-size="70%">c</tspan></text>
+  <line x1="78" y1="166" x2="262" y2="166" marker-end="url(#m1)"/>
+  <text class="lbl" x="170" y="188" text-anchor="middle">f</text>
+</svg>
+<figcaption>上の ℓ は錐の頂点、下の ℓ と c は図式 id<sub>C</sub> の対象。下辺の f は図式の射</figcaption>
+</figure>
+
+<p>λ<sub>ℓ</sub> = id<sub>ℓ</sub> なら、この等式は f = λ<sub>c</sub> を意味する。したがって ℓ から c への射は λ<sub>c</sub> ただ 1 本であり、ℓ は始対象である。本文の (i) の証明はここまでである。錐 λ が極限錐であることは、(ii) の逆方向の証明で示す「始対象 i からの唯一の射たちがなす錐は極限錐である」を i = ℓ に当てはめれば従う。いま λ<sub>c</sub> は ℓ から c への唯一の射なので、λ はまさにその錐だからである。</p>
+
+<p><b>(ii) の順方向.</b> λ : Δℓ ⇒ id<sub>C</sub> が極限錐であると仮定する。(i) により、λ<sub>ℓ</sub> = id<sub>ℓ</sub> を示せばよい。上の三角形で f として脚 λ<sub>c</sub> 自身をとる。λ<sub>c</sub> を図式 id<sub>C</sub> の射 ℓ → c と見ると、錐の条件から</p>
+
+<p class="eq">λ<sub>c</sub> ∘ λ<sub>ℓ</sub> = λ<sub>c</sub>（すべての c ∈ C について）</p>
+
+<p>が得られる。この等式は、射 λ<sub>ℓ</sub> : ℓ → ℓ が錐 λ をそれ自身を通して分解していることを言っている。つまり、λ の各脚に λ<sub>ℓ</sub> を前から合成すると、再び λ の脚に戻る。恒等射 id<sub>ℓ</sub> も同じ性質を持つ。λ は極限錐なので、このような分解は一意であり、λ<sub>ℓ</sub> = id<sub>ℓ</sub> が結論される。</p>
+
+<p><b>(ii) の逆方向.</b> C が始対象 i を持つと仮定する。各対象 c について、i から c への唯一の射を ι<sub>c</sub> : i → c とおく。これらは id<sub>C</sub> 上の錐 ι : Δi ⇒ id<sub>C</sub> をなす。錐の条件 g ∘ ι<sub>c</sub> = ι<sub>d</sub>（g : c → d）は、両辺がともに i から d への射であり、そのような射は 1 本しかないことから成り立つ。同じ理由で、対象 i における成分 ι<sub>i</sub> : i → i は恒等射である。</p>
+
+<p>別の錐 λ : Δℓ ⇒ id<sub>C</sub> が与えられたとする。対象 i における脚 λ<sub>i</sub> : ℓ → i が、λ を ι を通して分解することを示す。すなわち、すべての c について ι<sub>c</sub> ∘ λ<sub>i</sub> = λ<sub>c</sub> を示す。錐 ι の脚 ι<sub>c</sub> : i → c は、C の射なので図式 id<sub>C</sub> の射でもある。したがって、この射における錐 λ の条件が、下の三角形の可換性 ι<sub>c</sub> ∘ λ<sub>i</sub> = λ<sub>c</sub> そのものである。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 340 200" width="340" role="img" aria-label="頂点 ℓ から i への脚 λi と c への脚 λc、図式の射 ιc : i → c がなす三角形">
+  <defs><marker id="m2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="170" y="38" text-anchor="middle">ℓ</text>
+  <text x="60" y="172" text-anchor="middle">i</text>
+  <text x="280" y="172" text-anchor="middle">c</text>
+  <line x1="160" y1="46" x2="70" y2="150" marker-end="url(#m2)"/>
+  <text class="lbl" x="100" y="96" text-anchor="end">λ<tspan baseline-shift="sub" font-size="70%">i</tspan></text>
+  <line x1="180" y1="46" x2="270" y2="150" marker-end="url(#m2)"/>
+  <text class="lbl" x="240" y="96" text-anchor="start">λ<tspan baseline-shift="sub" font-size="70%">c</tspan></text>
+  <line x1="74" y1="166" x2="262" y2="166" marker-end="url(#m2)"/>
+  <text class="lbl" x="170" y="188" text-anchor="middle">ι<tspan baseline-shift="sub" font-size="70%">c</tspan></text>
+</svg>
+<figcaption>ι<sub>c</sub> は錐 ι の脚であり、同時に図式 id<sub>C</sub> の射でもある</figcaption>
+</figure>
+
+<p>一意性を示す。射 h : ℓ → i が λ を ι を通して分解するとき、すべての c について ι<sub>c</sub> ∘ h = λ<sub>c</sub> である。c = i の成分を見ると、ι<sub>i</sub> = id<sub>i</sub> なので h = λ<sub>i</sub> となる。したがって λ<sub>i</sub> は λ を ι を通して分解する唯一の射であり、ι は極限錐、始対象 i は恒等関手の極限である。<span class="qed">□</span></p>
+
+<p>完備性の定義には大きさの制限が入っているので、完備な（大きな）圏が始対象を持つとは限らない。恒等関手 id<sub>C</sub> の添字圏は C 自身であり、C が小圏でなければ、完備性はこの図式の極限を保証しないからである。</p>
+
+<h2>定義3.7.2 — 小圏の濃度</h2>
+
+<p>では、C が小圏なら完備性から始対象が得られるかというと、完備な小圏はめったにない。その理由を述べるために、小圏の大きさを正確に定義する。</p>
+
+<div class="thm"><b>定義3.7.2.</b> 小圏の<b>濃度</b>（cardinality）とは、その射全体の集合の濃度である。</div>
+
+<p>小さな図式の濃度とは、その添字圏の濃度である。次の結果は、圏が持つ極限や余極限が、たいてい自分より小さい図式のものに限られる理由を説明する。</p>
+
+<h2>命題3.7.3（Freyd） — 大きな積を持つ小圏は前順序である</h2>
+
+<div class="thm"><b>命題3.7.3（Freyd）.</b> 自身の濃度と同じ大きさの対象の族の積を持つ圏は、前順序である。</div>
+
+<p>濃度は定義3.7.2 で小圏についてだけ定義されたので、この命題は小圏についての主張である。前順序とは、どの 2 対象の間にも射が高々 1 本しかない圏のことだった。</p>
+
+<p><span class="proof-head">証明.</span> 小圏 C の射全体の集合の濃度を κ とする。C が前順序でないと仮定して矛盾を導く。このとき、平行な射の対 f, g : B ⇉ A で f ≠ g となるものがある。</p>
+
+<p>対象 A の κ 個の複製の積、すなわち冪 A<sup>κ</sup> を考える（例3.5.4）。積の普遍性により、射 B → A<sup>κ</sup> を与えることは、κ で添字づけられた射 B → A の族、すなわち各成分を与えることと同じであり、成分の族が異なれば射も異なる。そこで κ の各部分集合 S について、S に属する添字の成分を f、それ以外の添字の成分を g とする射 B → A<sup>κ</sup> をとる。f ≠ g なので、異なる部分集合からは異なる射が得られる。こうして、成分がそれぞれ f または g であるような互いに異なる射 B → A<sup>κ</sup> が 2<sup>κ</sup> 本得られる。Cantor の対角線論法により 2<sup>κ</sup> &gt; κ なので、</p>
+
+<p class="eq">|Hom(B, A<sup>κ</sup>)| ≥ 2<sup>κ</sup> &gt; κ = |mor C|</p>
+
+<p>となる。ところが Hom(B, A<sup>κ</sup>) は mor C の部分集合なので、その濃度は |mor C| 以下でなければならない。これは矛盾である。<span class="qed">□</span></p>
+
+<p>C が代わりに濃度 κ の余冪 A ⋅ κ を持つなら、双対の構成で同様の矛盾が得られる。すなわち、射 A ⋅ κ → B は κ で添字づけられた射 A → B の族と同じことであり、平行な射 f ≠ g : A ⇉ B があれば、それが 2<sup>κ</sup> 本の異なる射を与える。</p>
+
+<p>一方、命題3.6.10 が示すように、前順序であれば、大きさを制限しないすべての極限や余極限を持つことはありうる。poset P が圏としてこの性質を持つことと、P が完備束であることは同値である。</p>
+
+<p>命題3.7.3 の証明から分かるように、2 本の異なる平行な射を持つ圏では、大きな極限や大きな余極限は一般には存在しない。それでも、補題3.7.1 とその双対が示すように、特定の大きな図式は極限や余極限を持ちうる。最後に、集合の大きな族の例を 2 つ考える。一方は積を持ち、他方は持たない。</p>
+
+<h2>例3.7.4 — Set における大きな積</h2>
+
+<div class="thm"><b>例3.7.4.</b> Set では、集合の大きな族のうち積を持つものもあれば、持たないものもある。</div>
+
+<p><b>すべての集合の積は存在する.</b> すべての集合を対象とする離散図式を考える。この図式の上の錐は、頂点 X と、すべての集合 Y への関数 X → Y の族である。この図式には空集合 ∅ が現れるので、錐は脚 X → ∅ を持つ。値域が空集合である関数は、定義域も空集合のときにしか存在しない。したがって、この図式の上の錐の頂点は必ず空集合である。空集合は Set の始対象なので、頂点 ∅ を持つ錐は 1 つしかない。各脚が空関数 ∅ → Y で決まるからである。こうしてこの図式の上の錐はただ 1 つであり、その錐は自分自身を通して恒等射 id<sub>∅</sub> によって一意に分解するので、極限錐である。つまり、すべての集合の積は ∅ である。</p>
+
+<p><b>空でないすべての集合の積は存在しない.</b> 背理法で示す。空でないすべての集合からなる離散図式の積の錐があり、頂点を P、脚を π<sub>X</sub> : P → X（X は空でない集合）とする。冪集合 𝒫(P) は ∅ を要素に持つので空でなく、この図式に現れる。そこで脚 π<sub>𝒫(P)</sub> : P → 𝒫(P) を考える。Cantor の対角線論法により、関数 P → 𝒫(P) は全射でない。実際、D = { p ∈ P | p ∉ π<sub>𝒫(P)</sub>(p) } は像に入らない。したがって、π<sub>𝒫(P)</sub> の像に入らない要素 d ∈ 𝒫(P) が少なくとも 1 つある。</p>
+
+<p>𝒫(P) では要素 d を選び、図式に現れる他の空でない集合からは、大域選択公理を使ってそれぞれ要素を 1 つずつ選ぶ。ここで通常の選択公理でなく大域選択公理を使うのは、空でない集合全体は集合でなく類であり、その各要素から一斉に選ぶ必要があるからである。選んだ要素たちは、一点集合 ∗ を頂点とし、各集合 X への脚 ∗ → X がその選んだ要素を指す錐を定める。この錐が π を通して分解するなら、ある関数 u : ∗ → P があって、π<sub>𝒫(P)</sub>(u(∗)) = d とならなければならない。しかし d は π<sub>𝒫(P)</sub> の像に入らないので、そのような u はない。これは π が積の錐であることに矛盾する。</p>
+
+<h2>節末問題</h2>
+
+<ul>
+  <li><b>3.7.i</b> — 大きさの制限なしにすべての極限を保存するが、始対象を保存しない関手が存在する（定理4.5.2 と、それに続く多くの例を参照）。この事実が補題3.7.1 と矛盾しない理由を説明せよ。</li>
+</ul>
+
+</body>
+</html>

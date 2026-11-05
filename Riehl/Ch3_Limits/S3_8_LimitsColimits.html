@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3.8 極限と余極限の相互作用</title>
+<style>
+  :root {
+    --bg: #fdfcf9;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --accent: #8a4c14;
+    --line: #d8d3c8;
+    --box-bg: #f5f2ea;
+    --code-bg: #f0ede5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1e22;
+      --fg: #e4e1da;
+      --muted: #9aa2ab;
+      --accent: #e0a468;
+      --line: #3a3f46;
+      --box-bg: #24262b;
+      --code-bg: #2a2d33;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    line-height: 1.95;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.5rem; font-family: "Hiragino Sans", sans-serif; border-bottom: 2px solid var(--accent); padding-bottom: .4rem; }
+  h2 { font-size: 1.12rem; font-family: "Hiragino Sans", sans-serif; color: var(--accent); margin-top: 2.6rem; }
+  p { margin: .9rem 0; font-size: .97rem; }
+  li { font-size: .97rem; margin: .4rem 0; }
+  .note { color: var(--muted); font-size: .88em; }
+  .thm {
+    background: var(--box-bg);
+    border-left: 3px solid var(--accent);
+    padding: .7rem 1.1rem;
+    margin: 1.2rem 0;
+  }
+  .thm b { font-family: "Hiragino Sans", sans-serif; }
+  .proof-head { font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .qed { float: right; }
+  .fn { color: var(--muted); font-size: .88rem; border-top: 1px solid var(--line); padding-top: .5rem; }
+  .eq { text-align: center; margin: 1rem 0; }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
+  svg.cd path:not([fill]) { fill: none; stroke: currentColor; stroke-width: 1.1; }
+  svg.cd .dashed { stroke-dasharray: 5 4; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--box-bg); font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+</style>
+</head>
+
+<body>
+
+<h1>3.8 極限と余極限の相互作用</h1>
+
+<p class="note">Emily Riehl, <i>Category Theory in Context</i> §3.8（pp.125–129）の内容を、個人学習のために日本語で書き直した解説。番号（定理3.8.1 など）は本と揃えてある。翻訳ではなく、同じ内容を自分の言葉で再構成したもの。</p>
+
+<h2>記号表</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>記号</th><th>型・意味</th></tr>
+  <tr><td>F : I × J → C</td><td>2 変数の関手（双関手）。積圏 I × J からの図式</td></tr>
+  <tr><td>F(i, −) : J → C, F(−, j) : I → C</td><td>一方の変数を固定して得られる図式</td></tr>
+  <tr><td>C<sup>J</sup></td><td>関手 J → C と自然変換の圏</td></tr>
+  <tr><td>(C<sup>J</sup>)<sup>I</sup> ≅ C<sup>I×J</sup> ≅ (C<sup>I</sup>)<sup>J</sup></td><td>演習1.7.vi の圏同型。F をどの圏の対象と見ても同じ記号 F で書く</td></tr>
+  <tr><td>lim<sub>J</sub> F : I → C</td><td>i を lim<sub>j∈J</sub> F(i, j) に送る図式（命題3.3.1）</td></tr>
+  <tr><td>lim<sub>I</sub> lim<sub>J</sub> F</td><td>繰り返し極限。先に J 方向、次に I 方向の極限を取る</td></tr>
+  <tr><td>Δ<sub>J</sub> : C → C<sup>J</sup></td><td>対象 c を値 c の定数関手に送る関手</td></tr>
+  <tr><td>C<sup>J</sup>(Δ<sub>J</sub>(−), F)</td><td>図式 F 上の錐の関手。c を頂点 c の錐の集合に送る（定義3.1.5）</td></tr>
+  <tr><td>κ</td><td>colim lim から lim colim への標準的な射（補題3.8.3）</td></tr>
+  <tr><td>π<sub>i,j</sub>, ι<sub>i,j</sub></td><td>F(i, −) の極限錐の脚と、F(−, j) の余極限錐の脚</td></tr>
+  <tr><td>(ℝ, ≤)</td><td>実数の全順序を圏と見たもの。極限は下限 inf、余極限は上限 sup</td></tr>
+  <tr><td>ℝ̄ = ℝ ∪ {−∞, ∞}</td><td>拡大実数直線</td></tr>
+  <tr><td>ω</td><td>順序数 0 ≤ 1 ≤ 2 ≤ ⋯ を圏と見たもの</td></tr>
+  <tr><td>フィルター圏</td><td>任意の有限な図式の下に錐を持つ圏（定義3.8.7）</td></tr>
+  <tr><td>BG</td><td>群 G を 1 対象圏と見たもの</td></tr>
+</table>
+</div>
+
+<h2>この節の問い</h2>
+
+<p>多変数の関手が与えられたとき、各変数について別々に極限や余極限を取ることを考えるのは自然である。それらが存在すれば、普遍性から、極限は極限と交換し、余極限は余極限と交換することが従う。一方、極限と余極限では普遍性の向きが逆である。そのため、極限と余極限が交換する数少ない場合には、それは普遍性の形式的な議論からは従わず、たいていはその圏での具体的な構成のされ方による。</p>
+
+<p>これを調べるために、2 変数の関手 F : I × J → C を考える。演習1.7.vi により、F は関手 F : I → C<sup>J</sup> とも、関手 F : J → C<sup>I</sup> とも見られる。三つの互いに同型な圏 (C<sup>J</sup>)<sup>I</sup> ≅ C<sup>I×J</sup> ≅ (C<sup>I</sup>)<sup>J</sup> のどれの対象と見るときも、同じ記号 F を使う。</p>
+
+<h2>定理3.8.1 — 極限は極限と交換する</h2>
+
+<p>極限が存在すると仮定して、lim<sub>(i,j)∈I×J</sub> F(i, j) が段階的に、しかもどちらの順序でも計算できることを示す。各 i ∈ I について lim<sub>j∈J</sub> F(i, j) が存在するなら、命題3.3.1 により、これらの対象は図式 lim<sub>j∈J</sub> F(−, j) : I → C の値になる。この図式の極限 lim<sub>i∈I</sub> lim<sub>j∈J</sub> F(i, j) が存在するなら、それは lim<sub>(i,j)∈I×J</sub> F(i, j) と同型である。もう一方の順序の途中の極限も存在するなら、さらに lim<sub>j∈J</sub> lim<sub>i∈I</sub> F(i, j) とも同型である。</p>
+
+<div class="thm"><b>定理3.8.1.</b> 図式 F : I × J → C に付随する繰り返し極限 lim<sub>I</sub> lim<sub>J</sub> F と lim<sub>J</sub> lim<sub>I</sub> F が C に存在するならば、両者は同型であり、極限 lim<sub>I×J</sub> F を定める。</div>
+
+<p><b>例.</b> I = • ⇉ • を等化子の図式の添字圏、J = • → • ← • を引き戻しの図式の添字圏とする。I の対象を 0, 1、J の対象を a → b ← c と名付けると、積圏 I × J は次の形をしている。各行が J の形（引き戻しの図式）、各列の 2 本の平行な射が I の形（等化子の図式）である。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 420 240" width="420" role="img" aria-label="I×J の形。上の行 (0,a)→(0,b)←(0,c)、下の行 (1,a)→(1,b)←(1,c)、各列に上から下への平行な 2 本の射">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="55" text-anchor="middle">(0, a)</text>
+  <text x="210" y="55" text-anchor="middle">(0, b)</text>
+  <text x="350" y="55" text-anchor="middle">(0, c)</text>
+  <text x="70" y="205" text-anchor="middle">(1, a)</text>
+  <text x="210" y="205" text-anchor="middle">(1, b)</text>
+  <text x="350" y="205" text-anchor="middle">(1, c)</text>
+  <line x1="102" y1="50" x2="176" y2="50" marker-end="url(#a1)"/>
+  <line x1="318" y1="50" x2="244" y2="50" marker-end="url(#a1)"/>
+  <line x1="102" y1="200" x2="176" y2="200" marker-end="url(#a1)"/>
+  <line x1="318" y1="200" x2="244" y2="200" marker-end="url(#a1)"/>
+  <line x1="64" y1="66" x2="64" y2="182" marker-end="url(#a1)"/>
+  <line x1="76" y1="66" x2="76" y2="182" marker-end="url(#a1)"/>
+  <line x1="204" y1="66" x2="204" y2="182" marker-end="url(#a1)"/>
+  <line x1="216" y1="66" x2="216" y2="182" marker-end="url(#a1)"/>
+  <line x1="344" y1="66" x2="344" y2="182" marker-end="url(#a1)"/>
+  <line x1="356" y1="66" x2="356" y2="182" marker-end="url(#a1)"/>
+</svg>
+<figcaption>本では立方体の形に描かれている。平行な 2 本の射は I の 2 本の射 0 ⇉ 1 に、横の射は J の射 a → b ← c に対応する</figcaption>
+</figure>
+
+<p>定理3.8.1 によると、この形の図式 F の極限は、次の二通りのどちらでも作れる。</p>
+
+<ul>
+  <li><b>lim<sub>I</sub> lim<sub>J</sub> F（先に引き戻し）.</b> 各行の引き戻し P<sub>0</sub> = F(0, a) ×<sub>F(0, b)</sub> F(0, c) と P<sub>1</sub> = F(1, a) ×<sub>F(1, b)</sub> F(1, c) を作る。各列の平行な 2 本の射は、引き戻しの普遍性により平行な 2 本の射 P<sub>0</sub> ⇉ P<sub>1</sub> を誘導する。その等化子 E を取る。</li>
+  <li><b>lim<sub>J</sub> lim<sub>I</sub> F（先に等化子）.</b> 3 つの列それぞれの平行な対の等化子 E<sub>a</sub>, E<sub>b</sub>, E<sub>c</sub> を作る。各行の射は、等化子の普遍性により射 E<sub>a</sub> → E<sub>b</sub> ← E<sub>c</sub> を誘導する。その引き戻し L を取る。</li>
+</ul>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 600 200" width="600" role="img" aria-label="左: E → P0 ⇉ P1。右: L の引き戻しの四角形 L → Ec、L → Ea、Ea → Eb、Ec → Eb">
+  <defs><marker id="a2" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="40" y="105" text-anchor="middle">E</text>
+  <text x="150" y="105" text-anchor="middle">P<tspan baseline-shift="sub" font-size="70%">0</tspan></text>
+  <text x="260" y="105" text-anchor="middle">P<tspan baseline-shift="sub" font-size="70%">1</tspan></text>
+  <line class="dashed" x1="54" y1="100" x2="132" y2="100" marker-end="url(#a2)"/>
+  <line x1="168" y1="94" x2="240" y2="94" marker-end="url(#a2)"/>
+  <line x1="168" y1="106" x2="240" y2="106" marker-end="url(#a2)"/>
+  <text x="400" y="45" text-anchor="middle">L</text>
+  <text x="540" y="45" text-anchor="middle">E<tspan baseline-shift="sub" font-size="70%">c</tspan></text>
+  <text x="400" y="175" text-anchor="middle">E<tspan baseline-shift="sub" font-size="70%">a</tspan></text>
+  <text x="540" y="175" text-anchor="middle">E<tspan baseline-shift="sub" font-size="70%">b</tspan></text>
+  <line class="dashed" x1="416" y1="40" x2="520" y2="40" marker-end="url(#a2)"/>
+  <line class="dashed" x1="400" y1="54" x2="400" y2="155" marker-end="url(#a2)"/>
+  <line x1="420" y1="170" x2="520" y2="170" marker-end="url(#a2)"/>
+  <line x1="540" y1="54" x2="540" y2="155" marker-end="url(#a2)"/>
+  <path d="M412,68 L424,68 L424,56"/>
+</svg>
+<figcaption>左: 引き戻しを先に作り、誘導された平行な対の等化子 E を取る。右: 等化子を先に作り、誘導された射の引き戻し L を取る。破線は最後に取る極限の脚</figcaption>
+</figure>
+
+<p>定理3.8.1 により、E と L はどちらも F の極限であり、互いに同型である。</p>
+
+<p><span class="proof-head">定理3.8.1 の証明.</span> 圏の積は対称 I × J ≅ J × I なので、lim<sub>I</sub> lim<sub>J</sub> F ≅ lim<sub>I×J</sub> F を示せば十分である。もう一方の lim<sub>J</sub> lim<sub>I</sub> F ≅ lim<sub>I×J</sub> F は、同じ主張を、変数を入れ替えた図式 J × I ≅ I × J → C に当てはめたものだからである。米田の補題により、二つの対象が Set<sup>C<sup>op</sup></sup> の自然同型な関手を表現することを示せば十分である。</p>
+
+<p>定義3.1.5 により、F ∈ C<sup>I×J</sup> の極限は F 上の錐の関手を表現する。添字圏を明示するため、この関手を C<sup>I×J</sup>(Δ<sub>I×J</sub>(−), F) と書く。対象 c を、頂点 c の錐、すなわち定数関手 Δ<sub>I×J</sub>(c) から F への自然変換の集合に送る関手である。ここに現れる定数図式の関手は、次の可換図式に収まる。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 320 190" width="320" role="img" aria-label="C → C^{I×J}（Δ_{I×J}）、C → C^I（Δ_I）、C^I → (C^I)^J（Δ_J）、C^{I×J} ≅ (C^I)^J の可換な四角形">
+  <defs><marker id="a3" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="45" text-anchor="middle">C</text>
+  <text x="250" y="45" text-anchor="middle">C<tspan baseline-shift="super" font-size="70%">I×J</tspan></text>
+  <text x="70" y="160" text-anchor="middle">C<tspan baseline-shift="super" font-size="70%">I</tspan></text>
+  <text x="250" y="160" text-anchor="middle">(C<tspan baseline-shift="super" font-size="70%">I</tspan>)<tspan baseline-shift="super" font-size="70%">J</tspan></text>
+  <line x1="86" y1="40" x2="222" y2="40" marker-end="url(#a3)"/>
+  <text class="lbl" x="154" y="30" text-anchor="middle">Δ<tspan baseline-shift="sub" font-size="70%">I×J</tspan></text>
+  <line x1="70" y1="55" x2="70" y2="140" marker-end="url(#a3)"/>
+  <text class="lbl" x="58" y="102" text-anchor="end">Δ<tspan baseline-shift="sub" font-size="70%">I</tspan></text>
+  <line x1="250" y1="55" x2="250" y2="140" marker-end="url(#a3)"/>
+  <text class="lbl" x="262" y="102" text-anchor="start">≅</text>
+  <line x1="92" y1="155" x2="216" y2="155" marker-end="url(#a3)"/>
+  <text class="lbl" x="154" y="176" text-anchor="middle">Δ<tspan baseline-shift="sub" font-size="70%">J</tspan></text>
+</svg>
+<figcaption>どちらの経路も、対象 c を「すべての対象を c に、すべての射を id<sub>c</sub> に送る関手」に送る</figcaption>
+</figure>
+
+<p>これを使うと、次の自然同型の列が得られる。</p>
+
+<p class="eq">C(−, lim<sub>I×J</sub> F) ≅ C<sup>I×J</sup>(Δ<sub>I×J</sub>(−), F)<br>
+≅ (C<sup>I</sup>)<sup>J</sup>(Δ<sub>J</sub>(Δ<sub>I</sub>(−)), F)<br>
+≅ C<sup>I</sup>(Δ<sub>I</sub>(−), lim<sub>J</sub> F)<br>
+≅ C(−, lim<sub>I</sub> lim<sub>J</sub> F)</p>
+
+<p>各同型の理由は次のとおりである。</p>
+<ul>
+  <li>1 番目は、lim<sub>I×J</sub> F が F の極限であること、すなわち定義3.1.5 の普遍性そのものである。</li>
+  <li>2 番目は、圏同型 C<sup>I×J</sup> ≅ (C<sup>I</sup>)<sup>J</sup> が充満忠実であることと、上の四角形の可換性による。同型は hom 集合の全単射を与え、その全単射で Δ<sub>I×J</sub>(c) は Δ<sub>J</sub>(Δ<sub>I</sub>(c)) に、F は J → C<sup>I</sup> と見た F に対応する。</li>
+  <li>3 番目は、F を図式 J → C<sup>I</sup> と見たときの、C<sup>I</sup> における極限の普遍性である。この極限 lim<sub>J</sub> F は、各 i で lim<sub>j∈J</sub> F(i, j) を取った図式 I → C であり、関手圏の極限は各点で計算される（命題3.4.9）。</li>
+  <li>4 番目は、図式 lim<sub>J</sub> F : I → C の極限 lim<sub>I</sub> lim<sub>J</sub> F の普遍性である。</li>
+</ul>
+<p>米田の補題により、lim<sub>I×J</sub> F ≅ lim<sub>I</sub> lim<sub>J</sub> F が従う。<span class="qed">□</span></p>
+
+<h2>(3.8.2) — 極限関手の交換</h2>
+
+<p>定理3.8.1 とその双対により、極限は極限と、余極限は余極限と、同型を除いて交換する。極限と余極限の普遍性に含まれる一意性から、さらに次の自然同型が存在する。極限関手と余極限関手をどう選んでも成り立つ。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 600 190" width="600" role="img" aria-label="(3.8.2) 左: C^{I×J} → C^I（lim_J）、C^{I×J} → C^J（lim_I）、C^I → C（lim_I）、C^J → C（lim_J）の四角形が ≅ で可換。右: 同じ形で colim">
+  <defs><marker id="a4" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="50" y="45" text-anchor="middle">C<tspan baseline-shift="super" font-size="70%">I×J</tspan></text>
+  <text x="230" y="45" text-anchor="middle">C<tspan baseline-shift="super" font-size="70%">I</tspan></text>
+  <text x="50" y="160" text-anchor="middle">C<tspan baseline-shift="super" font-size="70%">J</tspan></text>
+  <text x="230" y="160" text-anchor="middle">C</text>
+  <line x1="82" y1="40" x2="212" y2="40" marker-end="url(#a4)"/>
+  <text class="lbl" x="147" y="30" text-anchor="middle">lim<tspan baseline-shift="sub" font-size="70%">J</tspan></text>
+  <line x1="50" y1="55" x2="50" y2="140" marker-end="url(#a4)"/>
+  <text class="lbl" x="38" y="102" text-anchor="end">lim<tspan baseline-shift="sub" font-size="70%">I</tspan></text>
+  <line x1="230" y1="55" x2="230" y2="140" marker-end="url(#a4)"/>
+  <text class="lbl" x="242" y="102" text-anchor="start">lim<tspan baseline-shift="sub" font-size="70%">I</tspan></text>
+  <line x1="70" y1="155" x2="214" y2="155" marker-end="url(#a4)"/>
+  <text class="lbl" x="147" y="176" text-anchor="middle">lim<tspan baseline-shift="sub" font-size="70%">J</tspan></text>
+  <text class="lbl" x="140" y="102" text-anchor="middle">≅</text>
+  <text x="360" y="45" text-anchor="middle">C<tspan baseline-shift="super" font-size="70%">I×J</tspan></text>
+  <text x="550" y="45" text-anchor="middle">C<tspan baseline-shift="super" font-size="70%">I</tspan></text>
+  <text x="360" y="160" text-anchor="middle">C<tspan baseline-shift="super" font-size="70%">J</tspan></text>
+  <text x="550" y="160" text-anchor="middle">C</text>
+  <line x1="392" y1="40" x2="532" y2="40" marker-end="url(#a4)"/>
+  <text class="lbl" x="462" y="30" text-anchor="middle">colim<tspan baseline-shift="sub" font-size="70%">J</tspan></text>
+  <line x1="360" y1="55" x2="360" y2="140" marker-end="url(#a4)"/>
+  <text class="lbl" x="348" y="102" text-anchor="end">colim<tspan baseline-shift="sub" font-size="70%">I</tspan></text>
+  <line x1="550" y1="55" x2="550" y2="140" marker-end="url(#a4)"/>
+  <text class="lbl" x="562" y="102" text-anchor="start">colim<tspan baseline-shift="sub" font-size="70%">I</tspan></text>
+  <line x1="380" y1="155" x2="534" y2="155" marker-end="url(#a4)"/>
+  <text class="lbl" x="462" y="176" text-anchor="middle">colim<tspan baseline-shift="sub" font-size="70%">J</tspan></text>
+  <text class="lbl" x="455" y="102" text-anchor="middle">≅</text>
+</svg>
+<figcaption>(3.8.2) 左は極限関手、右は余極限関手。四角形は自然同型を除いて可換</figcaption>
+</figure>
+
+<p>すなわち、関手 C<sup>I×J</sup> → C として lim<sub>I</sub> ∘ lim<sub>J</sub> ≅ lim<sub>J</sub> ∘ lim<sub>I</sub> であり、余極限についても同様である。</p>
+
+<h2>補題3.8.3 — colim lim から lim colim への標準的な射</h2>
+
+<p>一方の変数で極限を、もう一方の変数で余極限を取る操作の関係は、もっと微妙である。これらの操作が交換することはまれである。それでも、比較のための標準的な射は常にある。</p>
+
+<div class="thm"><b>補題3.8.3.</b> 双関手 F : I × J → C について、以下に現れる極限と余極限が存在するならば、標準的な射
+<p class="eq">κ : colim<sub>i∈I</sub> lim<sub>j∈J</sub> F(i, j) → lim<sub>j∈J</sub> colim<sub>i∈I</sub> F(i, j)</p>
+がある。</div>
+
+<p>射の向きは次のように覚えるとよい。余極限は「そこから出て行く射」で特徴づけられる普遍性で定義され、極限は「そこへ入って来る射」で特徴づけられる普遍性で定義される。κ の定義域は余極限なので、そこから出る射は普遍性で作れる。値域は極限なので、そこへ入る射も普遍性で作れる。</p>
+
+<p><span class="proof-head">証明.</span> 余極限の普遍性により、κ を定めるには、成分</p>
+
+<p class="eq">κ<sub>i</sub> : lim<sub>j∈J</sub> F(i, j) → lim<sub>j∈J</sub> colim<sub>i′∈I</sub> F(i′, j)　（i ∈ I）</p>
+
+<p>で、I で添字づけられた図式 lim<sub>j∈J</sub> F(−, j) の下の錐をなすものを指定すればよい。極限の普遍性により、各成分 κ<sub>i</sub> を定めるには、さらに成分</p>
+
+<p class="eq">κ<sub>i,j</sub> : lim<sub>j′∈J</sub> F(i, j′) → colim<sub>i′∈I</sub> F(i′, j)　（j ∈ J）</p>
+
+<p>で、J で添字づけられた図式 colim<sub>i′∈I</sub> F(i′, −) の上の錐をなすものを指定すればよい。κ<sub>i,j</sub> を合成</p>
+
+<p class="eq">κ<sub>i,j</sub> : lim<sub>j′∈J</sub> F(i, j′) —π<sub>i,j</sub>→ F(i, j) —ι<sub>i,j</sub>→ colim<sub>i′∈I</sub> F(i′, j)</p>
+
+<p>と定める。ここで π<sub>i,j</sub> は F(i, −) の極限錐の脚、ι<sub>i,j</sub> は F(−, j) の余極限錐の脚である。</p>
+
+<p>図式 lim<sub>j∈J</sub> F(−, j) の射と図式 colim<sub>i∈I</sub> F(i, −) の射は、どちらも I の射 i → i′ と J の射 j → j′ に F を適用した射 F(i, j) → F(i′, j′) から誘導される。そのため、κ<sub>i,j</sub> たちは錐をなして κ<sub>i</sub> を定め、κ<sub>i</sub> たちは錐をなして κ を定める。具体的には、次の 2 つが成り立つ。</p>
+<ul>
+  <li>J の射 g : j → j′ について、colim<sub>i′</sub> F(i′, g) ∘ κ<sub>i,j</sub> = κ<sub>i,j′</sub>。π と ι がそれぞれ錐であることから、両辺とも ι<sub>i,j′</sub> ∘ F(i, g) ∘ π<sub>i,j</sub> = ι<sub>i,j′</sub> ∘ π<sub>i,j′</sub> に等しい。</li>
+  <li>I の射 f : i → i′ について、κ<sub>i′</sub> ∘ lim<sub>j</sub> F(f, j) = κ<sub>i</sub>。両辺を極限 lim<sub>j</sub> colim<sub>i′</sub> F(i′, j) の各脚で比べると、ι<sub>i′,j</sub> ∘ F(f, j) = ι<sub>i,j</sub> と、lim<sub>j</sub> F(f, j) の定義 π<sub>i′,j</sub> ∘ lim<sub>j</sub> F(f, j) = F(f, j) ∘ π<sub>i,j</sub> から等しい。</li>
+</ul>
+<p><span class="qed">□</span></p>
+
+<h2>系3.8.4 — sup inf ≤ inf sup</h2>
+
+<p>C を poset の圏 (ℝ, ≤) に特殊化すると、直ちに次の系が得られる。この圏では、極限は下限 inf、余極限は上限 sup であり、射 x → y の存在は x ≤ y を意味する。集合 X, Y を離散圏と見て、関数 f : X × Y → ℝ を双関手と見る。</p>
+
+<div class="thm"><b>系3.8.4.</b> 任意の集合 X, Y と任意の関数 f : X × Y → ℝ について、以下の下限と上限が存在するならば
+<p class="eq">sup<sub>x∈X</sub> inf<sub>y∈Y</sub> f(x, y) ≤ inf<sub>y∈Y</sub> sup<sub>x∈X</sub> f(x, y)</p>
+が成り立つ。</div>
+
+<p><span class="proof-head">証明.</span> poset の圏に射 κ : sup<sub>X</sub> inf<sub>Y</sub> f → inf<sub>Y</sub> sup<sub>X</sub> f があることが、この不等式を意味する。<span class="qed">□</span></p>
+
+<h2>注意3.8.5 — 解析学での直接の証明</h2>
+
+<p>実解析の講義で示されるような系3.8.4 の直接の証明は、実は補題3.8.3 の圏論的な証明と同じものである。</p>
+
+<ul>
+  <li>sup<sub>X</sub> inf<sub>Y</sub> f がある量 q 以下であることを示すには、上限の普遍性と呼べる性質により、各 x ∈ X について inf<sub>Y</sub> f(x, −) が q 以下であることを示せば十分である。これは余極限の普遍性で κ を成分 κ<sub>x</sub> から定めたことに当たる。</li>
+  <li>双対に、inf<sub>Y</sub> sup<sub>X</sub> f がある量 q 以上であることを示すには、各 y ∈ Y について sup<sub>X</sub> f(−, y) が q 以上であることを示せば十分である。これは極限の普遍性で κ<sub>x</sub> を成分 κ<sub>x,y</sub> から定めたことに当たる。</li>
+</ul>
+
+<p>したがって、各 x ∈ X と y ∈ Y について inf<sub>Y</sub> f(x, −) ≤ sup<sub>X</sub> f(−, y) を示せばよい。これは不等式</p>
+
+<p class="eq">inf<sub>Y</sub> f(x, −) ≤ f(x, y) ≤ sup<sub>X</sub> f(−, y)</p>
+
+<p>の推移律、すなわち射の合成 κ<sub>x,y</sub> = ι<sub>x,y</sub> ∘ π<sub>x,y</sub> から従う。</p>
+
+<h2>例3.8.6 — 下極限と上極限</h2>
+
+<p>拡大実数直線 ℝ̄ = ℝ ∪ {−∞, ∞} に、すべての x ∈ ℝ について −∞ ≤ x ≤ ∞ とする順序を入れる。圏として ℝ̄ は完備かつ余完備である。関数 f : X → ℝ̄ の極限はその下限であり、余極限はその上限である。f の値域が有界なら、これらは通常の実数である。拡大した圏 ℝ̄ で考える利点は、有界性の仮定を気にせずに済み、すべての極限と余極限が存在することである。</p>
+
+<p>関数 x : ℕ → ℝ は実数列 (x<sub>n</sub>)<sub>n∈ℕ</sub> を定める。下極限 lim inf と上極限 lim sup は、この数列を、離散圏 ℕ × ℕ で添字づけられた双関手</p>
+
+<p class="eq">ℕ × ℕ —+→ ℕ —x→ ℝ̄,　(n, m) ↦ x<sub>n+m</sub></p>
+
+<p>と見ることで定義される。</p>
+
+<p class="eq">lim inf<sub>n→∞</sub> x<sub>n</sub> = sup<sub>n≥0</sub> inf<sub>m≥n</sub> x<sub>m</sub> = sup<sub>n≥0</sub> inf<sub>m≥0</sub> x<sub>n+m</sub> = colim<sub>n</sub> lim<sub>m</sub> x<sub>n+m</sub><br>
+lim sup<sub>n→∞</sub> x<sub>n</sub> = inf<sub>n≥0</sub> sup<sub>m≥n</sub> x<sub>m</sub> = inf<sub>n≥0</sub> sup<sub>m≥0</sub> x<sub>n+m</sub> = lim<sub>n</sub> colim<sub>m</sub> x<sub>n+m</sub></p>
+
+<p>2 番目の等号は、m ≥ n を m = n + m′（m′ ≥ 0）と書き直したものである。解析の概念をこのように圏論の言葉に翻訳すると、補題3.8.3 は不等式</p>
+
+<p class="eq">lim inf<sub>n→∞</sub> x<sub>n</sub> ≤ lim sup<sub>n→∞</sub> x<sub>n</sub></p>
+
+<p>の形で当てはまる。ここで補題3.8.3 の I は外側の n、J は内側の m の離散圏であり、lim sup の式は lim<sub>n</sub> colim<sub>m</sub> の順になっている。2 変数 (n, m) ↦ x<sub>n+m</sub> は n と m について対称なので、lim<sub>m</sub> colim<sub>n</sub> x<sub>n+m</sub> と同じ値になり、補題3.8.3 の κ の値域と一致する。数列の極限が（ℝ̄ で）存在することと、この不等式が等式であることは同値である。</p>
+
+<h2>フィルター圏</h2>
+
+<p>Set やそれに関連する圏では、ある種類の極限と余極限について、補題3.8.3 で定義した射が可逆になる。定理3.8.9 はそのような結果で最も有名なものである。網羅的な概観は [BJLS15] にある。</p>
+
+<div class="thm"><b>定義3.8.7.</b> 圏 J が<b>フィルター圏</b>（filtered）であるとは、J の任意の有限な図式の下に錐があることである。<sup>22</sup></div>
+
+<p>有限な図式とは、有限個の射しか持たない圏で添字づけられた図式である。特に、空な図式の下の錐は J の対象 1 つにすぎないので、フィルター圏は空でない。</p>
+
+<div class="thm"><b>例3.8.8.</b> 圏 ω（より一般に、空でない任意の順序数の圏）と、1 つの対象と恒等射でない冪等射を 1 つだけ持つ圏はフィルター圏である。平行な対の圏 • ⇉ •、スパンの圏 • ← • → •、𝟙 以外の離散圏はフィルター圏でない。</div>
+
+<p>本文は理由を述べていないので、それぞれを確かめておく。</p>
+<ul>
+  <li><b>ω.</b> 有限な図式に現れる対象は有限個なので、その最大のものを t とする。各対象 n ≤ t から t への射はちょうど 1 本あり、射が高々 1 本なので錐の条件は自動的に成り立つ。空な図式には対象 0 を頂点とすればよい。</li>
+  <li><b>冪等射 e を持つ 1 対象圏.</b> 対象を ∗ とし、e ∘ e = e とする。どの有限な図式についても、すべての脚を e とする頂点 ∗ の錐が作れる。図式の射 φ は id か e であり、e ∘ id = e、e ∘ e = e なので、錐の条件 e ∘ φ = e が成り立つ。</li>
+  <li><b>平行な対 f, g : 0 ⇉ 1.</b> この 2 本の射からなる図式自身の下の錐を考える。頂点 t へ対象 1 から射が出ている必要があるが、1 から出る射は id<sub>1</sub> だけなので t = 1 で、脚 u = id<sub>1</sub> である。錐の条件 u ∘ f = u ∘ g は f = g を要求するが、これは成り立たない。</li>
+  <li><b>スパン b ← a → c.</b> 2 対象 b, c からなる射のない図式の下の錐は、b と c の両方から射を受ける対象を要する。しかし b, c から出る射は恒等射だけなので、そのような対象はない。</li>
+  <li><b>𝟙 以外の離散圏.</b> 対象がなければ空な図式の下の錐がない。対象が 2 つ以上あれば、スパンと同じ理由で、異なる 2 対象からなる図式の下の錐がない。</li>
+</ul>
+
+<p class="fn"><sup>22</sup> この定義は、最小の無限基数 ω を正則基数 κ に置き換えて一般化できる。圏が κ-フィルター圏であるとは、射が κ 個より少ない任意の図式の下に錐があることである。</p>
+
+<h2>定理3.8.9 — Set ではフィルター余極限は有限極限と交換する</h2>
+
+<div class="thm"><b>定理3.8.9.</b> Set において、フィルター余極限は有限極限と交換する。</div>
+
+<p>証明の中心にあるのは次の観察である。F : J → Set を、小さなフィルター圏で添字づけられた図式とする。このとき colim<sub>j∈J</sub> F<sub>j</sub> は、余積 ∐<sub>j∈J</sub> F<sub>j</sub> を次の同値関係で割った商である。x ∈ F<sub>j</sub> と y ∈ F<sub>k</sub> を同一視するのは、J の射 f : j → t と g : k → t で F f(x) = F g(y) となるものがあるとき、かつそのときに限る。より一般に、∐<sub>j∈J</sub> F<sub>j</sub> の要素の有限個の集まりで、colim<sub>j∈J</sub> F<sub>j</sub> で互いに同一視されるものは、ある F<sub>t</sub> の共通の要素に送られる。</p>
+
+<p>Set の余極限は一般に、余積を「F f(x) と x を同一視する」関係が生成する同値関係で割った商である（命題3.6.1 の構成）。生成された同値関係では、x と y の同一視に射のジグザグ（向きの交互する射の列）が要る。J がフィルター圏なら、ジグザグに現れる対象と射からなる有限な図式の下に錐が取れるので、すべてを 1 つの対象 t に送ってジグザグを解消できる。上の記述はこうして得られる。</p>
+
+<p><span class="proof-head">証明.</span> I を有限な圏、J を小さなフィルター圏とする。示すべきことは、任意の関手 F : I × J → Set について、標準的な射</p>
+
+<p class="eq">κ : colim<sub>j∈J</sub> lim<sub>i∈I</sub> F(i, j) → lim<sub>i∈I</sub> colim<sub>j∈J</sub> F(i, j)</p>
+
+<p>が全単射であることである。補題3.8.3 と比べると、余極限を取る変数が J、極限を取る変数が I になっていて、I と J の役割が入れ替わっている。</p>
+
+<p><b>全射性.</b> 定義3.2.3 により、右辺の要素は、図式 colim<sub>j∈J</sub> F(−, j) : I → Set の上の、頂点 ∗ の錐 λ である。I は有限なので、このような錐は、有限個の要素 λ<sub>i</sub> ∈ colim<sub>j∈J</sub> F(i, j) の族で、有限個の両立条件（I の各射 i → i′ について、λ<sub>i</sub> の像が λ<sub>i′</sub> であること）を満たすものである。J はフィルター圏なので、十分「大きな」 t ∈ J があって、各 i ∈ I について λ<sub>i</sub> は要素 λ′<sub>i</sub> ∈ F(i, t) で代表され、しかもこれらの要素が錐</p>
+
+<p class="eq">(λ′<sub>i</sub> : ∗ → F(i, t))<sub>i∈I</sub></p>
+
+<p>をなす。ここでフィルター性は二度使われる。まず、各 λ<sub>i</sub> の代表元が住む有限個の対象 j<sub>i</sub> を共通の t に送る。次に、有限個の両立条件のそれぞれは colim で成り立つ等式なので、上の観察により、ある対象に送れば F の中で成り立つ等式になる。それら有限個の対象をさらに共通の t に送る。この錐は lim<sub>i∈I</sub> F(i, t) の要素を定め、それは左辺の要素を代表する。その要素は κ で、選んだ右辺の要素に送られる。したがって κ は全射である。</p>
+
+<p><b>単射性.</b> 左辺の 2 要素が、ある j, k ∈ J について、錐</p>
+
+<p class="eq">(α<sub>i</sub> : ∗ → F(i, j))<sub>i∈I</sub>　と　(β<sub>i</sub> : ∗ → F(i, k))<sub>i∈I</sub></p>
+
+<p>で代表されているとする。これらの κ による像が等しいなら、各 i ∈ I について、α<sub>i</sub> と β<sub>i</sub> は colim<sub>j∈J</sub> F(i, j) で等しいので、上の観察により、ある t<sub>i</sub> ∈ J があって α<sub>i</sub> と β<sub>i</sub> は F(i, t<sub>i</sub>) で共通の像を持つ。I は有限で J はフィルター圏なので、ある t ∈ J があって、すべての i について α<sub>i</sub> と β<sub>i</sub> は F(i, t) で共通の像を持つ。これは、α と β が左辺の同じ要素を代表することを言っている。したがって κ は単射である。<span class="qed">□</span></p>
+
+<p>定理3.8.9 の証明は圏論的なものではない。議論は、集合の圏におけるフィルター余極限の具体的な記述に依存している。しかし、第5章で導入する広いクラスの圏、すなわち代数理論のモデルの圏では、極限とフィルター余極限は集合の圏から創出される（定理5.6.5）。したがって、これらの圏でも有限極限とフィルター余極限は交換する。</p>
+
+<h2>節末問題</h2>
+
+<ul>
+  <li><b>3.8.i</b> — 演習3.4.vi の結果を使って、冪等射の分裂が任意の形の極限とも余極限とも交換することを結論せよ。</li>
+  <li><b>3.8.ii</b> — G と H が位数の互いに素な群ならば、Set において BG で添字づけられた極限と BH で添字づけられた余極限が交換することを示せ。この種の例は [BJLS15] にさらにある。</li>
+</ul>
+
+</body>
+</html>
