@@ -12,6 +12,8 @@ import Riehl.Ch3_Limits.S3_5_Representable
 import Riehl.Ch3_Limits.S3_6_CompleteCocomplete
 import Riehl.Ch3_Limits.S3_7_Size
 import Riehl.Ch3_Limits.S3_8_LimitsColimits
+import Riehl.Ch4_Adjunctions.S4_1_AdjointFunctors
+import Riehl.Ch4_Adjunctions.S4_2_UnitCounit
 import Riehl.Topics.Embedding
 import Riehl.Topics.LimitAsEqualizer
 import Riehl.Topics.PreorderThinCategory

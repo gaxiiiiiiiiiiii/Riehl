@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4.1 随伴関手</title>
+<style>
+  :root {
+    --bg: #fdfcf9;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --accent: #8a4c14;
+    --line: #d8d3c8;
+    --box-bg: #f5f2ea;
+    --code-bg: #f0ede5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1e22;
+      --fg: #e4e1da;
+      --muted: #9aa2ab;
+      --accent: #e0a468;
+      --line: #3a3f46;
+      --box-bg: #24262b;
+      --code-bg: #2a2d33;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    line-height: 1.95;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.5rem; font-family: "Hiragino Sans", sans-serif; border-bottom: 2px solid var(--accent); padding-bottom: .4rem; }
+  h2 { font-size: 1.12rem; font-family: "Hiragino Sans", sans-serif; color: var(--accent); margin-top: 2.6rem; }
+  p { margin: .9rem 0; font-size: .97rem; }
+  li { font-size: .97rem; margin: .4rem 0; }
+  .note { color: var(--muted); font-size: .88em; }
+  .thm {
+    background: var(--box-bg);
+    border-left: 3px solid var(--accent);
+    padding: .7rem 1.1rem;
+    margin: 1.2rem 0;
+  }
+  .thm b { font-family: "Hiragino Sans", sans-serif; }
+  .proof-head { font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .qed { float: right; }
+  .fn { color: var(--muted); font-size: .88rem; border-top: 1px solid var(--line); padding-top: .5rem; }
+  .eq { text-align: center; margin: 1rem 0; }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
+  svg.cd path:not([fill]) { fill: none; stroke: currentColor; stroke-width: 1.1; }
+  svg.cd .dashed { stroke-dasharray: 5 4; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--box-bg); font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+  ol.roman { list-style: lower-roman; }
+</style>
+</head>
+
+<body>
+
+<h1>4.1 随伴関手</h1>
+
+<p class="note">Emily Riehl, <i>Category Theory in Context</i> 第4章の導入と §4.1（pp.131–138）の内容を、個人学習のために日本語で書き直した解説。番号（定義4.1.1 など）は本と揃えてある。翻訳ではなく、同じ内容を自分の言葉で再構成したもの。</p>
+
+<h2>記号表</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>記号</th><th>型・意味</th></tr>
+  <tr><td>F : C → D, G : D → C</td><td>向かい合う一対の関手。F ⊣ G のとき F が左随伴、G が右随伴</td></tr>
+  <tr><td>D(Fc, d) ≅ C(c, Gd)</td><td>随伴を定める hom 集合の同型。c ∈ C と d ∈ D について自然</td></tr>
+  <tr><td>f<sup>♯</sup> : Fc → d, f<sup>♭</sup> : c → Gd</td><td>同型 D(Fc, d) ≅ C(c, Gd) で対応する一対の射。互いの転置</td></tr>
+  <tr><td>SET</td><td>必ずしも小さくない集合の圏。hom 集合が大きな宇宙に入りうるときに使う</td></tr>
+  <tr><td>F ⊣ G, G ⊢ F</td><td>F が G の左随伴であることを表す記号（記法4.1.5）</td></tr>
+  <tr><td>L ⊣ U ⊣ R</td><td>随伴三つ組（adjoint triple）。L ⊣ U かつ U ⊣ R</td></tr>
+  <tr><td>Set<sub>∗</sub>, Monoid, Ab, Ring, CRing, Group, CMonoid, <sub>R</sub>Mod, Vect<sub>𝕜</sub></td><td>点つき集合、モノイド、アーベル群、環、可換環、群、可換モノイド、R-加群、𝕜-ベクトル空間の圏</td></tr>
+  <tr><td>U</td><td>構造を忘れる関手（忘却関手）</td></tr>
+  <tr><td>𝕜[S], ℤ[X], R[X]</td><td>集合 S, X 上の自由 𝕜-ベクトル空間、自由アーベル群、自由 R-加群</td></tr>
+  <tr><td>PA</td><td>集合 A の部分集合全体を包含で順序づけた半順序集合</td></tr>
+  <tr><td>Ω = {⊥, ⊤}</td><td>真理値の集合。⊥ ≤ ⊤ と順序づける</td></tr>
+  <tr><td>Ω<sup>X</sup></td><td>X 上の述語 p : X → Ω の集合。点ごとの順序を入れる</td></tr>
+  <tr><td>BG</td><td>群 G を 1 対象圏と見たもの。Set<sup>BG</sup> は G-集合の圏</td></tr>
+  <tr><td>Quiver</td><td>箙（頂点の集合 V、矢の集合 A、始点と終点 s, t : A ⇉ V）の圏</td></tr>
+  <tr><td>𝕟 + 𝟙</td><td>箙 0 → 1 → ⋯ → n が自由に生成する順序数の圏</td></tr>
+  <tr><td>Groupoid</td><td>亜群（すべての射が同型である圏）の圏</td></tr>
+</table>
+</div>
+
+<h2>第4章の導入 — 自由構成と随伴</h2>
+
+<p>ベクトル空間は、集合にベクトルの加法 v + w と、体 𝕜 の各スカラー k による乗法 k ⋅ v を与え、いくつかの公理を課したものである。ベクトル空間からその台集合への対応は関手的で、線形写像をその台となる写像に送る忘却関手 U : Vect<sub>𝕜</sub> → Set がある。</p>
+
+<p>逆向きに、集合 S からベクトル空間を作ることを考える。S をそのままベクトルの集合にすることは、濃度の制約で不可能なことがあり、可能でも S に加法を自然に定める方法がない。自然なのは、S の要素を基底にすることである。ベクトルは有限な形式和</p>
+
+<p class="eq">k<sub>1</sub> ⋅ s<sub>1</sub> + ⋯ + k<sub>n</sub> ⋅ s<sub>n</sub>　（k<sub>i</sub> ∈ 𝕜, s<sub>i</sub> ∈ S, n ≥ 0）</p>
+
+<p>である<sup>1</sup>。こうして得られる、次元が S の濃度に等しいベクトル空間 𝕜[S] を、集合 S 上の自由ベクトル空間と呼ぶ。この構成は関手 𝕜[−] : Set → Vect<sub>𝕜</sub> を定める。写像 f : S → T は、基底の要素を f で送ることで線形写像 𝕜[f] : 𝕜[S] → 𝕜[T] を誘導する。</p>
+
+<p>自由構成は数学の至るところにある。集合上の自由群と自由アーベル群、集合上またはアーベル群上の自由環、アーベル群上の自由加群、箙上の自由圏などである。普遍的な構成の候補が競合することもある。集合上の自由箙は、頂点の各順序対の間に矢を 1 本持つべきか、持たないべきか。集合上の自由位相空間は、開集合をできるだけ多く持つべきか、少なく持つべきか。候補がないこともある。「自由体」は存在しない。これらすべてを整理する概念が、Kan の導入した随伴である。</p>
+
+<p>自由ベクトル空間関手 𝕜[−] : Set → Vect<sub>𝕜</sub> の普遍性は、それが忘却関手 U : Vect<sub>𝕜</sub> → Set の左随伴であることとして述べられる。すなわち、線形写像 𝕜[S] → V は写像 S → U(V) と自然に対応する。線形写像は基底 S ⊂ 𝕜[S] の行き先で決まるからである。米田の補題により、この普遍性から 𝕜[−] の射への作用を定めることもできる。忘却関手 U : Vect<sub>𝕜</sub> → Set は右随伴を持たないので、ここでは自由構成の候補は競合しない<sup>2</sup>。</p>
+
+<p>この章では随伴関手の一般論を、抽象的に、また多くの例を通して調べる。随伴の同値な 2 つの定義を §4.1 と §4.2 で与える。§4.3 では随伴の基本的な計算法則を、米田の補題を使う証明と、圏の 2-圏の中での証明の 2 通りで示す。§4.4 では反変関手の対の間の随伴と、n 変数関手の (n + 1) 個組の間の随伴を扱う。2 変数の随伴は、Kan が観察したテンソル積と hom の双対性を表す。§4.5 では、右随伴関手は極限を保ち、左随伴関手は余極限を保つことを示す。多くの忘却関手が右随伴であることが、極限が余極限より作りやすい理由である。§4.6 では、X × Y → Z と X → Z<sup>Y</sup> が自然に対応するというカルテシアン閉の性質を、各スライス圏 C/X で持つ圏を調べる。§4.7 では、関手が随伴を持つための十分条件を与える。</p>
+
+<p class="fn"><sup>1</sup> 有限な形式和とは、正確には有限台の関数 φ : S → 𝕜 のことで、式 Σ<sub>s∈S</sub> φ(s)s に対応する。項の並べ替え、同じ項の係数の足し合わせによる統合、係数 0 の項の追加と削除で移り合う形式和は同一視される。</p>
+
+<p class="fn"><sup>2</sup> 忘却関手の右随伴は、余自由（cofree）構成と呼ばれることがある。</p>
+
+<h2>定義4.1.1 — 随伴 I</h2>
+
+<p>随伴とは、向かい合う一対の関手 F : C ⇄ D : G であって、特別な関係にあるものである。関係の内容は、Fc から d への射と c から Gd への射が自然に 1 対 1 に対応する、ということである。</p>
+
+<div class="thm"><b>定義4.1.1（随伴 I）.</b> 随伴とは、一対の関手 F : C → D と G : D → C に、各 c ∈ C と d ∈ D について指定された同型
+<p class="eq">(4.1.2)　D(Fc, d) ≅ C(c, Gd)</p>
+であって両変数について自然なものを添えたものである。このとき F は G の左随伴、G は F の右随伴であるという。全単射 (4.1.2) で対応する射どうしを、互いの転置（transpose）、または随伴する射（adjunct）という<sup>3</sup>。</div>
+
+<p>転置の記法として、左随伴の像を始域とする射 Fc → d に ♯ を、右随伴の像を終域とする射 c → Gd に ♭ を付ける。f<sup>♯</sup> : Fc → d の転置が f<sup>♭</sup> : c → Gd である。</p>
+
+<p class="fn"><sup>3</sup> 当面は転置の対を (−)<sup>♯</sup> と (−)<sup>♭</sup> で区別するが、実際には (−)<sup>†</sup> や (−)̂ のような 1 つの記号で、対のどちらを飾るかを決めずに転置を表すのが便利なことが多い。</p>
+
+<h2>自然性の内容</h2>
+
+<p>定義4.1.1 の自然性は、同型 (4.1.2) の族が、hom 双関手を制限した 2 つの関手 C<sup>op</sup> × D → SET の間の自然同型をなすことをいう。値は、hom 集合が大きくなりうるので SET に取る。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 440 200" width="440" role="img" aria-label="C^op × D から SET への 2 つの関手。上の経路は F^op × 1 で D^op × D に行き D(−,−) で SET へ。下の経路は 1 × G で C^op × C に行き C(−,−) で SET へ。2 つの合成の間に自然同型 ≅">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="105" text-anchor="middle">C<tspan baseline-shift="super" font-size="11">op</tspan> × D</text>
+  <text x="250" y="45" text-anchor="middle">D<tspan baseline-shift="super" font-size="11">op</tspan> × D</text>
+  <text x="250" y="170" text-anchor="middle">C<tspan baseline-shift="super" font-size="11">op</tspan> × C</text>
+  <text x="400" y="105" text-anchor="middle">SET</text>
+  <line x1="100" y1="92" x2="208" y2="52" marker-end="url(#a1)"/>
+  <line x1="100" y1="118" x2="208" y2="158" marker-end="url(#a1)"/>
+  <line x1="292" y1="52" x2="378" y2="92" marker-end="url(#a1)"/>
+  <line x1="292" y1="158" x2="378" y2="118" marker-end="url(#a1)"/>
+  <text class="lbl" x="140" y="58" text-anchor="middle">F<tspan baseline-shift="super" font-size="9">op</tspan> × 1</text>
+  <text class="lbl" x="140" y="160" text-anchor="middle">1 × G</text>
+  <text class="lbl" x="352" y="58" text-anchor="middle">D(−, −)</text>
+  <text class="lbl" x="352" y="160" text-anchor="middle">C(−, −)</text>
+  <text x="250" y="110" text-anchor="middle">≅</text>
+</svg>
+<figcaption>上の合成が (c, d) ↦ D(Fc, d)、下の合成が (c, d) ↦ C(c, Gd)</figcaption>
+</figure>
+
+<p><b>D についての自然性.</b> D の任意の射 k : d → d′ について、左の hom 集合の四角形が SET で可換である。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 560 190" width="560" role="img" aria-label="左: D(Fc,d) → C(c,Gd) を上辺、D(Fc,d′) → C(c,Gd′) を下辺、縦の射は k∘− と Gk∘− の四角形。右: f♯ : Fc → d → d′ と f♭ : c → Gd → Gd′">
+  <text x="70" y="45" text-anchor="middle">D(Fc, d)</text>
+  <text x="230" y="45" text-anchor="middle">C(c, Gd)</text>
+  <text x="70" y="165" text-anchor="middle">D(Fc, d′)</text>
+  <text x="230" y="165" text-anchor="middle">C(c, Gd′)</text>
+  <line x1="112" y1="40" x2="186" y2="40" marker-end="url(#a1)"/>
+  <line x1="112" y1="160" x2="186" y2="160" marker-end="url(#a1)"/>
+  <line x1="70" y1="58" x2="70" y2="146" marker-end="url(#a1)"/>
+  <line x1="230" y1="58" x2="230" y2="146" marker-end="url(#a1)"/>
+  <text class="lbl" x="149" y="30" text-anchor="middle">≅</text>
+  <text class="lbl" x="149" y="180" text-anchor="middle">≅</text>
+  <text class="lbl" x="56" y="106" text-anchor="end">k ∘ −</text>
+  <text class="lbl" x="244" y="106" text-anchor="start">Gk ∘ −</text>
+  <text x="370" y="45" text-anchor="middle">Fc</text>
+  <text x="470" y="45" text-anchor="middle">d</text>
+  <text x="470" y="165" text-anchor="middle">d′</text>
+  <line x1="390" y1="40" x2="452" y2="40" marker-end="url(#a1)"/>
+  <line x1="470" y1="58" x2="470" y2="146" marker-end="url(#a1)"/>
+  <line x1="386" y1="56" x2="454" y2="150" marker-end="url(#a1)"/>
+  <text class="lbl" x="421" y="30" text-anchor="middle">f<tspan baseline-shift="super" font-size="9">♯</tspan></text>
+  <text class="lbl" x="484" y="106" text-anchor="start">k</text>
+  <text class="lbl" x="406" y="118" text-anchor="end">k ∘ f<tspan baseline-shift="super" font-size="9">♯</tspan></text>
+</svg>
+<figcaption>左の四角形の可換性は、f<sup>♯</sup> を右回りと下回りで送った結果が一致すること</figcaption>
+</figure>
+
+<p>四角形の可換性を射の言葉にすると次になる。任意の f<sup>♯</sup> : Fc → d と k : d → d′ について、合成 k ∘ f<sup>♯</sup> : Fc → d′ の転置は、f<sup>♭</sup> : c → Gd と Gk : Gd → Gd′ の合成である。</p>
+
+<p class="eq">(k ∘ f<sup>♯</sup>)<sup>♭</sup> = Gk ∘ f<sup>♭</sup></p>
+
+<p><b>C についての自然性.</b> 双対に、C の任意の射 h : c′ → c について、左の四角形が SET で可換である。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 560 190" width="560" role="img" aria-label="左: D(Fc,d) → C(c,Gd) を上辺、D(Fc′,d) → C(c′,Gd) を下辺、縦の射は −∘Fh と −∘h の四角形。右: Fc′ → Fc → d と c′ → c → Gd">
+  <text x="70" y="45" text-anchor="middle">D(Fc, d)</text>
+  <text x="230" y="45" text-anchor="middle">C(c, Gd)</text>
+  <text x="70" y="165" text-anchor="middle">D(Fc′, d)</text>
+  <text x="230" y="165" text-anchor="middle">C(c′, Gd)</text>
+  <line x1="112" y1="40" x2="186" y2="40" marker-end="url(#a1)"/>
+  <line x1="112" y1="160" x2="186" y2="160" marker-end="url(#a1)"/>
+  <line x1="70" y1="58" x2="70" y2="146" marker-end="url(#a1)"/>
+  <line x1="230" y1="58" x2="230" y2="146" marker-end="url(#a1)"/>
+  <text class="lbl" x="149" y="30" text-anchor="middle">≅</text>
+  <text class="lbl" x="149" y="180" text-anchor="middle">≅</text>
+  <text class="lbl" x="56" y="106" text-anchor="end">− ∘ Fh</text>
+  <text class="lbl" x="244" y="106" text-anchor="start">− ∘ h</text>
+  <text x="370" y="165" text-anchor="middle">Fc′</text>
+  <text x="370" y="45" text-anchor="middle">Fc</text>
+  <text x="470" y="45" text-anchor="middle">d</text>
+  <line x1="370" y1="146" x2="370" y2="58" marker-end="url(#a1)"/>
+  <line x1="390" y1="40" x2="452" y2="40" marker-end="url(#a1)"/>
+  <line x1="388" y1="150" x2="456" y2="56" marker-end="url(#a1)"/>
+  <text class="lbl" x="356" y="106" text-anchor="end">Fh</text>
+  <text class="lbl" x="421" y="30" text-anchor="middle">f<tspan baseline-shift="super" font-size="9">♯</tspan></text>
+  <text class="lbl" x="440" y="118" text-anchor="start">f<tspan baseline-shift="super" font-size="9">♯</tspan> ∘ Fh</text>
+</svg>
+<figcaption>四角形の可換性は、f<sup>♯</sup> を右回りと下回りで送った結果が一致すること</figcaption>
+</figure>
+
+<p>射の言葉では、f<sup>♯</sup> ∘ Fh : Fc′ → d の転置は、h : c′ → c と f<sup>♭</sup> : c → Gd の合成である。</p>
+
+<p class="eq">(f<sup>♯</sup> ∘ Fh)<sup>♭</sup> = f<sup>♭</sup> ∘ h</p>
+
+<h2>補題4.1.3 — 自然性と転置した四角形</h2>
+
+<p>自然性は、2 つの等式で述べるよりも、1 つの四角形の可換性がその転置した四角形の可換性と同値である、という形で使うほうが便利なことが多い。</p>
+
+<div class="thm"><b>補題4.1.3.</b> 一対の関手 F : C ⇄ D : G と、すべての c ∈ C, d ∈ D について指定された同型 D(Fc, d) ≅ C(c, Gd) を考える。この同型の族が自然であることは、次と同値である。始域と終域が下のとおりの任意の射について、
+<p class="eq">(4.1.4)</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 520 190" width="520" role="img" aria-label="左の四角形: Fc → d を f♯、Fc → Fc′ を Fh、d → d′ を k、Fc′ → d′ を g♯。右の四角形: c → Gd を f♭、c → c′ を h、Gd → Gd′ を Gk、c′ → Gd′ を g♭">
+  <text x="60" y="45" text-anchor="middle">Fc</text>
+  <text x="200" y="45" text-anchor="middle">d</text>
+  <text x="60" y="165" text-anchor="middle">Fc′</text>
+  <text x="200" y="165" text-anchor="middle">d′</text>
+  <line x1="82" y1="40" x2="184" y2="40" marker-end="url(#a1)"/>
+  <line x1="82" y1="160" x2="184" y2="160" marker-end="url(#a1)"/>
+  <line x1="60" y1="58" x2="60" y2="146" marker-end="url(#a1)"/>
+  <line x1="200" y1="58" x2="200" y2="146" marker-end="url(#a1)"/>
+  <text class="lbl" x="133" y="30" text-anchor="middle">f<tspan baseline-shift="super" font-size="9">♯</tspan></text>
+  <text class="lbl" x="133" y="182" text-anchor="middle">g<tspan baseline-shift="super" font-size="9">♯</tspan></text>
+  <text class="lbl" x="46" y="106" text-anchor="end">Fh</text>
+  <text class="lbl" x="214" y="106" text-anchor="start">k</text>
+  <text x="260" y="108" text-anchor="middle">⇔</text>
+  <text x="330" y="45" text-anchor="middle">c</text>
+  <text x="470" y="45" text-anchor="middle">Gd</text>
+  <text x="330" y="165" text-anchor="middle">c′</text>
+  <text x="470" y="165" text-anchor="middle">Gd′</text>
+  <line x1="346" y1="40" x2="446" y2="40" marker-end="url(#a1)"/>
+  <line x1="346" y1="160" x2="446" y2="160" marker-end="url(#a1)"/>
+  <line x1="330" y1="58" x2="330" y2="146" marker-end="url(#a1)"/>
+  <line x1="470" y1="58" x2="470" y2="146" marker-end="url(#a1)"/>
+  <text class="lbl" x="396" y="30" text-anchor="middle">f<tspan baseline-shift="super" font-size="9">♭</tspan></text>
+  <text class="lbl" x="396" y="182" text-anchor="middle">g<tspan baseline-shift="super" font-size="9">♭</tspan></text>
+  <text class="lbl" x="316" y="106" text-anchor="end">h</text>
+  <text class="lbl" x="484" y="106" text-anchor="start">Gk</text>
+</svg>
+</figure>
+左の四角形が D で可換であることと、右の転置した四角形が C で可換であることが同値である。</div>
+
+<p>証明は演習4.1.i とする。左の四角形の縦の射は、左側が左随伴 F の像、右側が任意の射 k である。転置すると、左側は任意の射 h、右側は右随伴 G の像 Gk になる。横の射は互いの転置である。</p>
+
+<h2>記法4.1.5 — 記号 ⊣</h2>
+
+<div class="thm"><b>記法4.1.5.</b> Kan に従い、向かい合う一対の関手が随伴であることを記号 ⊣ で表す。F ⊣ G、G ⊢ F、および次の図はいずれも、F : C → D が G : D → C の左随伴であることを主張する。</div>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 440 150" width="440" role="img" aria-label="左: C から D へ上の矢印 F、D から C へ下の矢印 G、間に ⊥。右: 縦に C と D、C から D へ左の矢印 F、D から C へ右の矢印 G、間に ⊣">
+  <text x="60" y="75" text-anchor="middle">C</text>
+  <text x="200" y="75" text-anchor="middle">D</text>
+  <line x1="80" y1="60" x2="182" y2="60" marker-end="url(#a1)"/>
+  <line x1="182" y1="82" x2="80" y2="82" marker-end="url(#a1)"/>
+  <text class="lbl" x="131" y="50" text-anchor="middle">F</text>
+  <text class="lbl" x="131" y="102" text-anchor="middle">G</text>
+  <text class="lbl" x="131" y="76" text-anchor="middle">⊥</text>
+  <text x="350" y="30" text-anchor="middle">C</text>
+  <text x="350" y="135" text-anchor="middle">D</text>
+  <line x1="338" y1="42" x2="338" y2="118" marker-end="url(#a1)"/>
+  <line x1="362" y1="118" x2="362" y2="42" marker-end="url(#a1)"/>
+  <text class="lbl" x="326" y="86" text-anchor="end">F</text>
+  <text class="lbl" x="374" y="86" text-anchor="start">G</text>
+  <text class="lbl" x="350" y="86" text-anchor="middle">⊣</text>
+</svg>
+<figcaption>記号 ⊥ と ⊣ は、その開いた側を向く関手が左随伴であることを表す</figcaption>
+</figure>
+
+<p>この記法の便利さは、複数の随伴関手が関わる場面で現れる。</p>
+
+<h2>例4.1.6 — 離散位相と密着位相</h2>
+
+<p>忘却関手 U : Top → Set は左随伴と右随伴を両方持つ。</p>
+
+<p>左随伴は、集合 S から位相空間を作り、その空間から他の空間 T への連続写像が写像 S → U(T) と自然に全単射で対応するようにするものである。S 上の離散位相がこの普遍性を持つ。離散空間を D(S) と書くと、任意の写像 S → U(T) は連続写像 D(S) → T を定める。</p>
+
+<p>右随伴は、集合 S から位相空間を作り、T からその空間への連続写像が写像 U(T) → S と自然に全単射で対応するようにするものである。S 上の密着位相がこの普遍性を持つ。密着空間を I(S) と書くと、任意の写像 U(T) → S は連続写像 T → I(S) を定める。自然同型</p>
+
+<p class="eq">Top(D(S), T) ≅ Set(S, U(T))　と　Set(U(T), S) ≅ Top(T, I(S))</p>
+
+<p>は、離散、忘却、密着の 3 つの関手が一対の随伴をなすことを主張する。</p>
+
+<figure class="cd">
+<svg class="cd" viewBox="0 0 300 150" width="300" role="img" aria-label="Set と Top の間の 3 本の矢印。上から D : Set → Top、U : Top → Set、I : Set → Top。D と U の間に ⊥、U と I の間に ⊥">
+  <text x="50" y="80" text-anchor="middle">Set</text>
+  <text x="250" y="80" text-anchor="middle">Top</text>
+  <line x1="80" y1="44" x2="222" y2="44" marker-end="url(#a1)"/>
+  <line x1="222" y1="78" x2="80" y2="78" marker-end="url(#a1)"/>
+  <line x1="80" y1="112" x2="222" y2="112" marker-end="url(#a1)"/>
+  <text class="lbl" x="151" y="34" text-anchor="middle">D</text>
+  <text class="lbl" x="196" y="72" text-anchor="middle">U</text>
+  <text class="lbl" x="151" y="132" text-anchor="middle">I</text>
+  <text class="lbl" x="115" y="66" text-anchor="middle">⊥</text>
+  <text class="lbl" x="115" y="101" text-anchor="middle">⊥</text>
+</svg>
+<figcaption>D ⊣ U ⊣ I</figcaption>
+</figure>
+
+<p>3 つの関手 F, G, H が一対の随伴 F ⊣ G と G ⊣ H を定めるとき、このデータをまとめて随伴三つ組（adjoint triple）と呼ぶ。</p>
+
+<h2>ガロア接続と例4.1.7–4.1.9</h2>
+
+<p>前順序集合の間の随伴を（単調）ガロア接続（Galois connection）と呼ぶ。演習1.3.ii で見たように、前順序集合 A, B の間の関手 F : A → B, G : B → A は順序を保つ写像にほかならない。随伴 F ⊣ G は、すべての a ∈ A と b ∈ B について</p>
+
+<p class="eq">Fa ≤ b　⇔　a ≤ Gb</p>
+
+<p>が成り立つことを主張する。この文脈では F を下随伴（lower adjoint）、G を上随伴（upper adjoint）と呼ぶ。hom 集合は空か 1 点なので、全単射 (4.1.2) は両辺の真偽が一致することに尽き、自然性は自動的に成り立つ。</p>
+
+<div class="thm"><b>例4.1.7.</b> 通常の順序 ≤ を持つ半順序集合の包含 ℤ ↪ ℝ は、左随伴と右随伴を両方持つ。それぞれ天井関数と床関数である。</div>
+
+<p>整数 n と実数 r について、n ≤ r ⇔ n ≤ ⌊r⌋ である。ここで ⌊r⌋ は r 以下の最大の整数である。この関数は順序を保ち、包含 ℤ ↪ ℝ の右随伴である関手 ⌊−⌋ : ℝ → ℤ を定める。双対に、r ≤ n ⇔ ⌈r⌉ ≤ n である。ここで ⌈r⌉ は r 以上の最小の整数である。この関数は包含の左随伴である関手 ⌈−⌉ : ℝ → ℤ を定める。こうして随伴三つ組 ⌈−⌉ ⊣ (ℤ ↪ ℝ) ⊣ ⌊−⌋ が得られる。</p>
+
+<div class="thm"><b>例4.1.8.</b> 集合の間の写像 f : A → B を考える。A の部分集合全体と B の部分集合全体は包含で順序づけられた半順序集合 PA, PB をなす。f は順像関手 f<sub>∗</sub> : PA → PB と逆像関手 f<sup>−1</sup> : PB → PA を誘導し、逆像は順像の右随伴である。すなわち A′ ⊂ A と B′ ⊂ B について f(A′) ⊂ B′ ⇔ A′ ⊂ f<sup>−1</sup>(B′) である。</div>
+
+<p>逆像関手はさらに右随伴 f<sub>!</sub> を持つ。f<sub>!</sub> は部分集合 A′ ⊂ A を、ファイバーが A′ に丸ごと含まれる B の要素の集合に送る。この定義で B′ ⊂ f<sub>!</sub>(A′) ⇔ f<sup>−1</sup>(B′) ⊂ A′ が成り立つ。これらは随伴三つ組 f<sub>∗</sub> ⊣ f<sup>−1</sup> ⊣ f<sub>!</sub> を定める。</p>
+
+<div class="thm"><b>例4.1.9.</b> 述語（predicate）または命題関数とは、真理値の集合 Ω ≔ {⊥, ⊤} への関数 p : X → Ω である。述語は、自由変数 x ∈ X を含み X の各要素で真偽の定まる論理式と考えられる。Ω<sup>X</sup> は X 上の述語の集合である。Ω には論理的含意で定まる半順序 ⊥ ≤ ⊤ を入れ、Ω<sup>X</sup> には点ごとの順序を入れる。p ≤ q とは、すべての x ∈ X について p(x) ≤ q(x)、すなわちすべての x について p(x) が q(x) を含意することである。</div>
+
+<p>全称量化と存在量化は関手 ∀<sub>X</sub>, ∃<sub>X</sub> : Ω<sup>X</sup> ⇉ Ω を定める。∀<sub>X</sub> p = ⊤ ⇔ すべての x ∈ X で p(x) = ⊤、∃<sub>X</sub> p = ⊤ ⇔ ある x ∈ X で p(x) = ⊤ である。定数関手 Δ<sub>X</sub> : Ω → Ω<sup>X</sup> もあり、これらは随伴三つ組 ∃<sub>X</sub> ⊣ Δ<sub>X</sub> ⊣ ∀<sub>X</sub> を定める。実際、Ω<sup>X</sup> と P(X) の圏同値を介して、この随伴三つ組は例4.1.8 を写像 ! : X → ∗ に適用した特別な場合である。</p>
+
+<h2>例4.1.10 — 自由 ⊣ 忘却</h2>
+
+<p>大きく重要な随伴の族として、「自由 ⊣ 忘却」の形の随伴 F : S ⇄ A : U がある。忘却関手 U : A → S が右随伴、自由関手 F が左随伴である。S の対象の上に A の型の普遍的な対象を構成でき、その構成が忘却関手 U : A → S の左随伴を定めるとき、この関係を表すために「普遍的」の代わりに「自由」という語を使う。忘却関手の左随伴が右随伴より多く現れるのは、実際に出会う普遍性の向きによる。忘却関手の右随伴を定める「余自由」構成は比較的少ない。</p>
+
+<p>次の忘却関手は左随伴を持ち、「自由」構成を定める。</p>
+
+<ol class="roman">
+  <li>U : Set<sub>∗</sub> → Set。左随伴は集合 X を、基点を自由に添えた点つき集合 X<sub>+</sub> ≔ X ⊔ {X} に送る。</li>
+  <li>U : Monoid → Set。集合 X 上の自由モノイドは、空リストを含む X の要素の有限リストの集合 ∐<sub>n≥0</sub> X<sup>×n</sup> である。</li>
+  <li>U : Ring → Ab。乗法の構造を忘れる。アーベル群 A 上の自由環は ⨁<sub>n≥0</sub> A<sup>⊗n</sup> である。演習5.1.i は (ii) と (iii) の関係を調べる。定義1.6.3 で見たように、環はアーベル群の圏のモノイドである。</li>
+  <li>U : Ab → Set。集合 X 上の自由アーベル群は、X の要素の整数係数の有限な形式和の集合 ℤ[X] ≔ ⨁<sub>X</sub> ℤ である。</li>
+  <li>U : <sub>R</sub>Mod → Set。集合 X 上の自由 R-加群は R[X] ≔ ⨁<sub>X</sub> R である。特別な場合が集合上の自由 𝕜-ベクトル空間で、章の導入で考えた U : Vect<sub>𝕜</sub> → Set の左随伴を定める。</li>
+  <li>U : Ring → Set。忘却関手の左随伴どうしを合成して（命題4.3.3）、集合 X 上の自由環は、集合上の自由アーベル群の上の自由モノイド ⨁<sub>n≥0</sub> (⨁<sub>X</sub> ℤ)<sup>⊗n</sup> である。</li>
+  <li>U : CRing → Set。集合 X 上の自由可換環は、X の要素を変数とする整数係数の多項式の環である。</li>
+  <li>(−)<sup>×</sup> : Ring → Group。環をその単元群に送る。群 G 上の自由環は群環 ℤ[G] = ⨁<sub>G</sub> ℤ で、要素は群の要素の有限な形式和、乗法は群演算を双線形に延ばしたものである。</li>
+  <li>U : Group → Set。集合上の自由群は例4.2.4 と例4.7.6 で詳しく述べる。</li>
+  <li>I : Ab ↪ CMonoid。アーベル群の、可換モノイドの圏への包含。左随伴 Gr は可換モノイド (M, +, 0) をその群完備化、またはグロタンディーク群に送る。集合としては Gr(M, +, 0) は M × M を、ある c ∈ M について a + b′ + c = a′ + b + c となるとき (a, b) ≃ (a′, b′) とする関係で割った商である。</li>
+  <li>I : Group ↪ Monoid。左随伴はモノイドの「群完備化」を、その台集合上の自由群を、モノイドの乗法と単位から生じる関係で割った商として構成する。</li>
+  <li>環準同型 φ : R → S に付随する係数制限関手 φ<sup>∗</sup> : <sub>S</sub>Mod → <sub>R</sub>Mod。左随伴 S ⊗<sub>R</sub> − : <sub>R</sub>Mod → <sub>S</sub>Mod を係数拡大と呼ぶ。</li>
+  <li>U : <sub>R</sub>Mod → Ab。スカラー倍を忘れる。唯一の単位的環準同型 ! : ℤ → R が誘導する、前の例の特別な場合である。</li>
+  <li>φ<sup>∗</sup> : Set<sup>BG</sup> → Set<sup>BH</sup>。群準同型 φ : H → G に付随する関手 φ : BH → BG が誘導する、もう 1 つの係数制限関手。左随伴は誘導（induction）とも呼ばれ、(xii) と同様に記述できる。</li>
+</ol>
+
+<p>これらの自由 ⊣ 忘却随伴はいずれもモナド的随伴の例である。モナド的随伴は §5.5 の主題である。</p>
+
+<h2>例4.1.11 — フロベニウス相互律</h2>
+
+<div class="thm"><b>例4.1.11（フロベニウス相互律）.</b> 例4.1.10(xiv) は一般化できる。例6.2.11 は、完備かつ余完備な任意の圏 C と任意の群準同型 φ : H → G について、制限関手 φ<sup>∗</sup> : C<sup>BG</sup> → C<sup>BH</sup> が左随伴と右随伴を両方持つことを示す。</div>
+
+<p>最もよく考えられるのは部分群の包含 H ⊂ G の場合で、このとき左随伴を誘導（induction）ind<sup>G</sup><sub>H</sub>、右随伴を余誘導（coinduction）coind<sup>G</sup><sub>H</sub> と呼ぶ。C を Vect<sub>𝕜</sub> に取ると、H-表現の圏 Vect<sub>𝕜</sub><sup>BH</sup> と G-表現の圏 Vect<sub>𝕜</sub><sup>BG</sup> の間の随伴 ind<sup>G</sup><sub>H</sub> ⊣ res<sup>G</sup><sub>H</sub> は、表現論の文献でフロベニウス相互律と呼ばれる。</p>
+
+<h2>例4.1.12 — 体の忘却関手は随伴を持たない</h2>
+
+<div class="thm"><b>例4.1.12.</b> 体の代数的構造を忘れる関手
+<p class="eq">U : Field → Ring,　U : Field → Ab,　(−)<sup>×</sup> : Field → Ab,　U : Field → Set</p>
+はどれも左随伴も右随伴も持たない。</div>
+
+<p>左随伴が存在しないことは次のように分かる。これらの終域の圏には、ℤ から任意の標数の体への射がある。標数の異なる体の間に体の準同型はないので、左随伴があるとしてその ℤ での値を定めることができない。同様の議論で右随伴も存在しないことが示せる。</p>
+
+<h2>例4.1.13 — 箙上の自由圏</h2>
+
+<div class="thm"><b>例4.1.13.</b> 忘却関手 U : Cat → Quiver は左随伴 F を持ち、箙上の自由圏を定める。</div>
+
+<p>箙 Q は、頂点の集合 V、矢の集合 A、各矢の始点と終点を定める 2 つの関数 s, t : A ⇉ V からなる。Q 上の自由圏は V を対象の集合とし、射は矢の有限な有向道で、長さ 0 の道が恒等射である。合成は道の連結である。</p>
+
+<p>随伴は、関手 F(Q) → C と箙の射 Q → U(C) の間の自然な全単射を与える。関手 F(Q) → C、あるいは同じことだが箙の射 Q → U(C) は、C の中の可換性の条件のない図式を定める。箙は合成を持たないからである。そのような図式のデータは、Q の頂点と矢の像で一意に決まる。これらの矢は圏 F(Q) の中で、自明でない分解を持たない原子的な射である。たとえば例1.1.4(iv) で述べたように、圏 ω は、自然数で添字づけられた頂点と各 n ∈ ω についての辺 n → n + 1 を持つ箙の上の自由圏である。随伴により、ω で添字づけられた図式は、順序数からその後続への原子的な矢の像だけを指定すれば定まる。</p>
+
+<h2>例4.1.14 — 順序数の圏の間の随伴の列</h2>
+
+<div class="thm"><b>例4.1.14.</b> n ≥ 0 について、箙 0 → 1 → 2 → ⋯ → n が自由に生成する順序数の圏を 𝕟 + 𝟙 と書く。0 ≤ i ≤ n について、i ∈ 𝕟 + 𝟙 だけが像に入らない単射的な関手 d<sup>i</sup> : 𝕟 → 𝕟 + 𝟙 がある。0 ≤ i &lt; n について、i ∈ 𝕟 だけが 2 つの逆像を持つ全射的な関手 s<sup>i</sup> : 𝕟 + 𝟙 → 𝕟 がある。これらは 2n + 1 個の随伴の列</div>
+
+<p class="eq">d<sup>n</sup> ⊣ s<sup>n−1</sup> ⊣ d<sup>n−1</sup> ⊣ s<sup>n−2</sup> ⊣ ⋯ ⊣ s<sup>0</sup> ⊣ d<sup>0</sup></p>
+
+<p>をなす。したがって、任意の有限の長さの随伴関手の列が存在する。𝕟 と 𝕟 + 𝟙 は半順序集合なので、各随伴はガロア接続 d<sup>i</sup>(a) ≤ b ⇔ a ≤ s<sup>i−1</sup>(b) などとして確かめられる。</p>
+
+<h2>例4.1.15 — 亜群の圏の包含</h2>
+
+<div class="thm"><b>例4.1.15.</b> 包含 Groupoid ↪ Cat は左随伴と右随伴を両方持つ。</div>
+
+<p>右随伴は圏をその極大部分亜群（補題1.1.14）に送る。関手は同型を保つので、亜群 G を始域とする関手 G → C の像は、C の極大部分亜群を必ず一意に通る。</p>
+
+<p>左随伴は圏の射を「形式的に可逆にする」もので、対応する category of fractions を構成する。C の category of fractions は、C の台となる箙と C<sup>op</sup> の台となる箙を共通の離散部分圏 ob C に沿って貼り合わせた箙の上の自由圏の商として構成できる。対象は C の対象で、射は C の射の有限なジグザグ（向きが交互する射の列）である。ジグザグには関係を課し、たとえば a →<sup>f</sup> b と b ←<sup>f</sup> a を続けたジグザグ a → b ← a、および b ← a → b を恒等射と同一視する。詳しくは [Bor94a, §5.2] にある。</p>
+
+<h2>節末問題</h2>
+
+<ul>
+  <li><b>4.1.i</b> — 関手 F : C → D, G : D → C と、各 c ∈ C, d ∈ D についての全単射 D(Fc, d) ≅ C(c, Gd) が随伴を定めることと、これらの全単射が可換な四角形 (4.1.4) の間の全単射を誘導することが同値であることを示せ。すなわち補題4.1.3 を証明せよ。</li>
+  <li><b>4.1.ii</b> — (i) ob : Cat → Set と (ii) V : Quiver → Set の左随伴と右随伴を定めよ。V : Graph → Set は左随伴または右随伴を持つか。</li>
+  <li><b>4.1.iii</b> — 任意の随伴三つ組 L ⊣ U ⊣ R から、誘導される自己関手の間の標準的な随伴 LU ⊣ RU と UL ⊣ UR が生じることを示せ。</li>
+  <li><b>4.1.iv</b> — 例4.1.10(v) で述べた集合上の自由 R-加群の構成が関手的であることを証明せよ<sup>4</sup>。</li>
+  <li><b>4.1.v</b> — 補題4.1.3 を使って、F : C ⇄ D : G が随伴関手で F ⊣ G ならば、F と G および C と D の恒等関手から作るコンマ圏 F ↓ D と C ↓ G が、演習1.3.vi で定めた C × D への忘却関手と両立する同型で同型であることを示せ。</li>
+</ul>
+
+<p class="fn"><sup>4</sup> この問題は、生成集合の間の写像に付随する、形式的に定義された 2 つの有限な形式和の間の準同型の明示的な記述を求めている。明示的な構成を考えたくない読者は、代わりに米田の補題で関手性を証明してもよい（命題4.4.4 を見よ）。</p>
+
+</body>
+</html>

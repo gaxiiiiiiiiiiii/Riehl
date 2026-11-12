@@ -37,27 +37,18 @@ variable {I J : Type v} [SmallCategory I] [SmallCategory J] {C : Type u} [Catego
 図式 F : I × J → C に付随する繰り返し極限 limit (i ↦ limit F(i, -)) と
 limit (j ↦ limit F(-, j)) が C に存在するならば、両者は同型であり、極限 limit F を定める。
 
-`curry.obj F ⋙ lim` は図式 i ↦ limit F(i, -) である。`curry.obj F` は F を関手 I → C^J と
-見たもの（演習1.7.vi）、`lim` は極限関手 C^J → C（命題3.3.1）である。
-`curry.obj (CategoryTheory.Prod.swap J I ⋙ F) ⋙ lim` は図式 j ↦ limit F(-, j) である。
-`CategoryTheory.Prod.swap J I ⋙ F` は F の変数を入れ替えた図式 J × I → C である。
+statement に現れる項が表す図式:
+  curry.obj F ⋙ lim                                   := i ↦ limit F(i, -)
+  CategoryTheory.Prod.swap J I ⋙ F                    := (j, i) ↦ F(i, j)
+  curry.obj (CategoryTheory.Prod.swap J I ⋙ F) ⋙ lim  := j ↦ limit F(-, j)
 
 本は各 i ∈ I で limit F(i, -) が存在することを仮定する。`lim` は C がすべての J 型の極限を
 持つことを要求するので、宣言はそちらを仮定している。
 -/
 
 /-
-定理 3.8.1 の証明に Mathlib が使う定義で、本にはない。`DiagramOfCones'`、
-`DiagramOfCones.conePoints'`、`DiagramOfCones.mkOfHasLimits'`、`Prod.sectR'`、`coneOfConeCurry'` を
-Mathlib の `isLimitConeOfHasLimitCurryCompLim` の証明と同じ形で定義する。
-関手 `G : I ⥤ J ⥤ C` に対し、`DiagramOfCones G` は次の 4 つのフィールドを持つ構造である。
-`obj i` は、各 i ∈ I に与える G i 上の錐である。
-`map f` は、I の各射 f : i → i' に与える錐の射である。その始域は、`obj i` の各脚に自然変換 G f の
-成分を合成して得られる G i' 上の錐 `(Cone.postcompose (G.map f)).obj (obj i)`、終域は `obj i'` である。
-`id` は、`map (𝟙 i)` の頂点の間の射が恒等射であるという条件である。
-`comp` は、`map (f ≫ g)` の頂点の間の射が、`map f` と `map g` の頂点の間の射の合成であるという
-条件である。
-`coneOfConeCurry'` では G は `curry.obj F` であり、G i は F(i, -) である。
+以下の 5 つは本にない。Mathlib が `isLimitConeOfHasLimitCurryCompLim` の証明に使う定義で、
+同じ形で組む。
 -/
 
 #print DiagramOfCones
@@ -108,8 +99,6 @@ theorem DiagramOfCones.mkOfHasLimits_conePoints' (G : I ⥤ J ⥤ C) [HasLimitsO
   · intro i i' f; simp
 
 
-
-
 #check Prod.sectR
 
 -- i ∈ I を固定して J を I × J に埋め込む関手 j ↦ (i, j)
@@ -143,7 +132,7 @@ def coneOfConeCurry' (F : I × J ⥤ C) {D : DiagramOfCones (curry.obj F)}
   }
 
 
--- 以下、本の証明の段階を本の順に置く
+-- ここから定理3.8.1 の宣言
 
 #check coneOfHasLimitCurryCompLim
 
@@ -274,20 +263,108 @@ noncomputable def isLimitConeOfHasLimitCurrySwapCompLim (F : I × J ⥤ C) [HasL
 
 
 #check limitCurrySwapCompLimIsoLimitCurryCompLim
-
-#check limMap
+#check Yoneda.fullyFaithful.preimageIso
 
 noncomputable def limitCurrySwapCompLimIsoLimitCurryCompLim' (F : I × J ⥤ C)
     [HasLimitsOfShape I C] [HasLimitsOfShape J C] [HasLimit (curry.obj F ⋙ lim)]
     [HasLimit (curry.obj (CategoryTheory.Prod.swap J I ⋙ F) ⋙ lim)] :
     limit (curry.obj (CategoryTheory.Prod.swap J I ⋙ F) ⋙ lim) ≅ limit (curry.obj F ⋙ lim) := by
-  apply  Yoneda.fullyFaithful.preimageIso
-  have μ := (isLimitConeOfHasLimitCurryCompLim F).representableBy.toIso
-  have ν := (isLimitConeOfHasLimitCurrySwapCompLim F).representableBy.toIso
-  simp only [coneOfHasLimitCurryCompLim, const_obj_obj, comp_obj, lim_obj] at μ
-  simp only [coneOfHasLimitCurrySwapCompLim, const_obj_obj, comp_obj, lim_obj] at ν
-  exact ν ≪≫ μ.symm
-  
+  have μ := (isLimitConeOfHasLimitCurryCompLim F).representableBy
+  have ν := (isLimitConeOfHasLimitCurrySwapCompLim F).representableBy
+  exact ν.uniqueUpToIso μ
+
+
+#check yonedaEquiv_comp
+
+-- 自然変換の合成 α ≫ β の米田対応（定理2.2.4 の全単射での像）は、α の米田対応を β で送ったもの
+theorem yonedaEquiv_comp' {X : C} {F G : Cᵒᵖ ⥤ Type v} (α : yoneda.obj X ⟶ F) (β : F ⟶ G) :
+    yonedaEquiv (α ≫ β) = β.app _ (yonedaEquiv α) := by
+  simp only [yonedaEquiv, Equiv.coe_fn_mk]
+  rw [NatTrans.comp_app, comp_apply]
+
+
+#check yonedaEquiv_yoneda_map
+
+-- 射 f を米田埋め込みで送った自然変換の米田対応は f 自身
+theorem yonedaEquiv_yoneda_map' {X Y : C} (f : X ⟶ Y) :
+    yonedaEquiv (yoneda.map f) = f := by
+  simp only [yonedaEquiv, Equiv.coe_fn_mk]
+  erw [yoneda_map_app]; simp
+
+
+
+#check Yoneda.fullyFaithful.preimageIso
+#check yoneda.mapIso
+
+-- 同じ関手 F の 2 つの表現 e, e' から得る同型 φ : Y ≅ Y' について、
+-- e'.homEquiv (g ≫ φ.hom) = e.homEquiv g
+theorem uniqueUpToIso_homEquiv_comp {F : Cᵒᵖ ⥤ Type v} {Y Y' : C}
+    (e : F.RepresentableBy Y) (e' : F.RepresentableBy Y') {Z : C} (g : Z ⟶ Y) :
+    e'.homEquiv (g ≫ (e.uniqueUpToIso e').hom) = e.homEquiv g := by
+  apply e'.homEquiv.symm.injective
+  rw [Equiv.symm_apply_apply]
+  apply yoneda.map_injective
+  rw [yoneda.map_comp]
+  simp only [RepresentableBy.uniqueUpToIso_hom, NatIso.ofComponents]
+  rw [FullyFaithful.map_preimage]
+  ext x f
+  simp only [yoneda_obj_obj, NatTrans.comp_app, yoneda_map_app, TypeCat.Fun.toFun_apply, comp_apply,
+    TypeCat.hom_ofHom, TypeCat.Fun.coe_mk, Function.comp_apply]
+  rw [e.homEquiv_comp, Equiv.symm_apply_eq, e'.homEquiv_comp]
+  simp
+
+
+
+
+-- 同じ図式の 2 つの極限錐 t, t' から得る頂点の同型 φ : t.pt ≅ t'.pt について、
+-- φ.hom ≫ t'.π.app j = t.π.app j
+theorem uniqueUpToIso_representableBy_hom_comp {F : J ⥤ C} {t t' : Cone F}
+    (h : IsLimit t) (h' : IsLimit t') (j : J) :
+    (h.representableBy.uniqueUpToIso h'.representableBy).hom ≫ t'.π.app j = t.π.app j := by
+  have E := uniqueUpToIso_homEquiv_comp (h.representableBy) (h'.representableBy) (𝟙 _)
+  conv at E => arg 2; erw [h.homEquiv_apply]; simp only [Cone.extend_π, CategoryTheory.Functor.map_id, Category.id_comp]
+  set σ := (h.representableBy.uniqueUpToIso h'.representableBy).hom
+  rw [<- Equiv.eq_symm_apply, Category.id_comp] at E
+  simp only [cones_obj, IsLimit.representableBy, IsLimit.homEquiv, Cone.extend_π, Equiv.symm_mk,
+    Equiv.coe_fn_mk] at E
+  rw [E]
+  rw [h'.fac]
+
+
+
+#check limitCurrySwapCompLimIsoLimitCurryCompLim_hom_π_π
+
+-- 同型の hom に 2 段の射影を合成すると、順序を入れ替えた 2 段の射影になる
+theorem limitCurrySwapCompLimIsoLimitCurryCompLim_hom_π_π' (F : I × J ⥤ C)
+    [HasLimitsOfShape I C] [HasLimitsOfShape J C] [HasLimit (curry.obj F ⋙ lim)]
+    [HasLimit (curry.obj (CategoryTheory.Prod.swap J I ⋙ F) ⋙ lim)] (i : I) (j : J) :
+    (limitCurrySwapCompLimIsoLimitCurryCompLim' F).hom ≫
+        limit.π (curry.obj F ⋙ lim) i ≫ limit.π ((curry.obj F).obj i) j =
+      limit.π (curry.obj (CategoryTheory.Prod.swap J I ⋙ F) ⋙ lim) j ≫
+        limit.π ((curry.obj (CategoryTheory.Prod.swap J I ⋙ F)).obj j) i := by
+  have E :=
+    uniqueUpToIso_representableBy_hom_comp
+    (isLimitConeOfHasLimitCurrySwapCompLim F)
+    (isLimitConeOfHasLimitCurryCompLim F) ⟨i, j⟩
+  erw [E]; rfl
+
+
+
+#check limitCurrySwapCompLimIsoLimitCurryCompLim_inv_π_π
+
+-- 同型の inv についての同じ等式
+theorem limitCurrySwapCompLimIsoLimitCurryCompLim_inv_π_π' (F : I × J ⥤ C)
+    [HasLimitsOfShape I C] [HasLimitsOfShape J C] [HasLimit (curry.obj F ⋙ lim)]
+    [HasLimit (curry.obj (CategoryTheory.Prod.swap J I ⋙ F) ⋙ lim)] (i : I) (j : J) :
+    (limitCurrySwapCompLimIsoLimitCurryCompLim' F).inv ≫
+        limit.π (curry.obj (CategoryTheory.Prod.swap J I ⋙ F) ⋙ lim) j ≫
+          limit.π ((curry.obj (CategoryTheory.Prod.swap J I ⋙ F)).obj j) i =
+      limit.π (curry.obj F ⋙ lim) i ≫ limit.π ((curry.obj F).obj i) j := by
+    rw [Iso.inv_comp_eq]; symm
+    rw [<- limitCurrySwapCompLimIsoLimitCurryCompLim_hom_π_π']
+
+
+
 
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -310,15 +387,41 @@ variable (I J C)
 
 -- F ↦ (i ↦ limit F(i, -))
 noncomputable def limJ [HasLimitsOfShape J C] : (I × J ⥤ C) ⥤ (I ⥤ C) :=
-  sorry
+  curry ⋙ (whiskeringRight I (J ⥤ C) C).obj lim
+
+
 
 -- F ↦ (j ↦ limit F(-, j))
 noncomputable def limI [HasLimitsOfShape I C] : (I × J ⥤ C) ⥤ (J ⥤ C) :=
-  sorry
+  (whiskeringLeft (J × I) (I × J) C).obj (CategoryTheory.Prod.swap J I) ⋙ limJ J I C
+
+
+
+
+
 
 noncomputable def limJCompLimIsoLimICompLim [HasLimitsOfShape I C] [HasLimitsOfShape J C] :
-    limJ I J C ⋙ lim ≅ limI I J C ⋙ lim :=
-  sorry
+    limJ I J C ⋙ lim ≅ limI I J C ⋙ lim := by
+  apply NatIso.ofComponents ?_ ?_
+  · intro F; --simp [limI, limJ]
+    exact (limitCurrySwapCompLimIsoLimitCurryCompLim F).symm
+  · intro F G σ
+    dsimp only [comp_obj, lim_obj, Functor.comp_map, lim_map, Iso.symm_hom]
+    apply limit.hom_ext; intro j
+    apply limit.hom_ext; intro i
+    dsimp only [whiskeringLeft_obj_obj, curry_obj_obj_obj, comp_obj, Prod.swap_obj]
+    dsimp only [limJ, comp_obj, whiskeringRight_obj_obj, limI, whiskeringLeft_obj_obj, lim_obj,
+      Functor.comp_map, whiskeringRight_obj_map, whiskeringLeft_obj_map]
+    rw [Category.assoc, Category.assoc, limitCurrySwapCompLimIsoLimitCurryCompLim_inv_π_π]
+    erw [<- Category.assoc, limMap_π, whiskerRight_app]
+    erw [Category.assoc, limMap_π, curry_map_app_app]
+    simp only [comp_obj, lim_obj, curry_obj_obj_obj, Category.assoc]
+    erw [<- Category.assoc (limMap _), limMap_π, whiskerRight_app]
+    rw [Category.assoc, lim_map, limMap_π, curry_map_app_app]
+    erw [<- Category.assoc, <- Category.assoc, <- Category.assoc]
+    rw [Category.assoc ((limitCurrySwapCompLimIsoLimitCurryCompLim F).inv), limitCurrySwapCompLimIsoLimitCurryCompLim_inv_π_π]
+    simp
+
 
 end
 
@@ -329,45 +432,62 @@ end
 双関手 F : I × J → C について、κ の始域と終域に現れる極限と余極限が存在するならば、標準的な射
 κ : colimit (i ↦ limit F(i, -)) → limit (j ↦ colimit F(-, j)) がある。
 
-本の証明は κ を、各 i ∈ I と j ∈ J について π_j ∘ κ ∘ ι_i = ι_{i,j} ∘ π_{i,j} を満たす射と
-して定める。ι_i は colimit (i ↦ limit F(i, -)) の脚、π_j は limit (j ↦ colimit F(-, j)) の脚、
-π_{i,j} : limit F(i, -) → F(i, j) は limit F(i, -) の脚、ι_{i,j} : F(i, j) → colimit F(-, j) は
-colimit F(-, j) の脚である。`ι_colimLimComparison_π` はこの等式である。
-
 `curry.obj F ⋙ lim` は図式 i ↦ limit F(i, -)、
 `curry.obj (CategoryTheory.Prod.swap J I ⋙ F) ⋙ colim` は図式 j ↦ colimit F(-, j) である。
 本は κ の始域と終域に現れる極限と余極限の存在だけを仮定する。`lim` と `colim` を使うので、
 宣言は C がすべての J 型の極限と I 型の余極限を持つことを仮定している。
-
-`colimLimComparison_eq` は、κ が Mathlib の `colimitLimitToLimitColimit` と一致することである。
-Mathlib のこの射は、極限を取る変数を先に書いた図式 J × I → C を引数に取るので、
-`CategoryTheory.Prod.swap J I ⋙ F` を渡している。
 -/
 
 -- 余極限関手。命題3.3.1 の双対
-#check colim
 
 #check colimitLimitToLimitColimit
 
+
 noncomputable def colimLimComparison (F : I × J ⥤ C) [HasLimitsOfShape J C]
     [HasColimitsOfShape I C] :
-    colimit (curry.obj F ⋙ lim) ⟶ limit (curry.obj (CategoryTheory.Prod.swap J I ⋙ F) ⋙ colim) :=
-  sorry
+    -- colim_i lim_j F(i,j) ⟶ lim_j colim_i F(i, j)
+    colimit (curry.obj F ⋙ lim) ⟶ limit (curry.obj (CategoryTheory.Prod.swap J I ⋙ F) ⋙ colim) := by
+  -- apply colimit.post (curry.obj F) lim ≫ limMap _
+  -- let t : Cocone (curry.obj F) := {
+  --   pt := curry.obj (CategoryTheory.Prod.swap J I ⋙ F) ⋙ colim
+  --   ι := {
+  --     app i := {
+  --       app j := colimit.ι ((curry.obj (CategoryTheory.Prod.swap J I ⋙ F)).obj j) i
+  --       naturality {j j'} f := by simp
+  --     }
+  --     naturality {i i'} f := by
+  --       ext j;
+  --       simp only [curry_obj_obj_obj, const_obj_obj, comp_obj, colim_obj, NatTrans.comp_app,
+  --         curry_obj_map_app, const_obj_map, Category.comp_id]
+  --       exact colimit.w ((curry.obj (CategoryTheory.Prod.swap J I ⋙ F)).obj j) f
+  --   }
+  -- }
+  -- exact colimit.desc (curry.obj F) t
+  let s : Cocone (curry.obj F ⋙ lim) := {
+    pt := limit (curry.obj (CategoryTheory.Prod.swap J I ⋙ F) ⋙ colim)
+    ι := {
+      app i := limMap <| {
+        app j := colimit.ι ((curry.obj (CategoryTheory.Prod.swap J I ⋙ F)).obj j) i
+        naturality {j j'} f := by simp
+      }
+      naturality {i i'} f := by
+        dsimp only [comp_obj, lim_obj, const_obj_obj, Functor.comp_map, lim_map, const_obj_map]
+        ext j;
+        simp only [comp_obj, colim_obj, Category.assoc, limMap_π, curry_obj_obj_obj, limMap_π_assoc,
+          curry_obj_map_app, Category.comp_id]
+        have := (colimit.w ((curry.obj (CategoryTheory.Prod.swap J I ⋙ F)).obj j) f)
+        erw [this]
+    }
+  }
+  exact colimit.desc (curry.obj F ⋙ lim) s
+
+
+
+
+
+
 
 #check ι_colimitLimitToLimitColimit_π
-
-theorem ι_colimLimComparison_π (F : I × J ⥤ C) [HasLimitsOfShape J C]
-    [HasColimitsOfShape I C] (i : I) (j : J) :
-    colimit.ι (curry.obj F ⋙ lim) i ≫ colimLimComparison F ≫
-        limit.π (curry.obj (CategoryTheory.Prod.swap J I ⋙ F) ⋙ colim) j =
-      limit.π ((curry.obj F).obj i) j ≫
-        colimit.ι ((curry.obj (CategoryTheory.Prod.swap J I ⋙ F)).obj j) i :=
-  sorry
-
-theorem colimLimComparison_eq (F : I × J ⥤ C) [HasLimitsOfShape J C]
-    [HasColimitsOfShape I C] :
-    colimLimComparison F = colimitLimitToLimitColimit (CategoryTheory.Prod.swap J I ⋙ F) :=
-  sorry
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 系3.8.4
