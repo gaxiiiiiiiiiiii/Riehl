@@ -337,9 +337,21 @@ def unitIsInitial {F : C ⥤ D} {G : D ⥤ C} (σ : F ⊣ G) (c : C) :
         simp only [StructuredArrow.mk_left, Functor.const_obj_obj, Discrete.functor_map_id,
           Category.id_comp, StructuredArrow.mk_right, StructuredArrow.mk_hom_eq_self,
           Equiv.invFun_as_coe]
-        rw [σ.homEquiv_symm_apply, G.map_comp, σ.unit_naturality_assoc f.hom,  σ.right_triangle_components]
+        rw [σ.homEquiv_symm_apply, G.map_comp]
+        rw [σ.unit_naturality_assoc f.hom,  σ.right_triangle_components]
         simp
     }
+  · intro f H
+    simp only [StructuredArrow.mk_left, Equiv.invFun_as_coe, StructuredArrow.hom_eq_iff,
+      StructuredArrow.mk_right]
+    change _ = (σ.homEquiv c f.right).symm f.hom
+    erw [σ.homEquiv_symm_apply]
+    have E := H.w
+    dsimp only [StructuredArrow.mk_right, StructuredArrow.mk_hom_eq_self] at E
+    rw [<- E, F.map_comp, Category.assoc]
+    rw [σ.counit_naturality, <- Category.assoc, σ.left_triangle_components]
+    simp
+
 
 -- 以下は双対（矢印 3'、4'、5'）
 
