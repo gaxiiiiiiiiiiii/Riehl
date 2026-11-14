@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4.3 随伴の計算</title>
+<style>
+  :root {
+    --bg: #fdfcf9;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --accent: #8a4c14;
+    --line: #d8d3c8;
+    --box-bg: #f5f2ea;
+    --code-bg: #f0ede5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1e22;
+      --fg: #e4e1da;
+      --muted: #9aa2ab;
+      --accent: #e0a468;
+      --line: #3a3f46;
+      --box-bg: #24262b;
+      --code-bg: #2a2d33;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    line-height: 1.95;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.5rem; font-family: "Hiragino Sans", sans-serif; border-bottom: 2px solid var(--accent); padding-bottom: .4rem; }
+  h2 { font-size: 1.12rem; font-family: "Hiragino Sans", sans-serif; color: var(--accent); margin-top: 2.6rem; }
+  p { margin: .9rem 0; font-size: .97rem; }
+  li { font-size: .97rem; margin: .4rem 0; }
+  .note { color: var(--muted); font-size: .88em; }
+  .thm {
+    background: var(--box-bg);
+    border-left: 3px solid var(--accent);
+    padding: .7rem 1.1rem;
+    margin: 1.2rem 0;
+  }
+  .thm b { font-family: "Hiragino Sans", sans-serif; }
+  .proof-head { font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .qed { float: right; }
+  .fn { color: var(--muted); font-size: .88rem; border-top: 1px solid var(--line); padding-top: .5rem; }
+  .eq { text-align: center; margin: 1rem 0; }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
+  svg.cd path:not([fill]) { fill: none; stroke: currentColor; stroke-width: 1.1; }
+  svg.cd .dashed { stroke-dasharray: 5 4; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--box-bg); font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+  ol.roman { list-style: lower-roman; }
+</style>
+</head>
+
+<body>
+
+<h1>4.3 随伴の計算</h1>
+
+<p class="note">Emily Riehl, <i>Category Theory in Context</i> §4.3（pp.144–149）の内容を、個人学習のために日本語で書き直した解説。番号（命題4.3.1 など）は本と揃えてある。翻訳ではなく、同じ内容を自分の言葉で再構成したもの。</p>
+
+<h2>記号表</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>記号</th><th>型・意味</th></tr>
+  <tr><td>F : C → D, G : D → C</td><td>向かい合う一対の関手。F ⊣ G のとき F が左随伴、G が右随伴</td></tr>
+  <tr><td>η : id<sub>C</sub> ⇒ GF, ε : FG ⇒ id<sub>D</sub></td><td>随伴 F ⊣ G の単位と余単位。成分は η<sub>c</sub> : c → GFc と ε<sub>d</sub> : FGd → d</td></tr>
+  <tr><td>f<sup>♯</sup> : Fc → d, f<sup>♭</sup> : c → Gd</td><td>同型 D(Fc, d) ≅ C(c, Gd) で対応する一対の射。互いの転置。(4.2.8) により f<sup>♭</sup> = Gf<sup>♯</sup> ∘ η<sub>c</sub>、(4.2.9) により f<sup>♯</sup> = ε<sub>d</sub> ∘ Ff<sup>♭</sup></td></tr>
+  <tr><td>id<sub>C</sub>, 1<sub>F</sub></td><td>圏 C の恒等関手、関手 F の恒等自然変換</td></tr>
+  <tr><td>β ⋅ α</td><td>自然変換 α : F ⇒ G と β : G ⇒ H の垂直合成 F ⇒ H</td></tr>
+  <tr><td>Fη, εF, ηG, Gε</td><td>η, ε に F または G をひげ付けした自然変換。成分は F(η<sub>c</sub>), ε<sub>Fc</sub>, η<sub>Gd</sub>, G(ε<sub>d</sub>)</td></tr>
+  <tr><td>k<sup>∗</sup>, k<sub>∗</sub></td><td>射 k を前に合成する写像、後ろに合成する写像</td></tr>
+  <tr><td>D<sup>C</sup></td><td>関手圏。対象は関手 C → D、射は自然変換。D<sup>C</sup>(H, K) は自然変換 H ⇒ K の集合</td></tr>
+  <tr><td>F<sub>∗</sub> : C<sup>J</sup> → D<sup>J</sup></td><td>F を後ろに合成する関手。H : J → C を FH : J → D に送る</td></tr>
+  <tr><td>F<sup>∗</sup> : E<sup>D</sup> → E<sup>C</sup></td><td>F を前に合成する関手。H : D → E を HF : C → E に送る</td></tr>
+  <tr><td>θ : F ⇒ F′</td><td>命題4.3.1 の、同じ右随伴を持つ 2 つの左随伴の間の自然同型</td></tr>
+  <tr><td>φ : F ⇒ F, ψ : G ⇒ G</td><td>命題4.3.4 の、三角等式の左辺にあたる合成 εF ⋅ Fη と Gε ⋅ ηG</td></tr>
+  <tr><td>α<sup>♯</sup> : FH ⇒ KF′, α<sup>♭</sup> : HG′ ⇒ GK</td><td>命題4.3.8 の全単射で対応する一対の自然変換。互いのメイト</td></tr>
+  <tr><td>CAT, Cat</td><td>圏・関手・自然変換のなす 2-圏（定義1.7.8）。Cat は小圏に限ったもの</td></tr>
+</table>
+</div>
+
+<h2>節の導入</h2>
+
+<p class="note">節の冒頭には J. Peter May の論文「Picard groups, Grothendieck rings, and Burnside rings of categories」からの引用が置かれている。圏論的代数の目的はおそらく、形式的なものが形式的に形式的であると示すことである、という一節である。</p>
+
+<p>この節は、随伴関手についての基本的な計算規則を導入する。示すのは次の 4 つである。随伴は一意な自然同型を除いて一意である。随伴は合成でき、ひげ付けできる。任意の圏同値は随伴同値に取り替えることができ、そのとき互いに逆な圏同値は、左右どちらの向きにも随伴になる。さらに、随伴による転置を、個々の射から自然変換へ拡張する。この拡張で対応する一対の自然変換をメイト（mates）という。</p>
+
+<p>これらの結果には、どれも複数の流儀の証明がある。§4.1 の定義から出発する証明と、§4.2 の定義から出発する証明である。§4.1 の定義は米田の補題を使う議論によく合う。§4.2 の定義による証明は、圏のなす 2-圏の内部での図式による推論になる。つまり、対象である圏、射である関手、射の間の射である自然変換と、§1.7 で述べた水平合成と垂直合成だけを使って、構文的に証明できる。本書の関心は結果と同じだけ証明の技法にもあるので、両方の流儀の証明を与える。どちらの流儀の推論も、より一般的な状況に移せる。この節の結果は「形式的圏論」（formal category theory）の一部と見るのがよい。</p>
+
+<h2>命題4.3.1 — 随伴の一意性</h2>
+
+<div class="thm"><b>命題4.3.1.</b> F と F′ がともに G の左随伴ならば F ≅ F′ である。さらに、自然同型 θ : F ≅ F′ であって、2 つの随伴の単位および余単位と可換なもの、すなわち次の 2 つの三角形を可換にするものが、ただ 1 つ存在する。</div>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 560 175" width="560" role="img" aria-label="左: id_C から GF への η、GF から GF′ への Gθ、id_C から GF′ への η′ のなす三角形。右: FG から id_D への ε、FG から F′G への θG、F′G から id_D への ε′ のなす三角形">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="40" text-anchor="middle">id<tspan baseline-shift="sub" font-size="10">C</tspan></text>
+  <text x="210" y="40" text-anchor="middle">GF</text>
+  <text x="210" y="145" text-anchor="middle">GF′</text>
+  <text x="350" y="40" text-anchor="middle">FG</text>
+  <text x="500" y="40" text-anchor="middle">id<tspan baseline-shift="sub" font-size="10">D</tspan></text>
+  <text x="350" y="145" text-anchor="middle">F′G</text>
+  <line x1="82" y1="35" x2="190" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="136" y="26" text-anchor="middle">η</text>
+  <line x1="210" y1="50" x2="210" y2="125" marker-end="url(#a1)"/>
+  <text class="lbl" x="223" y="92" text-anchor="start">Gθ</text>
+  <line x1="80" y1="47" x2="190" y2="130" marker-end="url(#a1)"/>
+  <text class="lbl" x="122" y="105" text-anchor="middle">η′</text>
+  <line x1="370" y1="35" x2="478" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="424" y="26" text-anchor="middle">ε</text>
+  <line x1="350" y1="50" x2="350" y2="125" marker-end="url(#a1)"/>
+  <text class="lbl" x="337" y="92" text-anchor="end">θG</text>
+  <line x1="372" y1="130" x2="482" y2="48" marker-end="url(#a1)"/>
+  <text class="lbl" x="440" y="105" text-anchor="middle">ε′</text>
+</svg>
+<figcaption>左は単位との可換性 Gθ ⋅ η = η′、右は余単位との可換性 ε′ ⋅ θG = ε</figcaption>
+</figure>
+<p>ここで η, ε は F ⊣ G の単位と余単位、η′, ε′ は F′ ⊣ G の単位と余単位である。</p>
+
+<p><span class="proof-head">証明 1.</span> 自然変換 θ : F ⇒ F′ を定義するには、補題4.1.3 により、その転置にあたる自然変換を定義すればよい。θ の成分 θ<sub>c</sub> : Fc → F′c を F ⊣ G で転置すると射 c → GF′c になるので、転置として η′ : id<sub>C</sub> ⇒ GF′ を取る。定理4.2.7(iv) の式 (4.2.9) により、η′<sub>c</sub> : c → GF′c の転置は ε<sub>F′c</sub> ∘ F(η′<sub>c</sub>) だから、θ は次の式で与えられる。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 307 58" width="307" role="img" aria-label="θ は F から FGF′ への Fη′ と FGF′ から F′ への εF′ の合成">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="20" y="40" text-anchor="start">θ ≔</text>
+  <text x="77" y="40" text-anchor="middle">F</text>
+  <text x="175" y="40" text-anchor="middle">FGF′</text>
+  <text x="276" y="40" text-anchor="middle">F′</text>
+  <line x1="91" y1="35" x2="147" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="119" y="25" text-anchor="middle">Fη′</text>
+  <line x1="203" y1="35" x2="259" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="231" y="25" text-anchor="middle">εF′</text>
+</svg>
+</figure>
+<p>F と F′ の役割を入れ替えて、自然変換 θ′ : F′ ⇒ F を、η : id<sub>C</sub> ⇒ GF の F′ ⊣ G による転置と定める。式は次のとおりである。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 317 58" width="317" role="img" aria-label="θ′ は F′ から F′GF への F′η と F′GF から F への ε′F の合成">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="20" y="40" text-anchor="start">θ′ ≔</text>
+  <text x="90" y="40" text-anchor="middle">F′</text>
+  <text x="192" y="40" text-anchor="middle">F′GF</text>
+  <text x="290" y="40" text-anchor="middle">F</text>
+  <line x1="108" y1="35" x2="164" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="136" y="25" text-anchor="middle">F′η</text>
+  <line x1="220" y1="35" x2="276" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="248" y="25" text-anchor="middle">ε′F</text>
+</svg>
+</figure>
+<p>θ′ ⋅ θ = 1<sub>F</sub> を示す。F ⊣ G による転置は全単射だから、θ′ ⋅ θ と 1<sub>F</sub> の転置が等しいことを示せばよい。(4.2.8) により、自然変換 β : F ⇒ F の転置は Gβ ⋅ η である。1<sub>F</sub> の転置は η で、θ′ ⋅ θ の転置は Gθ′ ⋅ Gθ ⋅ η、すなわち次の合成である。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 600 58" width="560" role="img" aria-label="id_C から GF へ η、GFGF′ へ GFη′、GF′ へ GεF′、GF′GF へ GF′η、GF へ Gε′F">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="35" y="40" text-anchor="middle">id<tspan baseline-shift="sub" font-size="10">C</tspan></text>
+  <text x="132" y="40" text-anchor="middle">GF</text>
+  <text x="238" y="40" text-anchor="middle">GFGF′</text>
+  <text x="350" y="40" text-anchor="middle">GF′</text>
+  <text x="462" y="40" text-anchor="middle">GF′GF</text>
+  <text x="569" y="40" text-anchor="middle">GF</text>
+  <line x1="58" y1="35" x2="114" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="86" y="25" text-anchor="middle">η</text>
+  <line x1="149" y1="35" x2="205" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="177" y="25" text-anchor="middle">GFη′</text>
+  <line x1="272" y1="35" x2="328" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="300" y="25" text-anchor="middle">GεF′</text>
+  <line x1="373" y1="35" x2="429" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="401" y="25" text-anchor="middle">GF′η</text>
+  <line x1="496" y1="35" x2="552" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="524" y="25" text-anchor="middle">Gε′F</text>
+</svg>
+</figure>
+<p>この合成が η に等しいことを、4 段階で示す。</p>
+
+<p>第 1 段。η の自然性を射 η′<sub>c</sub> : c → GF′c に使うと GF(η′<sub>c</sub>) ∘ η<sub>c</sub> = η<sub>GF′c</sub> ∘ η′<sub>c</sub>、すなわち GFη′ ⋅ η = ηGF′ ⋅ η′ である。したがって上の合成は次に等しい。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 610 58" width="560" role="img" aria-label="id_C から GF′ へ η′、GFGF′ へ ηGF′、GF′ へ GεF′、GF′GF へ GF′η、GF へ Gε′F">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="35" y="40" text-anchor="middle">id<tspan baseline-shift="sub" font-size="10">C</tspan></text>
+  <text x="137" y="40" text-anchor="middle">GF′</text>
+  <text x="249" y="40" text-anchor="middle">GFGF′</text>
+  <text x="361" y="40" text-anchor="middle">GF′</text>
+  <text x="473" y="40" text-anchor="middle">GF′GF</text>
+  <text x="580" y="40" text-anchor="middle">GF</text>
+  <line x1="58" y1="35" x2="114" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="86" y="25" text-anchor="middle">η′</text>
+  <line x1="160" y1="35" x2="216" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="188" y="25" text-anchor="middle">ηGF′</text>
+  <line x1="282" y1="35" x2="338" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="310" y="25" text-anchor="middle">GεF′</text>
+  <line x1="384" y1="35" x2="440" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="412" y="25" text-anchor="middle">GF′η</text>
+  <line x1="506" y1="35" x2="562" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="534" y="25" text-anchor="middle">Gε′F</text>
+</svg>
+</figure>
+<p>第 2 段。F ⊣ G の三角等式 Gε ⋅ ηG = 1<sub>G</sub> の d = F′c での成分は G(ε<sub>F′c</sub>) ∘ η<sub>GF′c</sub> = 1<sub>GF′c</sub> だから、GεF′ ⋅ ηGF′ = 1<sub>GF′</sub> である。したがって合成は次に簡約される。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 386 58" width="386" role="img" aria-label="id_C から GF′ へ η′、GF′GF へ GF′η、GF へ Gε′F">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="35" y="40" text-anchor="middle">id<tspan baseline-shift="sub" font-size="10">C</tspan></text>
+  <text x="137" y="40" text-anchor="middle">GF′</text>
+  <text x="249" y="40" text-anchor="middle">GF′GF</text>
+  <text x="356" y="40" text-anchor="middle">GF</text>
+  <line x1="58" y1="35" x2="114" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="86" y="25" text-anchor="middle">η′</text>
+  <line x1="160" y1="35" x2="216" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="188" y="25" text-anchor="middle">GF′η</text>
+  <line x1="282" y1="35" x2="338" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="310" y="25" text-anchor="middle">Gε′F</text>
+</svg>
+</figure>
+<p>第 3 段。η′ の自然性を射 η<sub>c</sub> : c → GFc に使うと GF′(η<sub>c</sub>) ∘ η′<sub>c</sub> = η′<sub>GFc</sub> ∘ η<sub>c</sub>、すなわち GF′η ⋅ η′ = η′GF ⋅ η である。したがって合成は次に等しい。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 376 58" width="376" role="img" aria-label="id_C から GF へ η、GF′GF へ η′GF、GF へ Gε′F">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="35" y="40" text-anchor="middle">id<tspan baseline-shift="sub" font-size="10">C</tspan></text>
+  <text x="132" y="40" text-anchor="middle">GF</text>
+  <text x="238" y="40" text-anchor="middle">GF′GF</text>
+  <text x="345" y="40" text-anchor="middle">GF</text>
+  <line x1="58" y1="35" x2="114" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="86" y="25" text-anchor="middle">η</text>
+  <line x1="149" y1="35" x2="205" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="177" y="25" text-anchor="middle">η′GF</text>
+  <line x1="272" y1="35" x2="328" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="300" y="25" text-anchor="middle">Gε′F</text>
+</svg>
+</figure>
+<p>第 4 段。F′ ⊣ G の三角等式 Gε′ ⋅ η′G = 1<sub>G</sub> の d = Fc での成分から Gε′F ⋅ η′GF = 1<sub>GF</sub> である。したがって合成は η : id<sub>C</sub> ⇒ GF に簡約される。</p>
+
+<p>以上で θ′ ⋅ θ = 1<sub>F</sub> が示された。θ ⋅ θ′ = 1<sub>F′</sub> の証明は、F と F′ を入れ替えた同じ計算である。したがって θ と θ′ は互いに逆な同型である。</p>
+
+<p>主張の 2 つの三角形の可換性は、θ の式から図式を追って確かめられる。本文はこれを読者に委ねている。左の三角形は、第 1 段と第 2 段と同じ計算で</p>
+
+<p class="eq">Gθ ⋅ η = GεF′ ⋅ GFη′ ⋅ η = GεF′ ⋅ ηGF′ ⋅ η′ = η′</p>
+
+<p>となる。右の三角形は、ε の自然性を射 ε′<sub>d</sub> : F′Gd → d に使った等式 ε′ ⋅ εF′G = ε ⋅ FGε′ と、F′ ⊣ G の三角等式 G(ε′<sub>d</sub>) ∘ η′<sub>Gd</sub> = 1<sub>Gd</sub> に F を適用した等式 FGε′ ⋅ Fη′G = 1<sub>FG</sub> から</p>
+
+<p class="eq">ε′ ⋅ θG = ε′ ⋅ εF′G ⋅ Fη′G = ε ⋅ FGε′ ⋅ Fη′G = ε</p>
+
+<p>となる。</p>
+
+<p>一意性を示す。左の三角形 Gθ ⋅ η = η′ は、θ の F ⊣ G による転置が η′ であるという主張である。転置は全単射だから、この条件を満たす θ はただ 1 つで、それは θ の定義として取ったものである。<span class="qed">□</span></p>
+
+<p><span class="proof-head">証明 2.</span> 2 つの随伴の自然同型を合成すると、c と d について自然な同型</p>
+
+<p class="eq">(4.3.2)　D(F′c, d) ≅ C(c, Gd) ≅ D(Fc, d)</p>
+
+<p>が得られる。c を固定すると、これは表現可能関手の間の自然同型 D(F′c, −) ≅ D(Fc, −) である。米田の補題により、この自然同型は、1<sub>F′c</sub> の像である射 θ<sub>c</sub> : Fc → F′c を前に合成する写像に等しく、自然同型だから θ<sub>c</sub> は同型である。(4.3.2) が c について自然であることから、θ<sub>c</sub> の族は自然同型 θ : F ≅ F′ になる。</p>
+
+<p>θ<sub>c</sub> を求める。(4.3.2) の 1 つ目の同型は、1<sub>F′c</sub> を、その F′ ⊣ G による転置 η′<sub>c</sub> : c → GF′c に送る。2 つ目の同型は、η′<sub>c</sub> を、その F ⊣ G による転置に送る。この転置は式 (4.2.9) で与えられる。したがって</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 345 58" width="345" role="img" aria-label="θ_c は Fc から FGF′c への F(η′_c) と FGF′c から F′c への ε_F′c の合成">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="20" y="40" text-anchor="start">θ<tspan baseline-shift="sub" font-size="10">c</tspan> ≔</text>
+  <text x="90" y="40" text-anchor="middle">Fc</text>
+  <text x="197" y="40" text-anchor="middle">FGF′c</text>
+  <text x="309" y="40" text-anchor="middle">F′c</text>
+  <line x1="108" y1="35" x2="164" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="136" y="25" text-anchor="middle">F(η′<tspan baseline-shift="sub" font-size="10">c</tspan>)</text>
+  <line x1="230" y1="35" x2="286" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="258" y="25" text-anchor="middle">ε<tspan baseline-shift="sub" font-size="10">F′c</tspan></text>
+</svg>
+</figure>
+<p>である。これは証明 1 で使った式である。証明 1 と違うのは、θ<sub>c</sub> が同型であることが米田の補題からただちに分かる点である。</p>
+
+<p>合成 (4.3.2) が θ<sub>c</sub> を前に合成する写像 θ<sub>c</sub><sup>∗</sup> に等しいので、自然同型のなす次の三角形が可換である。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 560 175" width="560" role="img" aria-label="上辺 D(F′c, d) から D(Fc, d) へ θ_c を前に合成する同型、左下がりの辺 D(F′c, d) から C(c, Gd) へ F′ ⊣ G の転置、右上がりの辺 C(c, Gd) から D(Fc, d) へ F ⊣ G の転置">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="120" y="40" text-anchor="middle">D(F′c, d)</text>
+  <text x="440" y="40" text-anchor="middle">D(Fc, d)</text>
+  <text x="280" y="145" text-anchor="middle">C(c, Gd)</text>
+  <line x1="172" y1="35" x2="392" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="282" y="26" text-anchor="middle">θ<tspan baseline-shift="sub" font-size="10">c</tspan><tspan baseline-shift="super" font-size="10">∗</tspan></text>
+  <text class="lbl" x="282" y="52" text-anchor="middle">≅</text>
+  <line x1="150" y1="50" x2="245" y2="128" marker-end="url(#a1)"/>
+  <text class="lbl" x="176" y="102" text-anchor="end">F′ ⊣ G</text>
+  <line x1="315" y1="128" x2="410" y2="50" marker-end="url(#a1)"/>
+  <text class="lbl" x="384" y="102" text-anchor="start">F ⊣ G</text>
+</svg>
+</figure>
+<p>この三角形から、単位および余単位との可換性が得られる。1<sub>F′c</sub> を左上の頂点から下の頂点まで追う。左の辺で直接送ると η′<sub>c</sub> である。上の辺で送ると θ<sub>c</sub> で、その F ⊣ G による転置は G(θ<sub>c</sub>) ∘ η<sub>c</sub> である。したがって G(θ<sub>c</sub>) ∘ η<sub>c</sub> = η′<sub>c</sub> で、これが単位との可換性である。次に c = Gd として、1<sub>Gd</sub> を下の頂点から右上の頂点まで追う。右の辺で直接送ると ε<sub>d</sub> である。左の辺を逆向きに送ると ε′<sub>d</sub> で、それを上の辺で送ると ε′<sub>d</sub> ∘ θ<sub>Gd</sub> である。したがって ε′<sub>d</sub> ∘ θ<sub>Gd</sub> = ε<sub>d</sub> で、これが余単位との可換性である。<span class="qed">□</span></p>
+
+<h2>命題4.3.3 — 随伴の合成</h2>
+
+<div class="thm"><b>命題4.3.3.</b> 随伴 F ⊣ G（F : C ⇄ D : G）と F′ ⊣ G′（F′ : D ⇄ E : G′）が与えられたとき、合成 F′F は合成 GG′ の左随伴である。</div>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 560 100" width="560" role="img" aria-label="左: C と D の間の随伴 F ⊣ G と、D と E の間の随伴 F′ ⊣ G′。右: C と E の間の随伴 F′F ⊣ GG′">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="40" y="55" text-anchor="middle">C</text>
+  <text x="170" y="55" text-anchor="middle">D</text>
+  <text x="300" y="55" text-anchor="middle">E</text>
+  <path d="M 54 41 Q 105 15 156 41" marker-end="url(#a1)"/>
+  <path d="M 156 61 Q 105 87 54 61" marker-end="url(#a1)"/>
+  <text class="lbl" x="105" y="20" text-anchor="middle">F</text>
+  <text class="lbl" x="105" y="97" text-anchor="middle">G</text>
+  <text class="lbl" x="105" y="55" text-anchor="middle">⊥</text>
+  <path d="M 184 41 Q 235 15 286 41" marker-end="url(#a1)"/>
+  <path d="M 286 61 Q 235 87 184 61" marker-end="url(#a1)"/>
+  <text class="lbl" x="235" y="20" text-anchor="middle">F′</text>
+  <text class="lbl" x="235" y="97" text-anchor="middle">G′</text>
+  <text class="lbl" x="235" y="55" text-anchor="middle">⊥</text>
+  <text x="360" y="55" text-anchor="middle">⇝</text>
+  <text x="420" y="55" text-anchor="middle">C</text>
+  <text x="540" y="55" text-anchor="middle">E</text>
+  <path d="M 434 41 Q 480 15 526 41" marker-end="url(#a1)"/>
+  <path d="M 526 61 Q 480 87 434 61" marker-end="url(#a1)"/>
+  <text class="lbl" x="480" y="20" text-anchor="middle">F′F</text>
+  <text class="lbl" x="480" y="97" text-anchor="middle">GG′</text>
+  <text class="lbl" x="480" y="55" text-anchor="middle">⊥</text>
+</svg>
+</figure>
+<p><span class="proof-head">証明 1.</span> 自然同型</p>
+
+<p class="eq">E(F′Fc, e) ≅ D(Fc, G′e) ≅ C(c, GG′e)</p>
+
+<p>がある。1 つ目は F′ ⊣ G′ で定義され、2 つ目は F ⊣ G で定義される。<span class="qed">□</span></p>
+
+<p><span class="proof-head">証明 2.</span> F ⊣ G の単位と余単位を η, ε、F′ ⊣ G′ の単位と余単位を η′, ε′ と書く。この 2 つの随伴のデータから定義できる F′F ⊣ GG′ の単位と余単位として、自然なものは次だけである。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 345 58" width="345" role="img" aria-label="η バーは id_C から GF への η と GF から GG′F′F への Gη′F の合成">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="20" y="40" text-anchor="start"><tspan text-decoration="overline">η</tspan> ≔</text>
+  <text x="85" y="40" text-anchor="middle">id<tspan baseline-shift="sub" font-size="10">C</tspan></text>
+  <text x="182" y="40" text-anchor="middle">GF</text>
+  <text x="294" y="40" text-anchor="middle">GG′F′F</text>
+  <line x1="108" y1="35" x2="164" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="136" y="25" text-anchor="middle">η</text>
+  <line x1="199" y1="35" x2="255" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="227" y="25" text-anchor="middle">Gη′F</text>
+</svg>
+</figure>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 366 58" width="366" role="img" aria-label="ε バーは F′FGG′ から F′G′ への F′εG′ と F′G′ から id_E への ε′ の合成">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="20" y="40" text-anchor="start"><tspan text-decoration="overline">ε</tspan> ≔</text>
+  <text x="101" y="40" text-anchor="middle">F′FGG′</text>
+  <text x="224" y="40" text-anchor="middle">F′G′</text>
+  <text x="330" y="40" text-anchor="middle">id<tspan baseline-shift="sub" font-size="10">E</tspan></text>
+  <line x1="140" y1="35" x2="196" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="168" y="25" text-anchor="middle">F′εG′</text>
+  <line x1="252" y1="35" x2="308" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="280" y="25" text-anchor="middle">ε′</text>
+</svg>
+</figure>
+<p>この 2 つは、恒等射 1<sub>F′Fc</sub> と 1<sub>GG′e</sub> を証明 1 の自然同型で送って得られる自然変換と一致する。たとえば 1<sub>F′Fc</sub> は、1 つ目の同型で η′<sub>Fc</sub> : Fc → G′F′Fc に送られ、2 つ目の同型で G(η′<sub>Fc</sub>) ∘ η<sub>c</sub> に送られる。三角等式の証明は図式を追う計算で、本文は読者に委ねている（演習4.3.i）。<span class="qed">□</span></p>
+
+<h2>命題4.3.4 — 三角等式の合成が可逆な場合</h2>
+
+<div class="thm"><b>命題4.3.4.</b> 向かい合う関手 F : C ⇄ D : G と自然変換 η : id<sub>C</sub> ⇒ GF, ε : FG ⇒ id<sub>D</sub> について、三角等式の左辺にあたる 2 つの合成
+<p class="eq">φ ≔ εF ⋅ Fη : F ⇒ FGF ⇒ F　　ψ ≔ Gε ⋅ ηG : G ⇒ GFG ⇒ G</p>
+がどちらも可逆であるとする。このとき F ⊣ G であり、η を単位に選ぶことも、ε を余単位に選ぶこともできる。</div>
+
+<p>三角等式は φ = 1<sub>F</sub> と ψ = 1<sub>G</sub> を要求する。この命題の仮定はそれより弱く、φ と ψ が同型であることだけである。結論では、η を単位に選んだときの余単位は ε とは限らず、ε を余単位に選んだときの単位は η とは限らない。</p>
+
+<p><span class="proof-head">証明 1.</span> 自然変換 η と ε は、式 (4.2.8) と (4.2.9) により、次の図式の実線の写像を定める。どれも c と d について自然である。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 560 215" width="560" role="img" aria-label="上の頂点 C(c, Gd)、左の頂点 D(Fc, d)、下の頂点 D(Fc, d)、右の頂点 C(c, Gd)。実線は左から上へ (4.2.8)、上から下へ (4.2.9)、下から右へ (4.2.8)。破線は左から下へ φ_c を前に合成する写像、上から右へ ψ_d を後ろに合成する写像。点線は左から右への 3 つの実線の合成">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="280" y="35" text-anchor="middle">C(c, Gd)</text>
+  <text x="95" y="115" text-anchor="middle">D(Fc, d)</text>
+  <text x="465" y="115" text-anchor="middle">C(c, Gd)</text>
+  <text x="280" y="195" text-anchor="middle">D(Fc, d)</text>
+  <line x1="135" y1="98" x2="238" y2="44" marker-end="url(#a1)"/>
+  <text class="lbl" x="170" y="62" text-anchor="end">(4.2.8)</text>
+  <line x1="280" y1="45" x2="280" y2="173" marker-end="url(#a1)"/>
+  <text class="lbl" x="288" y="150" text-anchor="start">(4.2.9)</text>
+  <line x1="322" y1="184" x2="425" y2="128" marker-end="url(#a1)"/>
+  <text class="lbl" x="392" y="170" text-anchor="start">(4.2.8)</text>
+  <line x1="135" y1="128" x2="238" y2="182" class="dashed" marker-end="url(#a1)"/>
+  <text class="lbl" x="170" y="172" text-anchor="end">(φ<tspan baseline-shift="sub" font-size="10">c</tspan>)<tspan baseline-shift="super" font-size="10">∗</tspan></text>
+  <line x1="322" y1="46" x2="425" y2="100" class="dashed" marker-end="url(#a1)"/>
+  <text class="lbl" x="392" y="62" text-anchor="start">(ψ<tspan baseline-shift="sub" font-size="10">d</tspan>)<tspan baseline-shift="sub" font-size="10">∗</tspan></text>
+  <line x1="147" y1="110" x2="413" y2="110" style="stroke-dasharray:1.5 4" marker-end="url(#a1)"/>
+</svg>
+<figcaption>(4.3.5)　実線は η と ε の定める写像、破線は隣り合う 2 本の合成、点線は 3 本の合成</figcaption>
+</figure>
+<p>左から上への実線と下から右への実線は、f : Fc → d を Gf ∘ η<sub>c</sub> に送る写像 (4.2.8) である。上から下への実線は、g : c → Gd を ε<sub>d</sub> ∘ Fg に送る写像 (4.2.9) である。</p>
+
+<p>破線は、隣り合う 2 本の実線の合成である。米田の補題により、合成 D(Fc, d) → D(Fc, d) は、ある自然変換 φ : F ⇒ F の成分を前に合成する写像で、合成 C(c, Gd) → C(c, Gd) は、ある自然変換 ψ : G ⇒ G の成分を後ろに合成する写像である。その成分は、恒等射 1<sub>Fc</sub> と 1<sub>Gd</sub> の像である。この像は、主張の φ と ψ の成分に一致する。実際、ε の自然性と η の自然性から</p>
+
+<p class="eq">ε<sub>d</sub> ∘ F(Gf ∘ η<sub>c</sub>) = ε<sub>d</sub> ∘ FGf ∘ Fη<sub>c</sub> = f ∘ ε<sub>Fc</sub> ∘ Fη<sub>c</sub> = f ∘ φ<sub>c</sub></p>
+<p class="eq">G(ε<sub>d</sub> ∘ Fg) ∘ η<sub>c</sub> = Gε<sub>d</sub> ∘ GFg ∘ η<sub>c</sub> = Gε<sub>d</sub> ∘ η<sub>Gd</sub> ∘ g = ψ<sub>d</sub> ∘ g</p>
+
+<p>である。図式 (4.3.5) の破線に (φ<sub>c</sub>)<sup>∗</sup> と (ψ<sub>d</sub>)<sub>∗</sub> と書いたのはこのためである。</p>
+
+<p>仮定により φ と ψ は自然同型だから、2 本の破線の写像は可逆である。同型の「2-of-6 性質」は、合成できる 3 本の射 f, g, h について、gf と hg が同型ならば f, g, h と hgf がすべて同型である、という性質である<sup>6</sup>。これを 3 本の実線に使うと、3 本の実線と点線はすべて自然同型である。したがって、定理4.2.7(iii) により η から、定理4.2.7(iv) により ε から、随伴 F ⊣ G のデータが定まる。<span class="qed">□</span></p>
+
+<p class="fn"><sup>6</sup> 補題6.4.2 を見よ。補題1.2.11 と演習1.2.vi を使って直接証明することもできる。gf が同型ならば g は右逆を持ち、hg が同型ならば g は左逆を持つので、g は同型である。すると f = g<sup>−1</sup> ∘ gf と h = hg ∘ g<sup>−1</sup> も同型である。</p>
+
+<p><span class="proof-head">証明 2.</span> 同型 ψ<sup>−1</sup> を ε か η のどちらかに吸収させて定義し直す。どちらに吸収させても同じように進むので、ε のほうを取り替える。取り替えた後の一対の自然変換が、随伴 F ⊣ G の単位と余単位になることを示す。</p>
+
+<p>ε′ ≔ ε ⋅ Fψ<sup>−1</sup> : FG ⇒ FG ⇒ id<sub>D</sub> と置く。まず、次の図式が可換である。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 580 175" width="560" role="img" aria-label="上段は G から GFG へ ηG、GFG から GFG へ GFψ⁻¹、GFG から G へ Gε。下の頂点 G へ、左上の G から ψ⁻¹。下の頂点 G から、上段の 3 番目の GFG へ ηG、右端の G へ ψ">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="50" y="40" text-anchor="middle">G</text>
+  <text x="200" y="40" text-anchor="middle">GFG</text>
+  <text x="380" y="40" text-anchor="middle">GFG</text>
+  <text x="530" y="40" text-anchor="middle">G</text>
+  <text x="215" y="150" text-anchor="middle">G</text>
+  <line x1="64" y1="35" x2="172" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="118" y="26" text-anchor="middle">ηG</text>
+  <line x1="228" y1="35" x2="352" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="290" y="26" text-anchor="middle">GFψ<tspan baseline-shift="super" font-size="10">−1</tspan></text>
+  <line x1="408" y1="35" x2="516" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="462" y="26" text-anchor="middle">Gε</text>
+  <line x1="60" y1="50" x2="200" y2="138" marker-end="url(#a1)"/>
+  <text class="lbl" x="112" y="108" text-anchor="end">ψ<tspan baseline-shift="super" font-size="10">−1</tspan></text>
+  <line x1="230" y1="138" x2="362" y2="52" marker-end="url(#a1)"/>
+  <text class="lbl" x="285" y="88" text-anchor="end">ηG</text>
+  <line x1="232" y1="146" x2="518" y2="50" marker-end="url(#a1)"/>
+  <text class="lbl" x="410" y="112" text-anchor="start">ψ</text>
+</svg>
+</figure>
+<p>左の四角形は η の自然性である。射 ψ<sup>−1</sup><sub>d</sub> : Gd → Gd に η の自然性を使うと GF(ψ<sup>−1</sup><sub>d</sub>) ∘ η<sub>Gd</sub> = η<sub>Gd</sub> ∘ ψ<sup>−1</sup><sub>d</sub> である。右の三角形は ψ の定義 ψ = Gε ⋅ ηG である。上段の合成は Gε ⋅ GFψ<sup>−1</sup> ⋅ ηG = Gε′ ⋅ ηG で、下を回る合成は ψ ⋅ ψ<sup>−1</sup> = 1<sub>G</sub> である。これで三角等式の 1 つ Gε′ ⋅ ηG = 1<sub>G</sub> が示された。</p>
+
+<p>次に、次の図式が可換である。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 560 255" width="560" role="img" aria-label="上段 F から FGF へ Fη、FGF から F へ εF。中段 FGF から FGFGF へ FηGF、FGFGF から FGF へ εFGF。下段 FGF から F へ εF。縦は左列 F から FGF へ Fη、中列 FGF から FGFGF へ FGFη、FGFGF から FGF へ FGε′F、右列 F から FGF へ Fη、FGF から F へ ε′F。中段左の FGF から下段の FGF へ恒等変換">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="80" y="40" text-anchor="middle">F</text>
+  <text x="280" y="40" text-anchor="middle">FGF</text>
+  <text x="480" y="40" text-anchor="middle">F</text>
+  <text x="80" y="130" text-anchor="middle">FGF</text>
+  <text x="280" y="130" text-anchor="middle">FGFGF</text>
+  <text x="480" y="130" text-anchor="middle">FGF</text>
+  <text x="280" y="225" text-anchor="middle">FGF</text>
+  <text x="480" y="225" text-anchor="middle">F</text>
+  <line x1="94" y1="35" x2="252" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="173" y="26" text-anchor="middle">Fη</text>
+  <line x1="308" y1="35" x2="466" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="387" y="26" text-anchor="middle">εF</text>
+  <line x1="108" y1="125" x2="238" y2="125" marker-end="url(#a1)"/>
+  <text class="lbl" x="173" y="116" text-anchor="middle">FηGF</text>
+  <line x1="322" y1="125" x2="452" y2="125" marker-end="url(#a1)"/>
+  <text class="lbl" x="387" y="116" text-anchor="middle">εFGF</text>
+  <line x1="308" y1="220" x2="466" y2="220" marker-end="url(#a1)"/>
+  <text class="lbl" x="387" y="238" text-anchor="middle">εF</text>
+  <line x1="80" y1="50" x2="80" y2="110" marker-end="url(#a1)"/>
+  <text class="lbl" x="70" y="84" text-anchor="end">Fη</text>
+  <line x1="280" y1="50" x2="280" y2="110" marker-end="url(#a1)"/>
+  <text class="lbl" x="290" y="84" text-anchor="start">FGFη</text>
+  <line x1="480" y1="50" x2="480" y2="110" marker-end="url(#a1)"/>
+  <text class="lbl" x="490" y="84" text-anchor="start">Fη</text>
+  <line x1="280" y1="140" x2="280" y2="205" marker-end="url(#a1)"/>
+  <text class="lbl" x="290" y="178" text-anchor="start">FGε′F</text>
+  <line x1="480" y1="140" x2="480" y2="205" marker-end="url(#a1)"/>
+  <text class="lbl" x="490" y="178" text-anchor="start">ε′F</text>
+  <line x1="100" y1="142" x2="250" y2="212" marker-end="url(#a1)"/>
+  <text class="lbl" x="160" y="192" text-anchor="end">1<tspan baseline-shift="sub" font-size="10">FGF</tspan></text>
+</svg>
+</figure>
+<p>4 つの部分がそれぞれ可換である。</p>
+
+<ul>
+  <li>左上の四角形 FGFη ⋅ Fη = FηGF ⋅ Fη は、η の自然性を射 η<sub>c</sub> : c → GFc に使った等式 GF(η<sub>c</sub>) ∘ η<sub>c</sub> = η<sub>GFc</sub> ∘ η<sub>c</sub> に F を適用したものである。</li>
+  <li>右上の四角形 Fη ⋅ εF = εFGF ⋅ FGFη は、ε の自然性を射 F(η<sub>c</sub>) : Fc → FGFc に使ったものである。</li>
+  <li>右下の四角形 ε′F ⋅ εFGF = εF ⋅ FGε′F は、ε の自然性を射 ε′<sub>Fc</sub> : FGFc → Fc に使ったものである。</li>
+  <li>左下の三角形 FGε′F ⋅ FηGF = 1<sub>FGF</sub> は、すでに示した三角等式 Gε′ ⋅ ηG = 1<sub>G</sub> の d = Fc での成分に F を適用したものである。</li>
+</ul>
+
+<p>上段と右列をたどる合成は ε′F ⋅ Fη ⋅ εF ⋅ Fη = ε′F ⋅ Fη ⋅ φ である。左列、斜めの恒等変換、下段をたどる合成は εF ⋅ Fη = φ である。図式が可換だから ε′F ⋅ Fη ⋅ φ = φ で、同型 φ を消去すると ε′F ⋅ Fη = 1<sub>F</sub> である。これがもう 1 つの三角等式である。<span class="qed">□</span></p>
+
+<h2>系4.3.6 — 随伴同値</h2>
+
+<p>命題4.3.4 の仮定が満たされる状況の 1 つは、η と ε がどちらも自然同型である場合である。</p>
+
+<div class="thm"><b>系4.3.6.</b> 任意の圏同値
+<p class="eq">F : C ⇄ D : G　　η : id<sub>C</sub> ≅ GF　　ε : FG ≅ id<sub>D</sub></p>
+は、自然同型が三角等式を満たす随伴同値（adjoint equivalence）に取り替えることができる。そのためには、最初に指定された自然同型のどちらか一方を、新しい単位または余単位に置き換えればよい。</div>
+
+<p>η と ε が自然同型ならば φ = εF ⋅ Fη と ψ = Gε ⋅ ηG も自然同型だから、命題4.3.4 が使える。命題4.3.4 の証明 2 で作った ε′ = ε ⋅ Fψ<sup>−1</sup> は、自然同型の合成だから自然同型である。</p>
+
+<p>圏同値の定義は対称的で、η の代わりに ε<sup>−1</sup> を、ε の代わりに η<sup>−1</sup> を使うと、F と G の役割が入れ替わる。このことから、圏同値 F : C → D は左随伴とも右随伴とも見なせる。実際、F の逆にあたる圏同値 G : D → C をどう選んでも、G は F の左随伴であり、右随伴でもある。</p>
+
+<h2>命題4.3.7 — 関手圏の間の随伴</h2>
+
+<div class="thm"><b>命題4.3.7.</b> 随伴 F ⊣ G（F : C ⇄ D : G）が与えられたとき、任意の小圏 J について、F と G を後ろに合成する関手は随伴関手の対
+<p class="eq">F<sub>∗</sub> : C<sup>J</sup> ⇄ D<sup>J</sup> : G<sub>∗</sub>　　F<sub>∗</sub> ⊣ G<sub>∗</sub></p>
+をなす。また、任意の局所小圏 E について、F と G を前に合成する関手も随伴
+<p class="eq">G<sup>∗</sup> : E<sup>C</sup> ⇄ E<sup>D</sup> : F<sup>∗</sup>　　G<sup>∗</sup> ⊣ F<sup>∗</sup></p>
+をなす<sup>7</sup>。</div>
+
+<p>後ろに合成する場合は F<sub>∗</sub> が左随伴のままである。前に合成する場合は左右が入れ替わり、G<sup>∗</sup> が左随伴になる。</p>
+
+<p class="fn"><sup>7</sup> C と D が小圏でなければ、これらの関手圏は局所小とは限らない。関手圏が局所小であることを気にしないなら、J が小圏であるという仮定は外せる。</p>
+
+<p>この節のほかの結果と同じく、定義4.1.1 からも定義4.2.5 からも証明できる。本文はその詳細を節末問題に回し、代わりに 3 つ目の証明の概略を述べる。</p>
+
+<p><span class="proof-head">証明の概略.</span> 定義4.2.5 から、随伴は定義1.7.8 の 2-圏 CAT の内部で定義できることが分かる。随伴は、一対の対象、一対の 1-射、一対の 2-射であって、ある合成の関係を満たすものからなる。2-関手（2-functor）とは 2-圏の間の射で、対象、1-射、2-射の対応であって、すべての階層で合成と恒等射を保つものである。関手は可換図式を保つという補題1.6.5 には 2 次元版があり、2-関手は「2 次元の図式」を保つ。随伴はその一例である。大きさの問題を無視すれば、命題4.3.7 は、任意の小圏 J と局所小圏 E について</p>
+
+<p class="eq">(−)<sup>J</sup> : CAT → CAT　　E<sup>(−)</sup> : Cat<sup>op</sup> → CAT</p>
+
+<p>が 2-関手であるという事実からただちに従う。E<sup>(−)</sup> は 1-射の向きを逆にするので、前に合成する場合は左右が入れ替わる。<span class="qed">□</span></p>
+
+<h2>命題4.3.8 — メイト</h2>
+
+<div class="thm"><b>命題4.3.8.</b> 一対の随伴 F ⊣ G（F : C ⇄ D : G）と F′ ⊣ G′（F′ : C′ ⇄ D′ : G′）、および関手 H : C′ → C と K : D′ → D が与えられているとする。可換性は何も仮定しない。</div>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 560 185" width="560" role="img" aria-label="C′ から C への H を上辺、D′ から D への K を下辺とし、左の縦に随伴 F′ ⊣ G′、右の縦に随伴 F ⊣ G を置いた四角形">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="180" y="45" text-anchor="middle">C′</text>
+  <text x="380" y="45" text-anchor="middle">C</text>
+  <text x="180" y="155" text-anchor="middle">D′</text>
+  <text x="380" y="155" text-anchor="middle">D</text>
+  <line x1="198" y1="40" x2="364" y2="40" marker-end="url(#a1)"/>
+  <text class="lbl" x="281" y="32" text-anchor="middle">H</text>
+  <line x1="198" y1="150" x2="364" y2="150" marker-end="url(#a1)"/>
+  <text class="lbl" x="281" y="168" text-anchor="middle">K</text>
+  <line x1="172" y1="56" x2="172" y2="134" marker-end="url(#a1)"/>
+  <line x1="188" y1="134" x2="188" y2="56" marker-end="url(#a1)"/>
+  <line x1="372" y1="56" x2="372" y2="134" marker-end="url(#a1)"/>
+  <line x1="388" y1="134" x2="388" y2="56" marker-end="url(#a1)"/>
+  <text class="lbl" x="164" y="100" text-anchor="end">F′</text>
+  <text class="lbl" x="196" y="100" text-anchor="start">G′</text>
+  <text class="lbl" x="180" y="100" text-anchor="middle">⊣</text>
+  <text class="lbl" x="364" y="100" text-anchor="end">F</text>
+  <text class="lbl" x="396" y="100" text-anchor="start">G</text>
+  <text class="lbl" x="380" y="100" text-anchor="middle">⊣</text>
+</svg>
+</figure>
+<div class="thm">このとき、下の左の形の自然変換 α<sup>♯</sup> : FH ⇒ KF′ と、下の右の形の自然変換 α<sup>♭</sup> : HG′ ⇒ GK の間に全単射がある。この全単射は、F ⊣ G と F′ ⊣ G′ の両方による転置で与えられる。</div>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 560 175" width="560" role="img" aria-label="左: 上辺 H : C′ → C、右辺 F : C → D、左辺 F′ : C′ → D′、下辺 K : D′ → D の四角形の中に、FH から KF′ への自然変換 α♯。右: 上辺 H : C′ → C、右辺 G : D → C、左辺 G′ : D′ → C′、下辺 K : D′ → D の四角形の中に、HG′ から GK への自然変換 α♭">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="40" text-anchor="middle">C′</text>
+  <text x="220" y="40" text-anchor="middle">C</text>
+  <text x="70" y="145" text-anchor="middle">D′</text>
+  <text x="220" y="145" text-anchor="middle">D</text>
+  <line x1="88" y1="35" x2="204" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="146" y="26" text-anchor="middle">H</text>
+  <line x1="88" y1="140" x2="204" y2="140" marker-end="url(#a1)"/>
+  <text class="lbl" x="146" y="158" text-anchor="middle">K</text>
+  <line x1="70" y1="50" x2="70" y2="125" marker-end="url(#a1)"/>
+  <text class="lbl" x="58" y="92" text-anchor="end">F′</text>
+  <line x1="220" y1="50" x2="220" y2="125" marker-end="url(#a1)"/>
+  <text class="lbl" x="232" y="92" text-anchor="start">F</text>
+  <text x="146" y="97" text-anchor="middle">α<tspan baseline-shift="super" font-size="10">♯</tspan> ⇙</text>
+  <text x="350" y="40" text-anchor="middle">C′</text>
+  <text x="500" y="40" text-anchor="middle">C</text>
+  <text x="350" y="145" text-anchor="middle">D′</text>
+  <text x="500" y="145" text-anchor="middle">D</text>
+  <line x1="368" y1="35" x2="484" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="426" y="26" text-anchor="middle">H</text>
+  <line x1="368" y1="140" x2="484" y2="140" marker-end="url(#a1)"/>
+  <text class="lbl" x="426" y="158" text-anchor="middle">K</text>
+  <line x1="350" y1="125" x2="350" y2="50" marker-end="url(#a1)"/>
+  <text class="lbl" x="338" y="92" text-anchor="end">G′</text>
+  <line x1="500" y1="125" x2="500" y2="50" marker-end="url(#a1)"/>
+  <text class="lbl" x="512" y="92" text-anchor="start">G</text>
+  <text x="426" y="97" text-anchor="middle">⇘ α<tspan baseline-shift="super" font-size="10">♭</tspan></text>
+</svg>
+<figcaption>左は FH ⇒ KF′（C′ から D への関手の間）、右は HG′ ⇒ GK（D′ から C への関手の間）</figcaption>
+</figure>
+<p>この全単射で対応する自然変換 α<sup>♯</sup> と α<sup>♭</sup> を、互いのメイト（mates）という。</p>
+
+<p><span class="proof-head">証明 1.</span> メイトの全単射は、命題4.3.7 の随伴による転置で定義される。</p>
+
+<p class="eq">D<sup>C′</sup>(FH, KF′) ≅ C<sup>C′</sup>(H, GKF′) ≅ C<sup>D′</sup>(HG′, GK)</p>
+
+<p>1 つ目の同型は、随伴 F<sub>∗</sub> ⊣ G<sub>∗</sub>（F<sub>∗</sub> : C<sup>C′</sup> ⇄ D<sup>C′</sup> : G<sub>∗</sub>）による、対象 H ∈ C<sup>C′</sup> と KF′ ∈ D<sup>C′</sup> での転置である。2 つ目の同型は、随伴 (G′)<sup>∗</sup> ⊣ (F′)<sup>∗</sup>（(G′)<sup>∗</sup> : C<sup>C′</sup> ⇄ C<sup>D′</sup> : (F′)<sup>∗</sup>）による、対象 H ∈ C<sup>C′</sup> と GK ∈ C<sup>D′</sup> での転置である<sup>8</sup>。<span class="qed">□</span></p>
+
+<p class="fn"><sup>8</sup> この転置は逆の順序でもできて、その場合は圏 D<sup>D′</sup> を経由する。F ⊣ G から定まる後ろに合成する随伴と、F′ ⊣ G′ から定まる前に合成する随伴は、可換な四角形をなす。</p>
+
+<p><span class="proof-head">証明 2.</span> F ⊣ G の単位と余単位を η, ε、F′ ⊣ G′ の単位と余単位を η′, ε′ と書く。α<sup>♯</sup> : FH ⇒ KF′ のメイト α<sup>♭</sup> と、α<sup>♭</sup> : HG′ ⇒ GK のメイト α<sup>♯</sup> は、次の式で与えられる。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 478 58" width="478" role="img" aria-label="α♭ は HG′ から GFHG′ へ ηHG′、GKF′G′ へ Gα♯G′、GK へ GKε′ の合成">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="20" y="40" text-anchor="start">α<tspan baseline-shift="super" font-size="10">♭</tspan> ≔</text>
+  <text x="95" y="40" text-anchor="middle">HG′</text>
+  <text x="207" y="40" text-anchor="middle">GFHG′</text>
+  <text x="335" y="40" text-anchor="middle">GKF′G′</text>
+  <text x="447" y="40" text-anchor="middle">GK</text>
+  <line x1="118" y1="35" x2="174" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="146" y="25" text-anchor="middle">ηHG′</text>
+  <line x1="241" y1="35" x2="297" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="269" y="25" text-anchor="middle">Gα<tspan baseline-shift="super" font-size="10">♯</tspan>G′</text>
+  <line x1="374" y1="35" x2="430" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="402" y="25" text-anchor="middle">GKε′</text>
+</svg>
+</figure>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 478 58" width="478" role="img" aria-label="α♯ は FH から FHG′F′ へ FHη′、FGKF′ へ Fα♭F′、KF′ へ εKF′ の合成">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="20" y="40" text-anchor="start">α<tspan baseline-shift="super" font-size="10">♯</tspan> ≔</text>
+  <text x="90" y="40" text-anchor="middle">FH</text>
+  <text x="202" y="40" text-anchor="middle">FHG′F′</text>
+  <text x="330" y="40" text-anchor="middle">FGKF′</text>
+  <text x="442" y="40" text-anchor="middle">KF′</text>
+  <line x1="108" y1="35" x2="164" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="136" y="25" text-anchor="middle">FHη′</text>
+  <line x1="241" y1="35" x2="297" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="269" y="25" text-anchor="middle">Fα<tspan baseline-shift="super" font-size="10">♭</tspan>F′</text>
+  <line x1="363" y1="35" x2="419" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="391" y="25" text-anchor="middle">εKF′</text>
+</svg>
+</figure>
+<p>図式を追う計算で、この 2 つの構成が互いに逆であることが分かる。<span class="qed">□</span></p>
+
+<p>関手 H と K がどちらも恒等関手である特別な場合には、命題4.3.8 は、左随伴の間の自然変換 α<sup>♯</sup> : F ⇒ F′ と、右随伴の間の逆向きの自然変換 α<sup>♭</sup> : G′ ⇒ G の間の全単射になる。この全単射で対応する自然変換を、互いの共役（conjugates）という。</p>
+
+<h2>Remark 4.3.9 — 2 つの流儀の証明の適用範囲</h2>
+
+<div class="thm"><b>Remark 4.3.9.</b> 命題4.3.1、4.3.3、4.3.4、4.3.7、4.3.8 と系4.3.6 の「構文的な」証明は、Cat の代わりに任意の 2-圏の内部で定義された随伴に、そのまま当てはまる。</div>
+
+<p>このことは、Cat にしか当てはまらない「米田流の」証明よりも、構文的な証明を選ぶ理由になりそうに見える。しかし §3.5 と同様の議論を使えば、米田流の証明も Cat から一般の 2-圏へ持ち上げられる。一般の圏の極限と余極限が、Set の極限によって表現可能性を通じて定義されるのと同じように、2-圏の中の随伴と圏同値も、米田の補題により、Cat の中の随伴と圏同値によって表現可能性を通じて定義される。この推論は、§2.3 の冒頭で触れた圏論研究者の冗談「すべての定理は米田である」を裏づけている。</p>
+
+<h2>節末問題</h2>
+
+<ul>
+  <li><b>4.3.i</b> — 三角等式を確かめて、命題4.3.3 の 2 つ目の証明を完成させよ。</li>
+  <li><b>4.3.ii</b> — 随伴の単位と余単位を使って、命題4.3.7 を証明せよ。</li>
+  <li><b>4.3.iii</b> — hom 集合の間の自然な全単射を使って、命題4.3.7 の前半、すなわち随伴 F ⊣ G が後ろに合成することで随伴 F<sub>∗</sub> ⊣ G<sub>∗</sub> を誘導することを証明せよ。演習3.2.v が役に立つかもしれない。</li>
+  <li><b>4.3.iv</b> — 命題4.3.1 の自然同型 θ を、一対の随伴 F ⊣ G と F′ ⊣ G′ に関する 1<sub>G</sub> のメイトとして解釈し直せ。</li>
+  <li><b>4.3.v</b> — 左随伴の間の自然変換が同型であることと、その共役である右随伴の間の自然変換が同型であることが、同値であることを示せ。また、自然同型のメイトが同型とは限らないことを示す例を見つけよ。</li>
+  <li><b>4.3.vi</b> — メイトの対応が、次の 2 つと可換であることを示せ。
+    <ol class="roman">
+      <li>関手の水平合成と、四角形の水平な貼り合わせ。</li>
+      <li>随伴の垂直合成と、四角形の垂直な貼り合わせ。</li>
+    </ol>
+  </li>
+  <li><b>4.3.vii</b> — 演習4.3.vi の結果を演習3.6.v の設定で解釈せよ。すなわち、対象が圏、水平な射が関手、垂直な射が随伴、四角形がメイトの対である二重圏（double category）があることを示せ<sup>9</sup>。</li>
+</ul>
+
+<p class="fn"><sup>9</sup> 別の解釈もできる。演習4.3.vi の結果は、対象、水平な射、垂直な射が同じである一対の二重圏の間の同型を定める。一方の二重圏の四角形は α<sup>♯</sup> の形の自然変換で、もう一方の二重圏の四角形は α<sup>♭</sup> の形の自然変換である [KS74, 2.2]。</p>
+
+</body>
+</html>

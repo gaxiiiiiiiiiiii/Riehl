@@ -392,8 +392,10 @@ variable {A : Type u₁} {B : Type u₂} [PartialOrder A] [PartialOrder B]
 
 -- FGF = F
 theorem map_map_map_eq_left {F : A ⥤ B} {G : B ⥤ A} (σ : F ⊣ G) (a : A) :
-    F.obj (G.obj (F.obj a)) = F.obj a :=
-  sorry
+    F.obj (G.obj (F.obj a)) = F.obj a := by
+  apply le_antisymm
+  · exact (σ.counit.app (F.obj a)).le
+  · exact (F.map (σ.unit.app a)).le
 
 #check GaloisConnection.u_l_u_eq_u
 
@@ -424,19 +426,101 @@ statement の項 := 本の記法
 
 -- η_c が同型ならば ε_{Fc} は同型
 theorem isIso_counit_app_obj_of_isIso_unit_app {F : C ⥤ D} {G : D ⥤ C} (σ : F ⊣ G) (c : C)
-    [IsIso (σ.unit.app c)] : IsIso (σ.counit.app (F.obj c)) :=
-  sorry
+    [IsIso (σ.unit.app c)] : IsIso (σ.counit.app (F.obj c)) := by
+  use F.map (σ.unit.app c); constructor
+  · have inv_hom := IsIso.inv_hom_id (σ.unit.app c); dsimp at inv_hom
+    have E := congr_arg F.map inv_hom; rw [F.map_comp, F.map_id] at E
+    have Hc := σ.left_triangle_components c
+    erw [<- Category.id_comp (σ.counit.app (F.obj c)), <- E]
+    rw [Category.assoc (F.map _), Hc, Category.comp_id]
+  · exact σ.left_triangle_components c
+
 
 -- ε_d が同型ならば η_{Gd} は同型
 theorem isIso_unit_app_obj_of_isIso_counit_app {F : C ⥤ D} {G : D ⥤ C} (σ : F ⊣ G) (d : D)
-    [IsIso (σ.counit.app d)] : IsIso (σ.unit.app (G.obj d)) :=
-  sorry
+    [IsIso (σ.counit.app d)] : IsIso (σ.unit.app (G.obj d)) := by
+  -- GFGd ⟶ Gd
+  use G.map (σ.counit.app d); constructor
+  · exact σ.right_triangle_components d
+  · have hom_inv := IsIso.hom_inv_id (σ.counit.app d); dsimp at hom_inv
+    have E := congr_arg G.map hom_inv; rw [G.map_comp, G.map_id] at E
+    rw [<- Category.comp_id (σ.unit.app (G.obj d))]
+    erw [<- E]
+    rw [<- Category.assoc (σ.unit.app (G.obj d)), σ.right_triangle_components d]
+    simp
+
+
 
 -- F と G の制限が定める、2 つの充満部分圏の間の圏同値
-def fullSubcategoryEquivalenceOfAdjunction {F : C ⥤ D} {G : D ⥤ C} (σ : F ⊣ G) :
+noncomputable def fullSubcategoryEquivalenceOfAdjunction {F : C ⥤ D} {G : D ⥤ C} (σ : F ⊣ G) :
     (ObjectProperty.FullSubcategory fun c => IsIso (σ.unit.app c)) ≌
-      (ObjectProperty.FullSubcategory fun d => IsIso (σ.counit.app d)) :=
-  sorry
+      (ObjectProperty.FullSubcategory fun d => IsIso (σ.counit.app d)) where
+  functor := {
+    obj x := let H := x.property
+      ⟨(F.obj x.obj), (isIso_counit_app_obj_of_isIso_unit_app σ x.obj)⟩
+    map {x y} f := ⟨F.map f.hom⟩
+    map_id x := by ext; simp
+    map_comp f g := by ext; simp
+  }
+  inverse := {
+    obj x :=
+      let H := x.property
+      ⟨G.obj x.obj, isIso_unit_app_obj_of_isIso_counit_app σ x.obj⟩
+    map {x y} f := ⟨G.map f.hom⟩
+    map_id x := by ext; simp
+    map_comp f g := by ext; simp
+  }
+  unitIso := {
+    hom := {
+      app i := ⟨σ.unit.app i.obj⟩
+      naturality {i j} f := by
+        ext; dsimp only [Functor.id_obj, Functor.comp_obj, Lean.Elab.WF.paramLet, Functor.id_map,
+          ObjectProperty.FullSubcategory.comp_hom, Functor.comp_map]
+        erw [σ.unit_naturality f.hom]
+    }
+    inv := {
+      app i :=
+        have := i.property
+        ⟨inv (σ.unit.app i.obj)⟩
+      naturality {i j} f := by
+        ext; dsimp only [Functor.id_obj, Functor.comp_obj, Lean.Elab.WF.paramLet, Functor.comp_map,
+          ObjectProperty.FullSubcategory.comp_hom, Functor.id_map]
+        have := i.property
+        have := IsIso.inv_hom_id (σ.unit.app i.obj)
+        erw [<- Category.id_comp (G.map _), <- IsIso.inv_hom_id (σ.unit.app i.obj)]
+        erw [Category.assoc (inv _), σ.unit_naturality]
+        simp
+    }
+    hom_inv_id := by ext x; simp
+    inv_hom_id := by ext x; simp
+  }
+
+  counitIso := {
+    hom := {
+      app i := ⟨σ.counit.app i.obj⟩
+      naturality {i j} f := by ext; simp
+    }
+    inv := {
+      app i :=
+        have := i.property
+        ⟨inv (σ.counit.app i.obj)⟩
+      naturality {i j} f := by
+        ext; dsimp only [Functor.comp_obj, Functor.id_obj, Lean.Elab.WF.paramLet, Functor.id_map,
+          ObjectProperty.FullSubcategory.comp_hom, Functor.comp_map]
+        have := j.property
+        erw [<- Category.comp_id (F.map (G.map f.hom)), <- IsIso.hom_inv_id (σ.counit.app j.obj)]
+        rw [σ.counit_naturality_assoc f.hom]
+        simp
+    }
+    hom_inv_id := by ext x; simp
+    inv_hom_id := by ext x; simp
+  }
+  functor_unitIso_comp x := by
+    ext; exact σ.left_triangle_components x.obj
+
+
+
+
 
 -- ╔═════════════════════════════════════════════════════════════════════════
 -- ║  節末問題
