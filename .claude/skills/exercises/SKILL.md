@@ -76,7 +76,7 @@ noncomputable def limJ : (I × J ⥤ C) ⥤ (I ⥤ C) := sorry
 
 宣言の直前に、対応する Mathlib の宣言の `#check` と、宣言するものを言う 1 行を、この順に置く。本にない Mathlib の宣言のうち、これまでの演習ファイルの statement に現れていないものは、statement に最初に現れる宣言の直前に `#check` で示す。`#check` を置くのは、この 2 つと、5.1 で主張の代わりに示す補題に限る。
 
-一つの主張が複数の構成や等式を含むときは、それぞれを別の宣言にする。Lean が `noncomputable` を要求する定義には付ける。
+一つの主張をいくつの宣言に分けるかは、主張ごとに、Mathlib が同じ種類の主張をどう宣言に分けているかを参考にして決める。Lean が `noncomputable` を要求する定義には付ける。
 
 ### 5.1 演習と Mathlib
 

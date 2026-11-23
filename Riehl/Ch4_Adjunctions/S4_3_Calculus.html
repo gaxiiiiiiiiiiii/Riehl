@@ -483,6 +483,35 @@
 
 <p>η と ε が自然同型ならば φ = εF ⋅ Fη と ψ = Gε ⋅ ηG も自然同型だから、命題4.3.4 が使える。命題4.3.4 の証明 2 で作った ε′ = ε ⋅ Fψ<sup>−1</sup> は、自然同型の合成だから自然同型である。</p>
 
+<p>本文は述べていないが、ε′ の逆は Fψ ⋅ ε<sup>−1</sup> である。D の対象 d での成分でいうと、ε′<sub>d</sub> : FGd → d の逆射は、次の図式の ε<sub>d</sub><sup>−1</sup>、Fη<sub>Gd</sub>、FGε<sub>d</sub> をこの順に合成した d → FGd → FGFGd → FGd である。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 600 300" width="600" role="img" aria-label="左上 FGFGd、右上 FGd、左下 FGd、右下 d。右上の FGd から FGFGd への曲線 Fη_Gd、FGFGd から右上の FGd への FGε_d、FGFGd から左下の FGd への ε′_FGd、左下の FGd から d への ε_d、d から右上の FGd への ε_d の逆射、右上の FGd から d への ε′_d">
+  <defs>
+    <marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+    <marker id="a1c" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <text x="170" y="115" text-anchor="middle">FGFGd</text>
+  <text x="460" y="115" text-anchor="middle">FGd</text>
+  <text x="170" y="265" text-anchor="middle">FGd</text>
+  <text x="460" y="265" text-anchor="middle">d</text>
+  <path d="M 452 96 C 400 22, 230 22, 180 94" marker-end="url(#a1c)" style="stroke:var(--accent)"/>
+  <text class="lbl" x="316" y="30" text-anchor="middle" style="fill:var(--accent)">Fη<tspan baseline-shift="sub" font-size="10">Gd</tspan></text>
+  <line x1="208" y1="110" x2="432" y2="110" marker-end="url(#a1)"/>
+  <text class="lbl" x="320" y="100" text-anchor="middle">FGε<tspan baseline-shift="sub" font-size="10">d</tspan></text>
+  <line x1="170" y1="126" x2="170" y2="244" marker-end="url(#a1c)" style="stroke:var(--accent)"/>
+  <text class="lbl" x="160" y="190" text-anchor="end" style="fill:var(--accent)">ε′<tspan baseline-shift="sub" font-size="10">FGd</tspan></text>
+  <line x1="196" y1="260" x2="444" y2="260" marker-end="url(#a1)"/>
+  <text class="lbl" x="320" y="280" text-anchor="middle">ε<tspan baseline-shift="sub" font-size="10">d</tspan></text>
+  <line x1="450" y1="246" x2="450" y2="128" marker-end="url(#a1)"/>
+  <text class="lbl" x="441" y="190" text-anchor="end">ε<tspan baseline-shift="sub" font-size="10">d</tspan><tspan baseline-shift="super" font-size="10">−1</tspan></text>
+  <line x1="472" y1="128" x2="472" y2="246" marker-end="url(#a1)"/>
+  <text class="lbl" x="481" y="190" text-anchor="start">ε′<tspan baseline-shift="sub" font-size="10">d</tspan></text>
+  <text class="lbl" x="312" y="190" text-anchor="middle" style="fill:var(--muted)">ε′ の自然性</text>
+  <text class="lbl" x="92" y="62" text-anchor="middle" style="fill:var(--accent)">三角等式</text>
+</svg>
+<figcaption>四角形は ε′ の自然性を射 ε<sub>d</sub> : FGd → d に使ったもの。色を付けた 2 辺の合成 FGd → FGFGd → FGd は、三角等式 ε′F ⋅ Fη = 1<sub>F</sub> の Gd での成分により恒等射</figcaption>
+</figure>
+
 <p>圏同値の定義は対称的で、η の代わりに ε<sup>−1</sup> を、ε の代わりに η<sup>−1</sup> を使うと、F と G の役割が入れ替わる。このことから、圏同値 F : C → D は左随伴とも右随伴とも見なせる。実際、F の逆にあたる圏同値 G : D → C をどう選んでも、G は F の左随伴であり、右随伴でもある。</p>
 
 <h2>命題4.3.7 — 関手圏の間の随伴</h2>

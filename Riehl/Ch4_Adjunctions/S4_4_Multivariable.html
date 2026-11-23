@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4.4 反変随伴関手と多変数随伴関手</title>
+<style>
+  :root {
+    --bg: #fdfcf9;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --accent: #8a4c14;
+    --line: #d8d3c8;
+    --box-bg: #f5f2ea;
+    --code-bg: #f0ede5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1e22;
+      --fg: #e4e1da;
+      --muted: #9aa2ab;
+      --accent: #e0a468;
+      --line: #3a3f46;
+      --box-bg: #24262b;
+      --code-bg: #2a2d33;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    line-height: 1.95;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  h1 { font-size: 1.5rem; font-family: "Hiragino Sans", sans-serif; border-bottom: 2px solid var(--accent); padding-bottom: .4rem; }
+  h2 { font-size: 1.12rem; font-family: "Hiragino Sans", sans-serif; color: var(--accent); margin-top: 2.6rem; }
+  p { margin: .9rem 0; font-size: .97rem; }
+  li { font-size: .97rem; margin: .4rem 0; }
+  .note { color: var(--muted); font-size: .88em; }
+  .thm {
+    background: var(--box-bg);
+    border-left: 3px solid var(--accent);
+    padding: .7rem 1.1rem;
+    margin: 1.2rem 0;
+  }
+  .thm b { font-family: "Hiragino Sans", sans-serif; }
+  .proof-head { font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .qed { float: right; }
+  .fn { color: var(--muted); font-size: .88rem; border-top: 1px solid var(--line); padding-top: .5rem; }
+  .eq { text-align: center; margin: 1rem 0; }
+  figure.cd { margin: 1.4rem auto; text-align: center; }
+  figure.cd svg { max-width: 100%; height: auto; color: var(--fg); overflow: visible; }
+  figure.cd figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+  svg.cd text { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; font-size: 16px; fill: currentColor; }
+  svg.cd text.lbl { font-size: 13.5px; }
+  svg.cd line { stroke: currentColor; stroke-width: 1.1; }
+  svg.cd path:not([fill]) { fill: none; stroke: currentColor; stroke-width: 1.1; }
+  svg.cd .dashed { stroke-dasharray: 5 4; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--box-bg); font-family: "Hiragino Sans", sans-serif; font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+  ol.roman { list-style: lower-roman; }
+  blockquote {
+    margin: 1.2rem 0; padding: .5rem 1.1rem;
+    border-left: 3px solid var(--line); color: var(--muted); font-size: .92rem;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>4.4 反変随伴関手と多変数随伴関手</h1>
+
+<p class="note">Emily Riehl, <i>Category Theory in Context</i> §4.4（pp.150–157）の内容を、個人学習のために日本語で書き直した解説。番号（定義4.4.1 など）は本と揃えてある。翻訳ではなく、同じ内容を自分の言葉で再構成したもの。</p>
+
+<h2>記号表</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>記号</th><th>型・意味</th></tr>
+  <tr><td>C(c, c′)</td><td>圏 C の射 c → c′ の集合</td></tr>
+  <tr><td>C<sup>op</sup></td><td>C の反対圏。関手 C<sup>op</sup> → D は C から D への反変関手</td></tr>
+  <tr><td>F : C<sup>op</sup> → D, G : D<sup>op</sup> → C</td><td>定義4.4.1 の反変関手の対</td></tr>
+  <tr><td>P(X)</td><td>集合 X の部分集合全体が包含でなす半順序集合。圏と見る</td></tr>
+  <tr><td>V(S), I(T)</td><td>例4.4.2 の、多項式の集合 S の共通零点の集合と、点の集合 T の上で消える多項式の集合</td></tr>
+  <tr><td>M ⊨ A</td><td>例4.4.3 の、構造の集合 M に属するどの構造でも、公理の集合 A に属するどの公理も真であるという関係</td></tr>
+  <tr><td>F : A × B → C</td><td>双関手。積圏 A × B からの関手</td></tr>
+  <tr><td>F(a, −) : B → C, F(−, b) : A → C</td><td>双関手 F の一方の変数を対象 a または b に固定して得られる関手</td></tr>
+  <tr><td>G : A<sup>op</sup> × C → B, H : B<sup>op</sup> × C → A</td><td>命題4.4.6 と定義4.4.7 の、F の変数ごとの右随伴を束ねた双関手</td></tr>
+  <tr><td>f<sub>∗</sub>, f<sup>∗</sup></td><td>射 f を後ろに合成する写像、前に合成する写像</td></tr>
+  <tr><td>{H ⇒ G}</td><td>自然変換 H ⇒ G の集合</td></tr>
+  <tr><td>Set<sup>C</sup></td><td>関手圏。対象は関手 C → Set、射は自然変換</td></tr>
+  <tr><td>H × F</td><td>関手 H, F : C → Set の Set<sup>C</sup> での積。(H × F)c = Hc × Fc</td></tr>
+  <tr><td>C(c, −) : C → Set</td><td>対象 c が表現する共変関手。射 f : c → d に対して f<sup>∗</sup> : C(d, −) ⇒ C(c, −) は f を前に合成する自然変換</td></tr>
+  <tr><td>G<sup>F</sup> : C → Set</td><td>補題4.4.11 の、Set<sup>C</sup> での指数対象</td></tr>
+  <tr><td>ev : G<sup>F</sup> × F ⇒ G</td><td>補題4.4.11 の随伴 − × F ⊣ (−)<sup>F</sup> の余単位の成分</td></tr>
+  <tr><td>C<sup>B</sup></td><td>集合 B, C について、写像 B → C の集合</td></tr>
+  <tr><td><sub>R</sub>Mod<sub>S</sub></td><td>環 R, S について、R-S 両側加群の圏</td></tr>
+  <tr><td>Ab(A, B), Hom(A, B)</td><td>例4.4.15 では、Ab(A, B) は準同型 A → B の集合、Hom(A, B) は同じ集合に各点ごとの加法を入れたアーベル群</td></tr>
+  <tr><td>A ⊗<sub>ℤ</sub> B</td><td>アーベル群 A, B のテンソル積</td></tr>
+  <tr><td>cgHaus, k, Map(X, Y)</td><td>例4.4.14 の、コンパクト生成ハウスドルフ空間の圏、k 化の関手、写像空間</td></tr>
+  <tr><td>Top<sub>∗</sub>, ∧, Map<sub>∗</sub>, Σ, Ω</td><td>例4.4.18 の、基点付き空間の圏、スマッシュ積、基点付き写像空間、約懸垂、基点付きループ空間</td></tr>
+</table>
+</div>
+
+<h2>節の導入</h2>
+
+<p class="note">節の冒頭には Saunders Mac Lane, <i>Categories for the Working Mathematician</i> からの引用が置かれている。よい一般論は最大の一般性を求めるのではなく、適切な一般性を求める、という一節である。</p>
+
+<p>Kan が随伴関手を最初に調べた論文 [Kan58] は、反変な関手や、2 つ以上の変数を持つ関手の間の随伴の関係も扱っている。真偽の定かでない話によれば、こうした例が Kan の発見の主な動機であった。その話は、Kan がコロンビア大学のホモロジー代数のセミナーで Eilenberg に尋ねた質問として伝わっている [Mar09, §4.2]。</p>
+
+<blockquote>
+<p>Kan: テンソル積が hom 関手を使って定義できることを説明されました。逆に、hom をテンソル積を使って定義することはできますか。</p>
+<p>Eilenberg: いいえ、もちろんできません。馬鹿げています。</p>
+</blockquote>
+
+<p>実際には Kan の直観が正しかった。命題4.3.1 により、随伴関手はその随伴を自然同型を除いて決める。hom の双関手をテンソル積から定義する方法は例4.4.15 で説明する。テンソル積と hom の間の随伴は、定義4.4.7 で導入する 2 変数随伴の例である。その前に、反変な随伴を扱う。</p>
+
+<p>反変な随伴関手は、双対性の原理を当てはめるだけで得られる。定義4.1.1 は、関手 F : C → D と G : D → C について、c と d について自然な同型 D(Fc, d) ≅ C(c, Gd) があるとき F を G の左随伴と呼ぶものであった。この定義の双対化は 3 通りある。C を C<sup>op</sup> に置き換えるもの、D を D<sup>op</sup> に置き換えるもの、両方を置き換えるものである。</p>
+
+<p>両方を置き換えると、元の随伴の概念に戻る。G : D<sup>op</sup> → C<sup>op</sup> が F : C<sup>op</sup> → D<sup>op</sup> の左随伴であるとは、自然同型 C<sup>op</sup>(Gd, c) ≅ D<sup>op</sup>(d, Fc) があることで、これは自然同型 C(c, Gd) ≅ D(Fc, d) があること、すなわち F ⊣ G と同じである。したがって、左随伴についての定理はどれも、右随伴についての双対な定理を持つ。これは随伴についての双対性の原理で、たいへん役に立つ。</p>
+
+<p>残りの 2 つの双対化からは、新しい種類の随伴関手が得られる。</p>
+
+<h2>定義4.4.1 — 互いに左随伴、互いに右随伴</h2>
+
+<div class="thm"><b>定義4.4.1.</b> 一対の反変関手 F : C<sup>op</sup> → D と G : D<sup>op</sup> → C は、c と d について自然な同型
+<p class="eq">D(Fc, d) ≅ C(Gd, c)</p>
+が存在するとき<b>互いに左随伴</b>（mutually left adjoint）であるといい、c と d について自然な同型
+<p class="eq">D(d, Fc) ≅ C(c, Gd)</p>
+が存在するとき<b>互いに右随伴</b>（mutually right adjoint）であるという。</div>
+
+<p>C(Gd, c) = C<sup>op</sup>(c, Gd) だから、F と G が互いに左随伴であることは、F : C<sup>op</sup> → D が G<sup>op</sup> : D → C<sup>op</sup> の左随伴であることと同じである。また D(d, Fc) = D<sup>op</sup>(Fc, d) だから、F と G が互いに右随伴であることは、F<sup>op</sup> : C → D<sup>op</sup> が G : D<sup>op</sup> → C の左随伴であることと同じである。どちらの定義も F と G の役割を入れ替えて変わらない。</p>
+
+<p>定義4.2.5 は、随伴を、単位 η : id<sub>C</sub> ⇒ GF と余単位 ε : FG ⇒ id<sub>D</sub> で三角等式を満たすものとして定義した。これを双対化すると次のようになる。互いに左随伴な対 F : C<sup>op</sup> → D, G : D<sup>op</sup> → C は、一対の「余単位」にあたる自然変換 η : GF ⇒ id<sub>C</sub> と ε : FG ⇒ id<sub>D</sub> を備える。互いに右随伴な対 F : C<sup>op</sup> → D, G : D<sup>op</sup> → C は、一対の「単位」にあたる自然変換 η : id<sub>C</sub> ⇒ GF と ε : id<sub>D</sub> ⇒ FG を備える。それぞれの場合の三角等式を書き下すことは演習4.4.i に委ねられている。</p>
+
+<p>前順序集合の間の互いに右随伴な対は、反単調ガロア接続（antitone Galois connection）と呼ばれることがある。</p>
+
+<h2>例4.4.2 — 零点集合と消える多項式</h2>
+
+<p>自然数 n と代数閉体 𝕜 を固定し、多項式環 𝕜[x<sub>1</sub>, …, x<sub>n</sub>] の元の集合と、ベクトル空間 𝕜<sup>n</sup> の元の集合を考える。それぞれの部分集合のなす半順序集合の間に、反変関手</p>
+
+<p class="eq">V : P(𝕜[x<sub>1</sub>, …, x<sub>n</sub>])<sup>op</sup> → P(𝕜<sup>n</sup>)　と　I : P(𝕜<sup>n</sup>)<sup>op</sup> → P(𝕜[x<sub>1</sub>, …, x<sub>n</sub>])</p>
+
+<p>がある。S ⊂ 𝕜[x<sub>1</sub>, …, x<sub>n</sub>] と T ⊂ 𝕜<sup>n</sup> に対して、次で定義する。</p>
+
+<p class="eq">V(S) ≔ {(t<sub>1</sub>, …, t<sub>n</sub>) ∈ 𝕜<sup>n</sup> ∣ すべての f ∈ S について f(t<sub>1</sub>, …, t<sub>n</sub>) = 0}</p>
+<p class="eq">I(T) ≔ {f ∈ 𝕜[x<sub>1</sub>, …, x<sub>n</sub>] ∣ すべての (t<sub>1</sub>, …, t<sub>n</sub>) ∈ T について f(t<sub>1</sub>, …, t<sub>n</sub>) = 0}</p>
+
+<p>V と I は互いに右随伴である。それは</p>
+
+<p class="eq">T ⊂ V(S)　⇔　S ⊂ I(T)</p>
+
+<p>が成り立つからである。両辺はどちらも、すべての f ∈ S とすべての t ∈ T について f(t) = 0 であるという条件である。このガロア接続は現代の代数幾何学の出発点の 1 つである。</p>
+
+<p>単位と余単位にあたるものは、関係</p>
+
+<p class="eq">T ⊂ V(I(T))　と　S ⊂ I(V(S))</p>
+
+<p>である。点の集合 T ⊂ 𝕜<sup>n</sup> が不動点である、すなわち T = V(I(T)) を満たすのは、T が 𝕜<sup>n</sup> = Spec(𝕜[x<sub>1</sub>, …, x<sub>n</sub>]) 上のザリスキー位相で閉であるとき、かつそのときに限る。ザリスキー位相は例1.3.7(iv) で導入した。多項式の集合 S ⊂ 𝕜[x<sub>1</sub>, …, x<sub>n</sub>] が不動点である、すなわち S = I(V(S)) を満たすのは、S が 𝕜[x<sub>1</sub>, …, x<sub>n</sub>] の根基イデアルであるとき、かつそのときに限る。これがヒルベルトの零点定理である。</p>
+
+<p>補題4.2.11 は、随伴 F ⊣ G が、単位の成分 η<sub>c</sub> が同型である対象 c のなす充満部分圏と、余単位の成分 ε<sub>d</sub> が同型である対象 d のなす充満部分圏の間の圏同値に制限されることを述べる。これを V と I に当てはめると、𝕜<sup>n</sup> のザリスキー閉集合のなす半順序集合が、𝕜[x<sub>1</sub>, …, x<sub>n</sub>] の根基イデアルのなす半順序集合の反対と同型であることが分かる。</p>
+
+<h2>例4.4.3 — 構文と意味論の間のガロア接続</h2>
+
+<p>シグネチャ σ、すなわち関数記号、定数記号、関係記号のリストを固定する。Struct<sub>σ</sub> を σ-構造の集合とする。σ-構造とは、σ の定数記号、関係記号、関数記号の解釈を備えた集合である。Axiom<sub>σ</sub> を公理の集合とする。公理とは、σ の定める一階の言語の文である。</p>
+
+<p>たとえば順序体のシグネチャは、定数記号 0 と 1、2 項関数記号 + と ⋅、2 項関係記号 &lt; からなる。この言語の構造は、指定された 2 つの定数、2 つの 2 項関数、1 つの 2 項関係を備えた任意の集合である。公理には</p>
+
+<p class="eq">∀x, y, x ⋅ y = y ⋅ x　や　∀x, y, z, ((x &lt; y) ∧ (0 &lt; z)) → (x ⋅ z &lt; y ⋅ z)</p>
+
+<p>のような文が含まれる。1 つ目は「乗法」の関数が対称であることを主張し、2 つ目は「正」の元 0 &lt; z を掛けることが順序関係を保つことを主張する。</p>
+
+<p>σ-構造の集合 M と公理の集合 A について、A に属するどの公理も M に属するどの σ-構造でも満たされる、つまり真であるとき、M ⊨ A と書く。たとえば上の 1 つ目の文がある構造で満たされるのは、その構造での 2 項関数 ⋅ の解釈が 2 つの引数について対称であるとき、かつそのときに限る。</p>
+
+<p>包含で順序を入れた半順序集合 P(Axiom<sub>σ</sub>) と P(Struct<sub>σ</sub>) を圏と見る。反変関手</p>
+
+<p class="eq">True in : P(Axiom<sub>σ</sub>)<sup>op</sup> → P(Struct<sub>σ</sub>)　と　Satisfying : P(Struct<sub>σ</sub>)<sup>op</sup> → P(Axiom<sub>σ</sub>)</p>
+
+<p>がある。1 つ目は公理の集合を、それらの公理をすべて満たす σ-構造の集合に送る。公理を満たす構造をその公理のモデルという。2 つ目は σ-構造の集合を、それらの構造のすべてで満たされる公理の集合に送る。この 2 つは互いに右随伴で、構文と意味論の間のガロア接続と呼ばれるものをなす [Smi10]。</p>
+
+<h2>命題4.4.4 — 対象ごとの表現から随伴へ</h2>
+
+<p>多変数の関手に進む前に、通常の随伴にも同じように当てはまる観察を 1 つ述べる。</p>
+
+<div class="thm"><b>命題4.4.4.</b> 関手 F : A → B について、各 b ∈ B に対して対象 Gb ∈ A と、a ∈ A について自然な同型
+<p class="eq">(4.4.5)　B(Fa, b) ≅ A(a, Gb)</p>
+が存在するとする。このとき、対応 G : ob B → ob A を関手 G : B → A に拡張して、同型の族 (4.4.5) が b ∈ B についても自然になるようにする方法が、ただ 1 つ存在する。したがって、F : A → B が、各 b ∈ B について関手
+<p class="eq">B(F−, b) : A<sup>op</sup> → Set</p>
+の表現を指定された関手ならば、このデータから随伴 F ⊣ G が組み上がる。</div>
+
+<p>双対な表現可能性の判定条件が、左随伴を持つ関手を特徴づける。すなわち、関手 G : B → A について、各 a ∈ A に対して対象 Fa ∈ B と、b ∈ B について自然な同型 B(Fa, b) ≅ A(a, Gb) が存在するならば、対応 F : ob A → ob B は、この同型の族が a についても自然になるような関手 F : A → B に一意に拡張される。</p>
+
+<p><span class="proof-head">証明.</span> 射 f : b → b′ についての (4.4.5) の自然性は、まだ定義していない射 Gf : Gb → Gb′ について、次の四角形が可換であることを要求する。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 440 170" width="440" role="img" aria-label="上辺 A(a, Gb) から B(Fa, b) への同型、右辺 B(Fa, b) から B(Fa, b′) への f を後ろに合成する写像、下辺 B(Fa, b′) から A(a, Gb′) への同型、左辺 A(a, Gb) から A(a, Gb′) への Gf を後ろに合成する写像（破線）">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="110" y="40" text-anchor="middle">A(a, Gb)</text>
+  <text x="330" y="40" text-anchor="middle">B(Fa, b)</text>
+  <text x="110" y="145" text-anchor="middle">A(a, Gb′)</text>
+  <text x="330" y="145" text-anchor="middle">B(Fa, b′)</text>
+  <line x1="158" y1="35" x2="282" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="220" y="26" text-anchor="middle">≅</text>
+  <line x1="330" y1="50" x2="330" y2="125" marker-end="url(#a1)"/>
+  <text class="lbl" x="343" y="92" text-anchor="start">f<tspan baseline-shift="sub" font-size="10">∗</tspan></text>
+  <line x1="280" y1="140" x2="162" y2="140" marker-end="url(#a1)"/>
+  <text class="lbl" x="220" y="160" text-anchor="middle">≅</text>
+  <line x1="110" y1="50" x2="110" y2="125" class="dashed" marker-end="url(#a1)"/>
+  <text class="lbl" x="97" y="92" text-anchor="end">(Gf)<tspan baseline-shift="sub" font-size="10">∗</tspan></text>
+</svg>
+<figcaption>上辺は (4.4.5) の b での同型の逆、下辺は (4.4.5) の b′ での同型</figcaption>
+</figure>
+<p>つまり、上辺、右辺、下辺をこの順に合成した写像 A(a, Gb) → A(a, Gb′) が、Gf を後ろに合成する写像 (Gf)<sub>∗</sub> に等しいことを要求する。</p>
+
+<p>この合成写像を作る 3 つの写像は、どれも a について自然である。上辺と下辺は仮定により a について自然で、右辺の f<sub>∗</sub> は自然変換 B(F−, b) ⇒ B(F−, b′) の成分である。したがって合成写像は自然変換 A(−, Gb) ⇒ A(−, Gb′) を定める。米田の補題により、表現可能関手の間の自然変換 A(−, Gb) ⇒ A(−, Gb′) は、ただ 1 つの射 Gb → Gb′ を後ろに合成する写像として得られる。この射を Gf と定める。これで四角形は可換になり、四角形を可換にする Gf はこれに限る。</p>
+
+<p>こうして定めた対応 G : mor B → mor A が関手的であることは、この定義の一意性から従う。定理1.5.9 の証明で見たのと同じ議論である。恒等射 1<sub>b</sub> については、右辺が恒等写像になるので合成写像も恒等写像で、これは 1<sub>Gb</sub> を後ろに合成する写像だから、一意性により G(1<sub>b</sub>) = 1<sub>Gb</sub> である。射 f : b → b′ と g : b′ → b″ については、f の四角形の下に g の四角形を貼り合わせる。貼り合わせた図式の右辺は g<sub>∗</sub> ∘ f<sub>∗</sub> = (g ∘ f)<sub>∗</sub> で、間に挟まる b′ での同型とその逆は打ち消し合う。したがって g ∘ f についての合成写像は (Gg)<sub>∗</sub> ∘ (Gf)<sub>∗</sub> = (Gg ∘ Gf)<sub>∗</sub> に等しく、一意性により G(g ∘ f) = Gg ∘ Gf である<sup>10</sup>。<span class="qed">□</span></p>
+
+<p class="fn"><sup>10</sup> より簡潔に言うと、G は、関手 b ↦ B(F−, b) の米田埋め込みに沿ったただ 1 つの制限として定義される。すなわち、次の三角形が、指定された自然同型 (4.4.5) を除いて可換になるような関手である。米田埋め込みは忠実充満だから、G の射での値は、合成 b ↦ A(−, Gb) の射での値によって一意に決まる。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 440 180" width="440" role="img" aria-label="B から関手圏 Set^(A^op) への関手 b ↦ B(F−, b)、B から A への関手 G（破線）、A から Set^(A^op) への米田埋め込み a ↦ A(−, a) のなす三角形。自然同型を除いて可換">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="70" y="40" text-anchor="middle">B</text>
+  <text x="372" y="40" text-anchor="middle">Set<tspan baseline-shift="super" font-size="10">Aᵒᵖ</tspan></text>
+  <text x="220" y="155" text-anchor="middle">A</text>
+  <line x1="88" y1="35" x2="338" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="213" y="26" text-anchor="middle">b ↦ B(F−, b)</text>
+  <line x1="82" y1="50" x2="205" y2="138" class="dashed" marker-end="url(#a1)"/>
+  <text class="lbl" x="130" y="108" text-anchor="end">G</text>
+  <line x1="236" y1="138" x2="357" y2="50" marker-end="url(#a1)"/>
+  <text class="lbl" x="308" y="108" text-anchor="start">a ↦ A(−, a)</text>
+  <text class="lbl" x="220" y="82" text-anchor="middle">≅</text>
+</svg>
+</figure>
+
+<h2>命題4.4.6 — 変数ごとの随伴から双関手へ</h2>
+
+<p>命題4.4.4 の証明に使った構成は、多変数の関手に拡張できる。</p>
+
+<div class="thm"><b>命題4.4.6.</b> 双関手 F : A × B → C を考える。
+<ol class="roman">
+  <li>各対象 a ∈ A について、F から得られる関手 F(a, −) : B → C が右随伴 G<sub>a</sub> : C → B を持つならば、G(a, −) ≔ G<sub>a</sub> を満たし、同型
+  <p class="eq">C(F(a, b), c) ≅ B(b, G(a, c))</p>
+  が 3 つの変数すべてについて自然であるような双関手 G : A<sup>op</sup> × C → B が、ただ 1 つ存在する。</li>
+  <li>各対象 b ∈ B について、F から得られる関手 F(−, b) : A → C が右随伴 H<sub>b</sub> : C → A を持つならば、H(b, −) ≔ H<sub>b</sub> を満たし、同型
+  <p class="eq">C(F(a, b), c) ≅ A(a, H(b, c))</p>
+  が 3 つの変数すべてについて自然であるような双関手 H : B<sup>op</sup> × C → A が、ただ 1 つ存在する。</li>
+  <li>(i) と (ii) の仮定がどちらも成り立つとき、各 c ∈ C について、関手 G(−, c) : A<sup>op</sup> → B と H(−, c) : B<sup>op</sup> → A は互いに右随伴である。</li>
+</ol>
+</div>
+
+<p>(i) の同型は、a を固定したときには随伴 F(a, −) ⊣ G<sub>a</sub> の同型で、b と c について自然である。主張は、G<sub>a</sub> を a について束ねて、同じ同型が a についても自然になるようにできるということである。</p>
+
+<p><span class="proof-head">証明.</span> 演習4.4.ii。<span class="qed">□</span></p>
+
+<h2>定義4.4.7 — 2 変数随伴</h2>
+
+<p>命題4.4.6 により、変数ごとの随伴を持つ双関手からは、次の構造が得られる。</p>
+
+<div class="thm"><b>定義4.4.7.</b> 3 つの双関手
+<p class="eq">F : A × B → C,　　G : A<sup>op</sup> × C → B,　　H : B<sup>op</sup> × C → A</p>
+と、3 つの変数について自然な同型
+<p class="eq">C(F(a, b), c) ≅ B(b, G(a, c)) ≅ A(a, H(b, c))</p>
+の組を、<b>2 変数随伴</b>（two-variable adjunction）という。</div>
+
+<p>とくに、2 変数随伴の左随伴 F が何らかのモノイダル積であるとき、変数ごとに定義される右随伴 G と H を、それぞれ F の<b>左閉包</b>（left closure）と<b>右閉包</b>（right closure）という。両方の閉包が存在するとき、F は<b>双閉</b>（biclosed）であるという。F : C × C → C の形の双閉な関手で、2 つの引数について自然に対称なものは、単に<b>閉</b>（closed）であるという。この場合には左閉包と右閉包が自然同型だからである。</p>
+
+<h2>例4.4.8 — 両側加群のテンソル積</h2>
+
+<p>環 R と S について、R-S 両側加群の圏を <sub>R</sub>Mod<sub>S</sub> と書く。R-S 両側加群とは、R の元による左作用と S の元による右作用が互いに可換であるものである。<sub>R</sub>Mod<sub>ℤ</sub> ≅ <sub>R</sub>Mod と <sub>ℤ</sub>Mod<sub>S</sub> ≅ Mod<sub>S</sub> が成り立つ。もう 1 つの環 T について、S 上のテンソル積は双閉な関手</p>
+
+<p class="eq">⊗<sub>S</sub> : <sub>R</sub>Mod<sub>S</sub> × <sub>S</sub>Mod<sub>T</sub> → <sub>R</sub>Mod<sub>T</sub></p>
+
+<p>を定める。左閉包と右閉包は</p>
+
+<p class="eq"><sub>R</sub>Hom : <sub>R</sub>Mod<sub>S</sub><sup>op</sup> × <sub>R</sub>Mod<sub>T</sub> → <sub>S</sub>Mod<sub>T</sub>　と　Hom<sub>T</sub> : <sub>S</sub>Mod<sub>T</sub><sup>op</sup> × <sub>R</sub>Mod<sub>T</sub> → <sub>R</sub>Mod<sub>S</sub></p>
+
+<p>である。M ∈ <sub>R</sub>Mod<sub>S</sub> と N ∈ <sub>R</sub>Mod<sub>T</sub> について、<sub>R</sub>Hom(M, N) は左 R 加群の準同型 M → N の集合である。この集合は次の 3 つの構造を受け継ぐ。</p>
+
+<ul>
+  <li>アーベル群の構造。加法は各点ごとに定義する。</li>
+  <li>左 S 加群の構造。反変な変数 M の右 S 加群の構造を通して作用させる。</li>
+  <li>右 T 加群の構造。共変な変数 N の右 T 加群の構造を通して作用させる。</li>
+</ul>
+
+<p>S の作用は前への合成で、T の作用は後ろへの合成で定義されるので、2 つの作用は可換で、<sub>R</sub>Hom(M, N) は S-T 両側加群になる。右閉包も同様に定義される。</p>
+
+<h2>例4.4.9 — 集合の積と写像の集合</h2>
+
+<p>積の双関手</p>
+
+<p class="eq">× : Set × Set → Set</p>
+
+<p>は閉である。例2.1.6(iv) のカリー化の操作が、自然同型の族</p>
+
+<p class="eq">{A × B → C} ≅ {A → C<sup>B</sup>} ≅ {B → C<sup>A</sup>}</p>
+
+<p>を定めるからである。したがって、積の双関手と指数の双関手</p>
+
+<p class="eq">× : Set × Set → Set　と　(−)<sup>(−)</sup> : Set<sup>op</sup> × Set → Set</p>
+
+<p>は 2 変数随伴を定める。</p>
+
+<h2>定義4.4.10 — デカルト閉圏</h2>
+
+<div class="thm"><b>定義4.4.10.</b> <b>デカルト閉圏</b>（cartesian closed category）とは、有限積を持つ圏 C であって、積の双関手 − × − : C × C → C が閉であるものをいう。</div>
+
+<p>Set のほかに、有限集合の圏 Fin、小圏の圏 Cat、関手圏 Set<sup>C</sup> がデカルト閉である。Cat については演習1.7.vi を見よ。Set<sup>C</sup> については次の補題で示す。</p>
+
+<h2>補題4.4.11 — Set<sup>C</sup> はデカルト閉</h2>
+
+<div class="thm"><b>補題4.4.11.</b> 任意の小圏 C について、関手圏 Set<sup>C</sup> はデカルト閉である。</div>
+
+<p><span class="proof-head">証明.</span> 関手 F, G : C → Set が与えられたとする。目標は、関手 G<sup>F</sup> : C → Set を定義して、すべての関手 H : C → Set について、自然変換の集合の間に H について自然な全単射</p>
+
+<p class="eq">(4.4.12)　{H × F ⇒ G} ≅ {H ⇒ G<sup>F</sup>}</p>
+
+<p>があるようにすることである。</p>
+
+<p>G<sup>F</sup> の対象 c での値を</p>
+
+<p class="eq">(4.4.13)　G<sup>F</sup>(c) ≔ {C(c, −) × F ⇒ G} ≅ {C(c, −) ⇒ G<sup>F</sup>}</p>
+
+<p>と定義する。左の ≔ が定義で、右の ≅ は米田の補題による全単射である。定理2.2.4 により、自然変換 β : C(c, −) ⇒ G<sup>F</sup> は元 β<sub>c</sub>(1<sub>c</sub>) ∈ G<sup>F</sup>(c) によって一意に決まり、この元は定義により自然変換 C(c, −) × F ⇒ G である。したがって、この定義のもとで、H = C(c, −) の場合の全単射 (4.4.12) は米田の補題で与えられる。</p>
+
+<p>射 f : c → d に対して、G<sup>F</sup>(f) を、自然変換 f<sup>∗</sup> : C(d, −) ⇒ C(c, −) を前に合成する写像と定義する。すなわち、α ∈ G<sup>F</sup>(c) を α ⋅ (f<sup>∗</sup> × 1<sub>F</sub>) ∈ G<sup>F</sup>(d) に送る。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 600 165" width="560" role="img" aria-label="左: G^F(c) = {C(c, −) × F ⇒ G} から G^F(d) = {C(d, −) × F ⇒ G} への写像 G^F(f)。右: α が α ⋅ (f^∗ × 1_F) に送られる">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="180" y="40" text-anchor="middle">G<tspan baseline-shift="super" font-size="10">F</tspan>(c) = {C(c, −) × F ⇒ G}</text>
+  <text x="180" y="145" text-anchor="middle">G<tspan baseline-shift="super" font-size="10">F</tspan>(d) = {C(d, −) × F ⇒ G}</text>
+  <line x1="180" y1="52" x2="180" y2="124" marker-end="url(#a1)"/>
+  <text class="lbl" x="167" y="93" text-anchor="end">G<tspan baseline-shift="super" font-size="9">F</tspan>(f)</text>
+  <text x="480" y="40" text-anchor="middle">α</text>
+  <text x="480" y="145" text-anchor="middle">α ⋅ (f<tspan baseline-shift="super" font-size="10">∗</tspan> × 1<tspan baseline-shift="sub" font-size="10">F</tspan>)</text>
+  <line x1="474" y1="54" x2="486" y2="54"/>
+  <line x1="480" y1="54" x2="480" y2="124" marker-end="url(#a1)"/>
+</svg>
+</figure>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 520 58" width="520" role="img" aria-label="C(d, −) × F から C(c, −) × F への f^∗ × 1_F と、C(c, −) × F から G への α の合成">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="80" y="40" text-anchor="middle">C(d, −) × F</text>
+  <text x="290" y="40" text-anchor="middle">C(c, −) × F</text>
+  <text x="470" y="40" text-anchor="middle">G</text>
+  <line x1="135" y1="35" x2="235" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="185" y="25" text-anchor="middle">f<tspan baseline-shift="super" font-size="10">∗</tspan> × 1<tspan baseline-shift="sub" font-size="10">F</tspan></text>
+  <line x1="345" y1="35" x2="452" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="398" y="25" text-anchor="middle">α</text>
+</svg>
+<figcaption>G<sup>F</sup>(f) による α の像</figcaption>
+</figure>
+<p>米田の補題の自然性から、同型 (4.4.13) は c について自然である。</p>
+
+<p>自然な全単射 (4.4.12) が特別な場合 (4.4.13) から従うことには形式的な理由がある。これは演習6.5.iii で扱う。ここでは、随伴による転置の式を与えて、全単射を直接示す。</p>
+
+<p>はじめに、随伴 − × F ⊣ (−)<sup>F</sup> の余単位を定義する。その G ∈ Set<sup>C</sup> での成分は自然変換 ev : G<sup>F</sup> × F ⇒ G で、その成分は恒等射で値を取る写像である。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 420 110" width="420" role="img" aria-label="ev_c は G^F(c) × Fc から Gc への写像で、(γ, y) を γ_c(1_c, y) に送る">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="100" y="40" text-anchor="middle">G<tspan baseline-shift="super" font-size="10">F</tspan>(c) × Fc</text>
+  <text x="330" y="40" text-anchor="middle">Gc</text>
+  <line x1="160" y1="35" x2="305" y2="35" marker-end="url(#a1)"/>
+  <text class="lbl" x="232" y="25" text-anchor="middle">ev<tspan baseline-shift="sub" font-size="10">c</tspan></text>
+  <text x="100" y="92" text-anchor="middle">(γ, y)</text>
+  <text x="330" y="92" text-anchor="middle">γ<tspan baseline-shift="sub" font-size="10">c</tspan>(1<tspan baseline-shift="sub" font-size="10">c</tspan>, y)</text>
+  <line x1="135" y1="81" x2="135" y2="93"/>
+  <line x1="135" y1="87" x2="272" y2="87" marker-end="url(#a1)"/>
+</svg>
+</figure>
+<p>ここで γ ∈ G<sup>F</sup>(c) は自然変換 C(c, −) × F ⇒ G で、γ<sub>c</sub> : C(c, c) × Fc → Gc はその c での成分、y は Fc の元である。</p>
+
+<p>定理4.2.7(iv) により、自然変換 β : H ⇒ G<sup>F</sup> の随伴による転置は、β に関手 − × F を適用し、余単位の成分 ev を後ろに合成して得られる自然変換 α である。</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 360 180" width="360" role="img" aria-label="H × F から G^F × F への β × F、G^F × F から G への ev、H × F から G への α のなす可換な三角形">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="80" y="40" text-anchor="middle">H × F</text>
+  <text x="80" y="155" text-anchor="middle">G<tspan baseline-shift="super" font-size="10">F</tspan> × F</text>
+  <text x="300" y="155" text-anchor="middle">G</text>
+  <line x1="80" y1="50" x2="80" y2="132" marker-end="url(#a1)"/>
+  <text class="lbl" x="67" y="95" text-anchor="end">β × F</text>
+  <line x1="122" y1="150" x2="284" y2="150" marker-end="url(#a1)"/>
+  <text class="lbl" x="203" y="170" text-anchor="middle">ev</text>
+  <line x1="112" y1="48" x2="286" y2="138" marker-end="url(#a1)"/>
+  <text class="lbl" x="212" y="84" text-anchor="middle">α</text>
+</svg>
+</figure>
+<p>成分で書くと、c ∈ C、x ∈ Hc、y ∈ Fc について α<sub>c</sub>(x, y) = β<sub>c</sub>(x)<sub>c</sub>(1<sub>c</sub>, y) である。</p>
+
+<p>この操作が可逆であることを、逆を記述して示す。α : H × F ⇒ G が与えられたとき、その転置を次の自然変換 β : H ⇒ G<sup>F</sup> と定める。c ∈ C と x ∈ Hc に対して、β<sub>c</sub>(x) : C(c, −) × F ⇒ G は、d ∈ C での成分が、射 f : c → d と元 z ∈ Fd を元 α<sub>d</sub>((Hf)x, z) ∈ Gd に送る写像である自然変換である。</p>
+
+<p>2 つの操作が互いに逆であることは次のように確かめられる。α から β を作り、β から上の三角形で自然変換を作ると、その成分は (x, y) を β<sub>c</sub>(x)<sub>c</sub>(1<sub>c</sub>, y) = α<sub>c</sub>((H1<sub>c</sub>)x, y) = α<sub>c</sub>(x, y) に送るので、α に戻る。逆に β から α を作り、α から自然変換 β′ を作ると</p>
+
+<p class="eq">β′<sub>c</sub>(x)<sub>d</sub>(f, z) = α<sub>d</sub>((Hf)x, z) = β<sub>d</sub>((Hf)x)<sub>d</sub>(1<sub>d</sub>, z)</p>
+
+<p>である。β の自然性により β<sub>d</sub>((Hf)x) = G<sup>F</sup>(f)(β<sub>c</sub>(x)) = β<sub>c</sub>(x) ⋅ (f<sup>∗</sup> × 1<sub>F</sub>) で、その d での成分は (1<sub>d</sub>, z) を β<sub>c</sub>(x)<sub>d</sub>(f, z) に送る。したがって β′ = β である。<span class="qed">□</span></p>
+
+<h2>例4.4.14 — 空間の便利な圏</h2>
+
+<p>位相空間の圏 Top はデカルト閉でない。しかし Steenrod の有名な論文 [Ste67] は、完備かつ余完備で、デカルト閉で、CW 複体を含む程度に大きい、位相空間の<b>便利な圏</b>（convenient category of topological spaces）が存在することを証明している。Steenrod の便利な圏は、ハウスドルフ空間と連続写像の圏 Haus の部分圏である。それ以前の研究者たちは、Steenrod の条件のリストを満たす「空間の便利な圏」は存在しないと論じていた。Steenrod は次のように述べている。</p>
+
+<blockquote>
+<p>それらの議論は、標準的な操作の慣例どおりの定義に盲目的に従うことに基づいている。それらの定義はハウスドルフ空間の圏には適しているが、部分圏に適しているとは限らない。圏論的な観点を取れば、これらの定義を解凍して少し曲げることができる。</p>
+</blockquote>
+
+<p>Steenrod が言っているのは、これから定義する部分圏 cgHaus での「積」は、定義3.1.9 の圏論的な積であるべきだということである。この積は、充満な包含 cgHaus ↪ Haus で保たれない。</p>
+
+<p>cgHaus の対象はコンパクト生成ハウスドルフ空間である。ハウスドルフ空間 X がコンパクト生成であるとは、部分集合 A ⊂ X が、X の各コンパクト部分集合 K との共通部分 A ∩ K が閉であるという性質を持つならば、A 自身が X で閉であることをいう。包含 cgHaus ↪ Haus は右随伴 k : Haus → cgHaus を持ち、k 化（k-ification）と呼ばれる。空間 k(X) は X の位相を細かくしたもので、すべてのコンパクト部分集合 K との共通部分が閉であるような部分集合 A ⊂ X を、閉集合の族に加えて得られる。</p>
+
+<p>cgHaus の積は、Haus の積の k 化である。これと対照的に、Haus の積は包含 Haus ↪ Top で保たれる。積の変数ごとの右随伴は、次の写像空間 Map(X, Y) の構成で与えられる。Map(X, Y) の台集合は連続写像 X → Y の集合で、位相はコンパクト開位相の k 化である。証明は [Ste67] を見よ<sup>11</sup>。</p>
+
+<p class="fn"><sup>11</sup> 演習4.7.ii と命題3.6.2、命題4.5.14 により、この随伴が存在することから、cgHaus が完備かつ余完備であることが従う。</p>
+
+<h2>例4.4.15 — テンソル積と hom</h2>
+
+<p>デカルト積の右随伴ではない hom の双関手を持つ圏もある。その最も有名な例が、Kan を動かした「テンソル ⊣ hom」の随伴である。</p>
+
+<p>hom の双関手</p>
+
+<p class="eq">Hom : Ab<sup>op</sup> × Ab → Ab</p>
+
+<p>を考える。Hom(B, C) は準同型 B → C のなす群で、加法はアーベル群 C の加法を使って各点ごとに定義する<sup>12</sup>。反変な変数を固定すると、随伴</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 320 110" width="320" role="img" aria-label="Ab と Ab の間の随伴。上が左随伴 − ⊗ B、下が右随伴 Hom(B, −)">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="58" text-anchor="middle">Ab</text>
+  <text x="260" y="58" text-anchor="middle">Ab</text>
+  <path d="M 80 44 Q 160 14 240 44" marker-end="url(#a1)"/>
+  <path d="M 240 64 Q 160 94 80 64" marker-end="url(#a1)"/>
+  <text class="lbl" x="160" y="18" text-anchor="middle">− ⊗<tspan baseline-shift="sub" font-size="9">ℤ</tspan> B</text>
+  <text class="lbl" x="160" y="104" text-anchor="middle">Hom(B, −)</text>
+  <text class="lbl" x="160" y="58" text-anchor="middle">⊥</text>
+</svg>
+</figure>
+<p class="eq">(4.4.16)　Ab(A ⊗<sub>ℤ</sub> B, C) ≅ Ab(A, Hom(B, C))</p>
+
+<p>があり、これがテンソル積を定義する。この自然同型は、テンソル積の普遍性を表している。テンソル積の普遍性は、ベクトル空間の場合に例2.3.8 で述べた。Ab(A, Hom(B, C)) の元はアーベル群の準同型 φ : A → Hom(B, C) で、これは ℤ-双線型な写像 φ : A × B → C に対応する。ℤ-双線型とは、すべての a ∈ A について φ(a, −) : B → C が群準同型で、すべての b ∈ B について φ(−, b) : A → C が群準同型であることをいう。</p>
+
+<p>表現対象 A ⊗<sub>ℤ</sub> B ∈ Ab を定義してしまえば、命題4.4.4 が同型 (4.4.16) を使って、このデータを関手 − ⊗<sub>ℤ</sub> B : Ab → Ab に拡張する。続いて命題4.4.6(i) が、このデータをテンソル積の双関手</p>
+
+<p class="eq">⊗<sub>ℤ</sub> : Ab × Ab → Ab</p>
+
+<p>に拡張し、テンソル積と hom は 2 変数随伴を定める。</p>
+
+<p>Kan が予想したとおり、この過程は逆にたどれる。テンソル積の双関手 ⊗<sub>ℤ</sub> : Ab × Ab → Ab が与えられたとき、アーベル群 Hom(B, C) は、関手</p>
+
+<p class="eq">(4.4.17)　Ab(− ⊗<sub>ℤ</sub> B, C) : Ab<sup>op</sup> → Set,　　Ab(A, Hom(B, C)) ≅ Ab(A ⊗<sub>ℤ</sub> B, C)</p>
+
+<p>の表現として定義できる。命題4.4.4 と命題4.4.6(i) により、この構成 Hom : ob Ab × ob Ab → ob Ab を双関手 Hom : Ab<sup>op</sup> × Ab → Ab に拡張して、同型 (4.4.17) が A だけでなく B と C についても自然になるようにする方法が、ただ 1 つ存在する。</p>
+
+<p class="fn"><sup>12</sup> 記法1.1.8 で述べたように、一般の圏で、固定した一対の対象の間の射の集まりはしばしば「Hom」と書かれる。ここでは準同型の単なる集合を「Ab」と書いている。この例では、単なる集合のほうは副次的な役割しか持たない。</p>
+
+<h2>例4.4.18 — ループ空間と懸垂</h2>
+
+<p>この例の中だけ、Top は通常の位相空間の圏ではなく、例4.4.14 で定義したデカルト閉な空間の圏を表すとする。このとき 2 変数随伴を特殊化して、随伴</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 320 110" width="320" role="img" aria-label="Top と Top の間の随伴。上が左随伴 S^1 × −、下が右随伴 Map(S^1, −)">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="58" text-anchor="middle">Top</text>
+  <text x="260" y="58" text-anchor="middle">Top</text>
+  <path d="M 82 44 Q 160 14 238 44" marker-end="url(#a1)"/>
+  <path d="M 238 64 Q 160 94 82 64" marker-end="url(#a1)"/>
+  <text class="lbl" x="160" y="18" text-anchor="middle">S<tspan baseline-shift="super" font-size="9">1</tspan> × −</text>
+  <text class="lbl" x="160" y="104" text-anchor="middle">Map(S<tspan baseline-shift="super" font-size="9">1</tspan>, −)</text>
+  <text class="lbl" x="160" y="58" text-anchor="middle">⊥</text>
+</svg>
+</figure>
+<p>が得られる。S<sup>1</sup> ∈ Top は単位円である。空間 Map(S<sup>1</sup>, X) は X 上の自由ループ空間で、その点は空間 X の中のループである。</p>
+
+<p>Top の、1 点空間 ∗ の下のスライス圏は、基点付き位相空間の便利な圏 Top<sub>∗</sub> を定める。演習4.4.iv により、Top<sub>∗</sub> は</p>
+
+<p class="eq">∧ : Top<sub>∗</sub> × Top<sub>∗</sub> → Top<sub>∗</sub>　と　Map<sub>∗</sub> : Top<sub>∗</sub><sup>op</sup> × Top<sub>∗</sub> → Top<sub>∗</sub></p>
+
+<p>で定義される 2 変数随伴を持つ。Map<sub>∗</sub>((X, x), (Y, y)) は、基点を保つ連続写像 (X, x) → (Y, y) のなす基点付き空間である。双関手 ∧ をスマッシュ積という。</p>
+
+<p>空間</p>
+
+<p class="eq">ΩX ≔ Map<sub>∗</sub>(S<sup>1</sup>, (X, x))</p>
+
+<p>は (X, x) 上の基点付きループ空間である。通常の記法 ΩX では基点 x ∈ X を書かない。関手 Ω は左随伴 ΣX ≔ S<sup>1</sup> ∧ X を持つ。これは基点付き空間 (X, x) の約懸垂を構成する関手である。こうして、基点付き位相空間の間の、ループと懸垂の随伴</p>
+<figure class="cd">
+<svg class="cd" viewBox="0 0 320 110" width="320" role="img" aria-label="Top_∗ と Top_∗ の間の随伴。上が左随伴 Σ、下が右随伴 Ω">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <text x="60" y="58" text-anchor="middle">Top<tspan baseline-shift="sub" font-size="10">∗</tspan></text>
+  <text x="260" y="58" text-anchor="middle">Top<tspan baseline-shift="sub" font-size="10">∗</tspan></text>
+  <path d="M 84 44 Q 160 14 236 44" marker-end="url(#a1)"/>
+  <path d="M 236 64 Q 160 94 84 64" marker-end="url(#a1)"/>
+  <text class="lbl" x="160" y="18" text-anchor="middle">Σ</text>
+  <text class="lbl" x="160" y="104" text-anchor="middle">Ω</text>
+  <text class="lbl" x="160" y="58" text-anchor="middle">⊥</text>
+</svg>
+</figure>
+<p class="eq">Top<sub>∗</sub>(ΣX, Y) ≅ Top<sub>∗</sub>(X, ΩY)</p>
+
+<p>が定まる。</p>
+
+<h2>閉モノイダル圏と多変数随伴</h2>
+
+<p>例4.4.15 と例4.4.18 は、どちらも閉モノイダル圏（closed monoidal category）の例である。閉モノイダル圏はデカルト閉圏を一般化したもので、左随伴の双関手が圏論的な積で定義されるとは限らない状況を扱う。「閉」という形容は、テンソル積の左閉包と右閉包が存在することを指す。「モノイダル」という形容は、テンソル積と、それに付随する整合的な自然同型を指す。この自然同型は §E.2 で述べられる。</p>
+
+<p>定義4.4.7 は、多変数随伴の定義に一般化できる。命題4.4.6 を当てはめると、n 変数随伴は、関手 F : A<sub>1</sub> × ⋯ × A<sub>n</sub> → B であって、n 個の変数のうちどの n − 1 個を固定しても変数ごとの右随伴を持つものによって決まる。詳しくは [CGR14] を見よ。</p>
+
+<h2>節末問題</h2>
+
+<ul>
+  <li><b>4.4.i</b> — 定義4.2.5 を双対化して、互いに左随伴な対と互いに右随伴な対を、適切な自然変換を備えた一対の反変関手として定義せよ。</li>
+  <li><b>4.4.ii</b> — 命題4.4.6 を証明せよ。</li>
+  <li><b>4.4.iii</b> — 反変冪集合関手 P : Set<sup>op</sup> → Set が、自分自身と互いに右随伴であることを示せ。例2.1.6(i) を使って、他の圏についての同様の例を見つけよ。</li>
+  <li><b>4.4.iv</b> — 双関手
+    <p class="eq">Hom<sub>∗</sub> : Set<sub>∗</sub><sup>op</sup> × Set<sub>∗</sub> → Set<sub>∗</sub></p>
+    を考える。Hom<sub>∗</sub>((X, x), (Y, y)) は基点を保つ写像 (X, x) → (Y, y) の集合で、y に値を取る定値写像を基点とする。
+    <ol class="roman">
+      <li>各 (X, x) ∈ Set<sub>∗</sub> について Hom<sub>∗</sub>((X, x), −) の左随伴を変数ごとに構成して、この双関手の定める 2 変数随伴を定義せよ。</li>
+      <li>(i) で構成した左随伴の双関手 ∧ : Set<sub>∗</sub> × Set<sub>∗</sub> → Set<sub>∗</sub> が、Set<sub>∗</sub> と同値な圏である集合と部分写像の圏において、演習3.6.iii(iii) で述べたスマッシュ積と同型であることを示せ。</li>
+    </ol>
+    例4.4.18 の設定で、同様の 2 変数随伴を構成せよ。</li>
+  <li><b>4.4.v</b> — 次の双関手について変数ごとの随伴を定義し、2 変数随伴の例を作れ。
+    <ol class="roman">
+      <li>例4.4.15 の議論は、可換環 R 上の加群の圏 <sub>R</sub>Mod に拡張できる。R が可換でないとき、一対の R 加群 A, B について Hom(A, B) は R 加群とは限らないが、アーベル群ではある。この構成は双関手
+      <p class="eq">Hom : <sub>R</sub>Mod<sup>op</sup> × <sub>R</sub>Mod → Ab</p>
+      を定める。このデータを 2 変数随伴に拡張せよ。</li>
+      <li>同様にして、可換環 R について、hom の双関手
+      <p class="eq">Hom : Ch<sub>R</sub><sup>op</sup> × Ch<sub>R</sub> → <sub>R</sub>Mod</p>
+      の定める 2 変数随伴を定義せよ。ここで鎖準同型 A<sub>•</sub> → B<sub>•</sub> の集合 Hom(A<sub>•</sub>, B<sub>•</sub>) は、元ごとに定義した加法とスカラー倍によって R 加群の構造を受け継ぐ。</li>
+    </ol>
+  </li>
+</ul>
+
+</body>
+</html>

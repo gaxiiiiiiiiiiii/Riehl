@@ -182,7 +182,7 @@ def homNatTransOfUnit {F : C ⥤ D} {G : D ⥤ C} (η : 𝟭 C ⟶ F ⋙ G) :
 
 
 
--- (4.2.9) counitから高瀬雨する自然変換 Hom(-, G-) ⇒ Hom(F-, -)
+-- (4.2.9) counitから、する自然変換 Hom(-, G-) ⇒ Hom(F-, -)
 def homNatTransOfCounit {F : C ⥤ D} {G : D ⥤ C} (ε : G ⋙ F ⟶ 𝟭 D) :
     (G ⋙ yoneda).flip ⟶ F.op ⋙ coyoneda where
   app c := {
